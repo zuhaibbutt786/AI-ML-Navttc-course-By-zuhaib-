@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 1 — Introduction, Linux Shell &amp; Python Fundamentals | AI·ML·DL Course</title>
+<meta name="description" content="Week 1 of the NAVTTC AI, ML &amp; Deep Learning course: intro to AI, career orientation, Linux shell scripting fundamentals, and Python fundamentals — with code, exercises, quizzes and a cheat sheet.">
+<meta name="keywords" content="AI course, machine learning, deep learning, NAVTTC, Linux shell scripting, Python fundamentals, week 1">
+<meta property="og:title" content="Week 1 — Introduction, Linux Shell &amp; Python Fundamentals">
+<meta property="og:description" content="Day-by-day lessons covering AI orientation, Linux basics, and Python fundamentals from the NAVTTC AI/ML/DL curriculum.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<div class="progress-track"><div class="progress-fill"></div></div>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><a href="../index.html" style="color:inherit;text-decoration:none;">AI·ML<span>·DL</span> // navttc-course</a></div>
+    <nav class="topnav">
+      <a href="../index.html">All Weeks</a>
+      <a href="https://github.com/ZuhaibHussainButt/AI-ML-Navttc-course-By-zuhaib-" target="_blank" rel="noopener">GitHub ↗</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" style="padding-top:44px;">
+  <div class="wrap">
+    <p class="eyebrow">week 1 of 12 · ~20 hours · beginner</p>
+    <h1>Introduction, Linux Shell Scripting &amp; Python Fundamentals</h1>
+    <p class="lede">Your first week sets the floor everything else stands on: why this field exists and
+      what it pays, how to drive a Linux terminal without fear, and the Python building blocks
+      — values, data structures, and control flow — that every ML and deep learning line of code
+      you write for the next eleven weeks will be made of.</p>
+  </div>
+</section>
+
+<nav class="daynav">
+  <div class="wrap" style="display:flex;gap:8px;flex-wrap:wrap;">
+    <a href="#day1">Day 1 · AI &amp; Career Orientation</a>
+    <a href="#day2">Day 2 · Linux Shell</a>
+    <a href="#day3">Day 3 · Python Values &amp; Strings</a>
+    <a href="#day4">Day 4 · Data Structures</a>
+    <a href="#day5">Day 5 · Control Flow</a>
+    <a href="#cheatsheet">Cheat Sheet</a>
+    <a href="#mcqs">MCQs</a>
+    <a href="#project">Mini Project</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ============================================================ DAY 1 -->
+<section class="day-section" id="day1">
+  <div class="day-head"><span class="day-num">1</span><h2>AI Orientation, Career Landscape &amp; Environment Setup</h2></div>
+  <p class="day-sub">Hour 1–4 · Introduction to AI · Course &amp; career orientation · Software installation</p>
+
+  <div class="topic">
+    <h3>Introduction to Artificial Intelligence <span class="hr">Hour 1</span></h3>
+    <p><strong>Lesson overview.</strong> AI is software that performs tasks which normally require
+      human judgment — recognizing a face, translating a sentence, recommending a video, driving a
+      car. Machine Learning (ML) is the dominant way we build AI today: instead of hand-writing
+      rules, we show a program examples and let it find the pattern. Deep Learning (DL) is a
+      family of ML techniques built on layered neural networks, responsible for the recent wave of
+      breakthroughs in vision, speech, and language.</p>
+    <p><strong>Why companies use it.</strong> AI turns data a company already collects — clicks,
+      transactions, sensor readings, support tickets — into decisions: what to recommend, what's
+      fraud, what a scan shows, what a customer will say next. That converts fixed data-storage cost
+      into ongoing product value, which is why every major tech budget now has an AI line item.</p>
+    <div class="callout">
+      <span class="tag">Additional Industry Knowledge</span>
+      The three terms nest inside each other: <strong>AI</strong> is the goal (machines behaving
+      intelligently), <strong>ML</strong> is one strategy for reaching it (learning from data), and
+      <strong>DL</strong> is one family of ML techniques (deep neural networks). Not all AI is ML —
+      a chess engine using hand-coded rules is AI but not ML. Not all ML is DL — a spreadsheet-style
+      linear regression is ML but not deep.
+    </div>
+    <p><strong>Interview importance.</strong> "Explain the difference between AI, ML, and DL in
+      plain language" is one of the most common opening interview questions in this field, because
+      it tests whether a candidate actually understands the landscape or just memorized buzzwords.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Course Introduction, Job Market &amp; Career Survey <span class="hr">Hour 2</span></h3>
+    <p>This hour maps the twelve weeks ahead to real job titles: Data Analyst and Junior Data
+      Scientist roles lean on the statistics and Pandas work from Weeks 2–4; Machine Learning
+      Engineer roles build on Weeks 5–6; Deep Learning / Computer Vision / NLP Engineer roles build
+      on Weeks 7–9; and Cloud AI roles use the Azure Cognitive Services covered in Weeks 11–12.</p>
+    <ul>
+      <li><strong>Course applications</strong> — predictive analytics, computer vision, NLP
+        chatbots, recommendation engines, forecasting, automation.</li>
+      <li><strong>Survey of career opportunities</strong> — Data Analyst, ML Engineer, Data
+        Scientist, AI Engineer, NLP Engineer, Computer Vision Engineer, MLOps Engineer, AI
+        Product Manager.</li>
+      <li><strong>Survey of industry requirements</strong> — most listings ask for Python,
+        SQL, one ML framework (scikit-learn/TensorFlow/PyTorch), and a portfolio of projects on
+        GitHub — which is exactly what this course produces week by week.</li>
+    </ul>
+    <div class="callout">
+      <span class="tag">Career relevance</span>
+      Start your GitHub portfolio today, on this very repo. Every mini project and industry
+      project you build in this course becomes a portfolio entry a recruiter can click into.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Work Ethics <span class="hr">Hour 2</span></h3>
+    <p>Ten habits the NAVTTC guide names as essential for trainee success: attendance, character
+      (honesty), teamwork, professional appearance, positive attitude, productivity, organizational
+      skills, communication, cooperation, and respect. In a remote/hybrid tech job these translate
+      directly: showing up to standup on time, writing honest status updates, reviewing teammates'
+      code generously, and communicating blockers early rather than hiding them.</p>
+    <div class="callout warn">
+      <span class="tag">Common mistake</span>
+      New developers often hide being stuck instead of asking for help, which turns a
+      15-minute question into a 3-day blocker. Asking early is a work-ethic skill, not a
+      technical weakness.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Software Installation — Anaconda, VS Code, PyCharm <span class="hr">Hour 3–4</span></h3>
+    <p>Three tools you'll live in for the rest of the course:</p>
+    <ul>
+      <li><strong>Anaconda</strong> — a Python distribution bundled with the data-science stack
+        (NumPy, Pandas, Jupyter) and the <code>conda</code> environment manager, so different
+        projects can use different package versions without conflicting.</li>
+      <li><strong>VS Code</strong> — a lightweight, extensible code editor; install the Python
+        extension for linting, debugging, and Jupyter notebook support in one window.</li>
+      <li><strong>PyCharm</strong> — a full Python IDE with deeper refactoring and debugging tools,
+        popular for larger production codebases.</li>
+    </ul>
+    <pre><span class="c"># Verify your installation from a terminal</span>
+conda --version
+python --version
+code --version</pre>
+    <div class="callout">
+      <span class="tag">Best practice</span>
+      Create one conda environment per project from day one — it's the single habit that
+      prevents the "it works on my machine" problem later in the course.
+      <pre style="margin-top:8px;"><span class="c"># create and activate an isolated environment</span>
+conda create -n navttc-ai python=3.11
+conda activate navttc-ai</pre>
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <p class="q">Self-check — Day 1</p>
+    <div class="mcq">
+      <p class="q">Which statement correctly nests the three terms?</p>
+      <button class="mcq-opt" data-correct="false">DL is broader than ML, which is broader than AI</button>
+      <button class="mcq-opt" data-correct="true">AI is the goal; ML is a strategy for it; DL is a family of ML techniques</button>
+      <button class="mcq-opt" data-correct="false">AI, ML and DL are unrelated fields</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 2 -->
+<section class="day-section" id="day2">
+  <div class="day-head"><span class="day-num">2</span><h2>Linux Shell Scripting Fundamentals</h2></div>
+  <p class="day-sub">Hour 1–4 · Debian basics · File commands · System control · Environment variables</p>
+
+  <div class="topic">
+    <h3>Introduction to Debian <span class="hr">Hour 1</span></h3>
+    <p>Debian is a Linux distribution — a free operating system built around the Linux kernel —
+      and the base for Ubuntu, which most cloud AI servers (including the ones you'll deploy models
+      to) run. Learning the shell now means you can SSH into any training server, cloud notebook,
+      or Docker container later in the course without friction.</p>
+    <div class="callout">
+      <span class="tag">Why companies use it</span>
+      Nearly every production ML pipeline — training jobs, model-serving containers, cloud
+      GPUs — runs on Linux, not Windows. Comfort at the shell is a baseline hiring filter for
+      ML Engineer roles.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Basic Navigation Commands <span class="hr">Hour 1</span></h3>
+    <p><code>pwd</code>, <code>cd</code>, and <code>ls</code> are how you know where you are and
+      what's around you — the shell equivalent of opening File Explorer.</p>
+    <pre><span class="c"># where am I?</span>
+pwd
+
+<span class="c"># move into a folder, then back up one level</span>
+cd datasets
+cd ..
+
+<span class="c"># list files; -l long format, -a shows hidden dotfiles</span>
+ls -la
+
+<span class="c"># view a file's contents</span>
+cat README.md
+
+<span class="c"># run a command as an administrator</span>
+sudo apt update
+
+<span class="c"># read the manual for any command</span>
+man ls
+
+<span class="c"># redirect output to a file instead of the screen</span>
+ls -la > filelist.txt
+
+<span class="c"># create / remove directories and files</span>
+mkdir project_week1
+rm old_notes.txt
+rmdir empty_folder
+cp data.csv data_backup.csv
+mv data_backup.csv archive/</pre>
+    <div class="callout warn">
+      <span class="tag">Common mistake</span>
+      <code>rm</code> does not go to a recycle bin — it deletes immediately. Always double-check
+      the path before running <code>rm -rf</code>; a stray space (<code>rm -rf / home</code>
+      instead of <code>rm -rf /home</code>) has genuinely destroyed production servers.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Reading Files &amp; Aliases <span class="hr">Hour 2</span></h3>
+    <pre><span class="c"># cat dumps the whole file; more/less page through it</span>
+more bigfile.log
+less bigfile.log      <span class="c"># q to quit, / to search</span>
+
+<span class="c"># head shows just the first lines — useful for peeking at a huge CSV</span>
+head -n 20 dataset.csv
+
+<span class="c"># alias creates a shortcut for a longer command</span>
+alias ll='ls -la'
+ll</pre>
+  </div>
+
+  <div class="topic">
+    <h3>System Control &amp; File Editing <span class="hr">Hour 3</span></h3>
+    <pre><span class="c"># create an empty file, or update its timestamp</span>
+touch notes.txt
+
+<span class="c"># open a simple terminal text editor</span>
+nano notes.txt        <span class="c"># Ctrl+O to save, Ctrl+X to exit</span>
+
+<span class="c"># bash / sh are the interpreters that run your shell scripts</span>
+bash myscript.sh
+sh myscript.sh
+
+<span class="c"># make a script executable, then run it</span>
+chmod +x myscript.sh
+./myscript.sh
+
+<span class="c"># see running processes; kill stops one by its PID</span>
+ps aux
+kill 4521
+
+<span class="c"># dpkg manages .deb package files directly</span>
+sudo dpkg -i package.deb
+
+<span class="c"># shut down or reboot the machine</span>
+shutdown now
+restart</pre>
+    <div class="callout">
+      <span class="tag">Real world application</span>
+      <code>ps</code> and <code>kill</code> are exactly what you'll use when a runaway model
+      training job is eating all the GPU memory on a shared server and needs to be stopped.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Package Management &amp; Environment Variables <span class="hr">Hour 4</span></h3>
+    <pre><span class="c"># refresh the list of available packages, then upgrade installed ones</span>
+sudo apt update
+sudo apt upgrade
+
+<span class="c"># view, set, and use an environment variable</span>
+echo $PATH
+export API_KEY="your-key-here"
+echo $API_KEY</pre>
+    <div class="callout warn">
+      <span class="tag">Security consideration</span>
+      Never hard-code an API key or secret directly into a script — set it as an environment
+      variable (or a <code>.env</code> file excluded from Git) instead, so it never gets
+      committed to a public repository like this one.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">Which command shows the first 20 lines of a large CSV file?</p>
+      <button class="mcq-opt" data-correct="false"><code>tail -n 20 dataset.csv</code></button>
+      <button class="mcq-opt" data-correct="true"><code>head -n 20 dataset.csv</code></button>
+      <button class="mcq-opt" data-correct="false"><code>ls -n 20 dataset.csv</code></button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 3 -->
+<section class="day-section" id="day3">
+  <div class="day-head"><span class="day-num">3</span><h2>Python Fundamentals — Values, Strings &amp; I/O</h2></div>
+  <p class="day-sub">Hour 1–4 · Values &amp; statements · Numbers, booleans, strings · Operators · Input &amp; type casting</p>
+
+  <div class="topic">
+    <h3>Values, Expressions &amp; Statements <span class="hr">Hour 1</span></h3>
+    <p>A <strong>value</strong> is a piece of data (<code>5</code>, <code>"hello"</code>,
+      <code>True</code>). An <strong>expression</strong> combines values and operators into
+      something that evaluates to a new value (<code>5 + 3</code>). A <strong>statement</strong>
+      is a full instruction the interpreter executes, such as an assignment or a print call.</p>
+    <pre><span class="c"># values</span>
+5
+"hello"
+True
+
+<span class="c"># expression — evaluates to 8</span>
+5 + 3
+
+<span class="c"># statement — assigns the expression's result to a name</span>
+total = 5 + 3
+print(total)</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Numbers, Booleans &amp; Strings <span class="hr">Hour 1</span></h3>
+    <pre><span class="c"># numeric types</span>
+age = 25          <span class="c"># int</span>
+price = 19.99      <span class="c"># float</span>
+
+<span class="c"># boolean type — exactly True or False</span>
+is_active = True
+
+<span class="c"># string type — text in quotes</span>
+name = "Zuhaib"
+message = 'Model training complete'</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Operators, Variables &amp; Keywords <span class="hr">Hour 2</span></h3>
+    <ul>
+      <li><strong>Arithmetic:</strong> <code>+ - * / // % **</code></li>
+      <li><strong>Comparison:</strong> <code>== != &gt; &lt; &gt;= &lt;=</code></li>
+      <li><strong>Logical:</strong> <code>and or not</code></li>
+      <li><strong>Assignment:</strong> <code>= += -= *= /=</code></li>
+    </ul>
+    <p><strong>Variables</strong> are names bound to values; <strong>keywords</strong> are words
+      Python reserves for its own syntax (<code>if</code>, <code>for</code>, <code>def</code>,
+      <code>class</code>, <code>return</code>, <code>import</code> …) and can't be used as
+      variable names.</p>
+    <pre>x = 10
+y = 3
+print(x // y)   <span class="c"># 3  — floor (integer) division</span>
+print(x % y)    <span class="c"># 1  — remainder</span>
+print(x ** y)   <span class="c"># 1000 — exponent</span>
+print(x > 5 and y < 5)  <span class="c"># True</span></pre>
+  </div>
+
+  <div class="topic">
+    <h3>String Operations <span class="hr">Hour 2–3</span></h3>
+    <pre>first = "Machine"
+second = "Learning"
+
+print(first + " " + second)      <span class="c"># concatenation → "Machine Learning"</span>
+print(first * 2)                  <span class="c"># repetition → "MachineMachine"</span>
+print(len(first))                 <span class="c"># length → 7</span>
+print(first.upper())              <span class="c"># "MACHINE"</span>
+print(first.lower())              <span class="c"># "machine"</span>
+print(first[0])                   <span class="c"># indexing → "M"</span>
+print(first[0:4])                 <span class="c"># slicing → "Mach"</span>
+print(f"{first} {second} rocks")  <span class="c"># f-string formatting</span></pre>
+  </div>
+
+  <div class="topic">
+    <h3>Input, Type Casting &amp; Comments <span class="hr">Hour 4</span></h3>
+    <pre><span class="c"># input() always returns a string</span>
+name = input("What is your name? ")
+
+<span class="c"># type casting converts between types</span>
+age_text = input("Enter your age: ")
+age = int(age_text)          <span class="c"># str → int</span>
+height = float("1.75")       <span class="c"># str → float</span>
+back_to_text = str(age)      <span class="c"># int → str</span>
+
+<span class="c"># this is a single-line comment</span>
+"""
+This is a multi-line
+comment / docstring
+"""</pre>
+    <div class="callout warn">
+      <span class="tag">Common error</span>
+      <code>int(input("Age: ")) + 5</code> crashes with a <code>ValueError</code> if the user
+      types "twenty" instead of "20" — always validate or wrap user input in a
+      <code>try/except</code> before casting it.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">What does <code>input()</code> always return, before any casting?</p>
+      <button class="mcq-opt" data-correct="false">An integer</button>
+      <button class="mcq-opt" data-correct="true">A string</button>
+      <button class="mcq-opt" data-correct="false">A boolean</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 4 -->
+<section class="day-section" id="day4">
+  <div class="day-head"><span class="day-num">4</span><h2>Python Data Structures</h2></div>
+  <p class="day-sub">Hour 1–4 · Lists &amp; tuples · Dictionaries &amp; sets</p>
+
+  <div class="topic">
+    <h3>Lists <span class="hr">Hour 1–2</span></h3>
+    <p>An ordered, <strong>mutable</strong> (changeable) collection — the default container you'll
+      reach for constantly, including for feature vectors and batches of training data.</p>
+    <pre>features = [0.5, 1.2, 3.4, 2.1]
+
+features.append(5.0)      <span class="c"># add to the end</span>
+features[0] = 0.9          <span class="c"># mutate by index</span>
+features.remove(2.1)       <span class="c"># remove a value</span>
+print(features[-1])        <span class="c"># negative indexing → last item</span>
+print(features[1:3])       <span class="c"># slicing</span>
+print(len(features))       <span class="c"># length</span>
+print(sorted(features))    <span class="c"># new sorted list</span></pre>
+  </div>
+
+  <div class="topic">
+    <h3>Tuples <span class="hr">Hour 1–2</span></h3>
+    <p>An ordered, <strong>immutable</strong> collection — use it for data that shouldn't change
+      after creation, like a fixed (width, height) image shape.</p>
+    <pre>image_shape = (224, 224, 3)   <span class="c"># height, width, channels</span>
+width, height, channels = image_shape   <span class="c"># unpacking</span>
+
+<span class="c"># image_shape[0] = 100   -&gt; TypeError: tuples are immutable</span></pre>
+    <div class="callout">
+      <span class="tag">Interview importance</span>
+      "When would you use a tuple instead of a list?" is a very common screening question.
+      Answer: when the data shouldn't change, and when you want that guarantee enforced by the
+      language rather than by convention — plus tuples are slightly faster and can be used as
+      dictionary keys, which lists cannot.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Dictionaries <span class="hr">Hour 3–4</span></h3>
+    <p>An unordered collection of <strong>key → value</strong> pairs — how you'll represent a
+      single labeled data record, model config, or JSON API response.</p>
+    <pre>model_config = {
+    "learning_rate": 0.001,
+    "epochs": 50,
+    "batch_size": 32
+}
+
+print(model_config["epochs"])          <span class="c"># 50</span>
+model_config["optimizer"] = "adam"      <span class="c"># add a new key</span>
+print(model_config.get("dropout", 0.0)) <span class="c"># safe lookup with default</span>
+
+for key, value in model_config.items():
+    print(key, "→", value)</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Sets <span class="hr">Hour 3–4</span></h3>
+    <p>An unordered collection of <strong>unique</strong> values — the natural tool for
+      deduplicating a vocabulary of words or a list of class labels.</p>
+    <pre>labels = ["cat", "dog", "cat", "bird", "dog"]
+unique_labels = set(labels)
+print(unique_labels)          <span class="c"># {'cat', 'dog', 'bird'}</span>
+
+a = {1, 2, 3}
+b = {2, 3, 4}
+print(a | b)   <span class="c"># union → {1,2,3,4}</span>
+print(a & b)   <span class="c"># intersection → {2,3}</span>
+print(a - b)   <span class="c"># difference → {1}</span></pre>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">Which data structure enforces unique elements automatically?</p>
+      <button class="mcq-opt" data-correct="false">List</button>
+      <button class="mcq-opt" data-correct="false">Tuple</button>
+      <button class="mcq-opt" data-correct="true">Set</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 5 -->
+<section class="day-section" id="day5">
+  <div class="day-head"><span class="day-num">5</span><h2>Conditional Execution &amp; Loops</h2></div>
+  <p class="day-sub">Hour 1–4 · If / elif / else · Break, continue, pass · While &amp; for loops · Comprehensions &amp; iterators</p>
+
+  <div class="topic">
+    <h3>If, Elif, Else &amp; Nested Conditionals <span class="hr">Hour 1–2</span></h3>
+    <pre>accuracy = 0.87
+
+if accuracy >= 0.9:
+    print("Excellent model")
+elif accuracy >= 0.75:
+    print("Good model")
+else:
+    print("Needs more training")
+
+<span class="c"># nested conditional</span>
+if accuracy >= 0.75:
+    if accuracy >= 0.9:
+        print("Ready to deploy")
+    else:
+        print("Good, but tune further first")</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Break, Continue, Pass &amp; Ternary Expressions <span class="hr">Hour 1–2</span></h3>
+    <pre>for score in [0.4, 0.6, 0.95, 0.3]:
+    if score < 0.5:
+        continue          <span class="c"># skip low scores, go to next iteration</span>
+    if score >= 0.95:
+        break              <span class="c"># stop entirely once we hit a great score</span>
+    print(score)
+
+def todo():
+    pass                   <span class="c"># placeholder — "fill this in later"</span>
+
+<span class="c"># ternary (conditional) expression — an if/else in one line</span>
+status = "pass" if accuracy >= 0.75 else "fail"</pre>
+  </div>
+
+  <div class="topic">
+    <h3>While &amp; For Loops, and <code>enumerate</code> <span class="hr">Hour 3–4</span></h3>
+    <pre><span class="c"># while loop — repeats until the condition is false</span>
+epoch = 0
+while epoch < 5:
+    print("Training epoch", epoch)
+    epoch += 1
+
+<span class="c"># for loop over a list</span>
+labels = ["cat", "dog", "bird"]
+for label in labels:
+    print(label)
+
+<span class="c"># enumerate gives you the index alongside each value</span>
+for i, label in enumerate(labels):
+    print(i, "→", label)</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Nested Loops, List Comprehension &amp; Iterators/Iterables <span class="hr">Hour 3–4</span></h3>
+    <pre><span class="c"># nested loop — every combination of the two lists</span>
+for i in range(2):
+    for j in range(3):
+        print(i, j)
+
+<span class="c"># list comprehension — build a new list in one line</span>
+squares = [n ** 2 for n in range(10)]
+evens_only = [n for n in range(10) if n % 2 == 0]
+
+<span class="c"># an iterable is anything you can loop over (list, string, dict...)</span>
+<span class="c"># an iterator is the object that actually tracks progress through it</span>
+numbers = [1, 2, 3]
+it = iter(numbers)      <span class="c"># get an iterator from the iterable</span>
+print(next(it))          <span class="c"># 1</span>
+print(next(it))          <span class="c"># 2</span></pre>
+    <div class="callout">
+      <span class="tag">Why this matters for ML</span>
+      Every training loop you write from Week 5 onward is a <code>for</code> loop over
+      batches of data, and list comprehensions are the idiomatic way to preprocess a whole
+      dataset in one readable line instead of four.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q"><code>continue</code> inside a loop does what?</p>
+      <button class="mcq-opt" data-correct="false">Exits the loop entirely</button>
+      <button class="mcq-opt" data-correct="true">Skips the rest of the current iteration and moves to the next</button>
+      <button class="mcq-opt" data-correct="false">Does nothing — it's a placeholder</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ CHEAT SHEET -->
+<section class="day-section" id="cheatsheet">
+  <h2>Week 1 Cheat Sheet</h2>
+  <div class="cheat">
+    <h3>Linux</h3>
+    <table>
+      <tr><td>pwd / cd / ls</td><td>where am I / move / list contents</td></tr>
+      <tr><td>cat / head / less</td><td>view a file / first lines / page through it</td></tr>
+      <tr><td>mkdir / rm / cp / mv</td><td>make dir / delete / copy / move</td></tr>
+      <tr><td>chmod +x file.sh</td><td>make a script executable</td></tr>
+      <tr><td>ps aux / kill PID</td><td>list processes / stop one</td></tr>
+      <tr><td>sudo apt update &amp;&amp; upgrade</td><td>refresh &amp; install package updates</td></tr>
+      <tr><td>export VAR=value</td><td>set an environment variable</td></tr>
+    </table>
+    <h3 style="margin-top:20px;">Python</h3>
+    <table>
+      <tr><td>int() / float() / str()</td><td>type casting</td></tr>
+      <tr><td>[ ] / ( ) / { } / {a,b}</td><td>list / tuple / dict / set</td></tr>
+      <tr><td>if / elif / else</td><td>branching</td></tr>
+      <tr><td>for x in y: / while cond:</td><td>loops</td></tr>
+      <tr><td>break / continue / pass</td><td>loop control / no-op placeholder</td></tr>
+      <tr><td>[x for x in y if cond]</td><td>list comprehension</td></tr>
+      <tr><td>enumerate(y)</td><td>index + value while looping</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ MCQS -->
+<section class="day-section" id="mcqs">
+  <h2>Week 1 MCQs — 20 Questions</h2>
+  <p>Click an option to check yourself.</p>
+
+  <div class="mcq"><p class="q">1. Which of these best describes Machine Learning's relationship to AI?</p>
+    <button class="mcq-opt" data-correct="true">ML is one strategy for achieving AI</button>
+    <button class="mcq-opt" data-correct="false">ML and AI are unrelated fields</button>
+    <button class="mcq-opt" data-correct="false">AI is a subset of ML</button></div>
+
+  <div class="mcq"><p class="q">2. Which command shows your current directory in Linux?</p>
+    <button class="mcq-opt" data-correct="false">ls</button>
+    <button class="mcq-opt" data-correct="true">pwd</button>
+    <button class="mcq-opt" data-correct="false">cd</button></div>
+
+  <div class="mcq"><p class="q">3. Which command requires administrator privileges to run?</p>
+    <button class="mcq-opt" data-correct="false">cat</button>
+    <button class="mcq-opt" data-correct="true">sudo apt update</button>
+    <button class="mcq-opt" data-correct="false">pwd</button></div>
+
+  <div class="mcq"><p class="q">4. What does <code>chmod +x script.sh</code> do?</p>
+    <button class="mcq-opt" data-correct="true">Makes the script executable</button>
+    <button class="mcq-opt" data-correct="false">Deletes the script</button>
+    <button class="mcq-opt" data-correct="false">Renames the script</button></div>
+
+  <div class="mcq"><p class="q">5. Which tool manages isolated Python environments in this course?</p>
+    <button class="mcq-opt" data-correct="false">nano</button>
+    <button class="mcq-opt" data-correct="true">conda</button>
+    <button class="mcq-opt" data-correct="false">dpkg</button></div>
+
+  <div class="mcq"><p class="q">6. What type does <code>input()</code> return?</p>
+    <button class="mcq-opt" data-correct="true">str</button>
+    <button class="mcq-opt" data-correct="false">int</button>
+    <button class="mcq-opt" data-correct="false">bool</button></div>
+
+  <div class="mcq"><p class="q">7. Which operator gives the remainder of a division?</p>
+    <button class="mcq-opt" data-correct="false">//</button>
+    <button class="mcq-opt" data-correct="true">%</button>
+    <button class="mcq-opt" data-correct="false">**</button></div>
+
+  <div class="mcq"><p class="q">8. Which is an immutable ordered collection?</p>
+    <button class="mcq-opt" data-correct="false">list</button>
+    <button class="mcq-opt" data-correct="true">tuple</button>
+    <button class="mcq-opt" data-correct="false">dict</button></div>
+
+  <div class="mcq"><p class="q">9. Which structure stores unique, unordered values?</p>
+    <button class="mcq-opt" data-correct="false">list</button>
+    <button class="mcq-opt" data-correct="false">tuple</button>
+    <button class="mcq-opt" data-correct="true">set</button></div>
+
+  <div class="mcq"><p class="q">10. How do you safely look up a dictionary key that might not exist?</p>
+    <button class="mcq-opt" data-correct="false">dict[key]</button>
+    <button class="mcq-opt" data-correct="true">dict.get(key, default)</button>
+    <button class="mcq-opt" data-correct="false">dict.find(key)</button></div>
+
+  <div class="mcq"><p class="q">11. What does <code>break</code> do inside a loop?</p>
+    <button class="mcq-opt" data-correct="true">Exits the loop immediately</button>
+    <button class="mcq-opt" data-correct="false">Skips to the next iteration</button>
+    <button class="mcq-opt" data-correct="false">Restarts the loop</button></div>
+
+  <div class="mcq"><p class="q">12. What does <code>pass</code> do?</p>
+    <button class="mcq-opt" data-correct="true">Nothing — it's a syntactic placeholder</button>
+    <button class="mcq-opt" data-correct="false">Skips the current iteration</button>
+    <button class="mcq-opt" data-correct="false">Exits the program</button></div>
+
+  <div class="mcq"><p class="q">13. What does <code>enumerate(labels)</code> give you inside a for loop?</p>
+    <button class="mcq-opt" data-correct="true">Both the index and the value</button>
+    <button class="mcq-opt" data-correct="false">Only the value</button>
+    <button class="mcq-opt" data-correct="false">Only the index</button></div>
+
+  <div class="mcq"><p class="q">14. Which is a correct list comprehension for squares of 0–9?</p>
+    <button class="mcq-opt" data-correct="false">[n^2 for n in range(10)]</button>
+    <button class="mcq-opt" data-correct="true">[n ** 2 for n in range(10)]</button>
+    <button class="mcq-opt" data-correct="false">for n in range(10): n**2</button></div>
+
+  <div class="mcq"><p class="q">15. What is the key difference between an iterable and an iterator?</p>
+    <button class="mcq-opt" data-correct="true">An iterator tracks position; an iterable is just something you can loop over</button>
+    <button class="mcq-opt" data-correct="false">They are exactly the same thing</button>
+    <button class="mcq-opt" data-correct="false">Only iterators can be looped over</button></div>
+
+  <div class="mcq"><p class="q">16. Which shell command lists files including hidden ones?</p>
+    <button class="mcq-opt" data-correct="false">ls</button>
+    <button class="mcq-opt" data-correct="true">ls -la</button>
+    <button class="mcq-opt" data-correct="false">ls -h</button></div>
+
+  <div class="mcq"><p class="q">17. Which command views a file one page at a time and lets you search?</p>
+    <button class="mcq-opt" data-correct="false">head</button>
+    <button class="mcq-opt" data-correct="true">less</button>
+    <button class="mcq-opt" data-correct="false">touch</button></div>
+
+  <div class="mcq"><p class="q">18. Ternary expressions in Python are best used for:</p>
+    <button class="mcq-opt" data-correct="true">A short, single-value if/else on one line</button>
+    <button class="mcq-opt" data-correct="false">Looping over a list</button>
+    <button class="mcq-opt" data-correct="false">Defining a class</button></div>
+
+  <div class="mcq"><p class="q">19. Why avoid hard-coding an API key in a script?</p>
+    <button class="mcq-opt" data-correct="true">It risks being committed to version control and exposed publicly</button>
+    <button class="mcq-opt" data-correct="false">It makes the script run slower</button>
+    <button class="mcq-opt" data-correct="false">Python doesn't allow string constants</button></div>
+
+  <div class="mcq"><p class="q">20. Which best describes the difference between a list and a tuple?</p>
+    <button class="mcq-opt" data-correct="true">Lists are mutable, tuples are immutable</button>
+    <button class="mcq-opt" data-correct="false">Tuples can hold more data types than lists</button>
+    <button class="mcq-opt" data-correct="false">Lists cannot be indexed</button></div>
+</section>
+
+<!-- ============================================================ EXERCISES -->
+<section class="day-section" id="exercises">
+  <h2>Practical Exercises</h2>
+  <div class="ex-grid">
+    <div class="ex-card"><span class="lvl easy">Easy</span><p>Write a shell command sequence that creates a folder <code>week1_lab</code>, moves into it, and creates an empty file <code>notes.txt</code>.</p></div>
+    <div class="ex-card"><span class="lvl medium">Medium</span><p>Write a Python script that asks for a user's age via <code>input()</code>, casts it to <code>int</code>, and prints whether they're eligible to vote (18+) using an if/else.</p></div>
+    <div class="ex-card"><span class="lvl hard">Hard</span><p>Given a list of 20 exam scores, use a list comprehension to build a new list of only the passing scores (≥50), then compute their average with a <code>for</code> loop.</p></div>
+    <div class="ex-card"><span class="lvl expert">Expert</span><p>Write a bash script that reads a text file line by line, counts words with a Python one-liner, and writes the results to a new file using output redirection.</p></div>
+  </div>
+</section>
+
+<!-- ============================================================ MINI / INDUSTRY PROJECT -->
+<section class="day-section" id="project">
+  <h2>Mini Project</h2>
+  <p><strong>Command-Line Student Grade Tracker.</strong> Build a Python script that stores
+    students as dictionaries inside a list, lets the user add a student via <code>input()</code>,
+    computes a pass/fail status with a ternary expression, and prints a formatted report using a
+    <code>for</code> loop and f-strings. Run it from the terminal you set up on Day 2.</p>
+
+  <h2 style="margin-top:40px;">Industry Project</h2>
+  <p><strong>Environment Setup Automation Script.</strong> Write a bash script that a new trainee
+    could run on day one: it checks whether <code>conda</code> is installed, creates the course's
+    conda environment if not, installs a list of required packages from a
+    <code>requirements.txt</code>, and prints a success message — the same category of setup
+    script real ML teams keep in their repos as <code>setup.sh</code>.</p>
+
+  <h2 style="margin-top:40px;">Homework</h2>
+  <p>Re-do today's Practical Exercises without looking back at the examples above, then write one
+    paragraph in your own words explaining the difference between a list, a tuple, a dictionary,
+    and a set — as if explaining it to a non-technical friend.</p>
+</section>
+
+<!-- ============================================================ RESOURCES -->
+<section class="day-section" id="resources" style="border-bottom:none;">
+  <h2>Additional Resources</h2>
+  <ul>
+    <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">Official Python Tutorial</a></li>
+    <li><a href="https://docs.anaconda.com/" target="_blank" rel="noopener">Anaconda Documentation</a></li>
+    <li><a href="https://code.visualstudio.com/docs/python/python-tutorial" target="_blank" rel="noopener">VS Code Python Tutorial</a></li>
+    <li><a href="https://www.gnu.org/software/bash/manual/bash.html" target="_blank" rel="noopener">GNU Bash Reference Manual</a></li>
+    <li><a href="https://www.w3schools.com/python/" target="_blank" rel="noopener">W3Schools Python Reference</a></li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    Week 1 of 12 · NAVTTC AI/ML/DL Course · <a href="../index.html">← Back to all weeks</a>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

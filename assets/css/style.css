@@ -1,0 +1,234 @@
+/* ============================================================
+   AI · ML · Deep Learning — NAVTTC Course Site
+   Design language: "field notebook meets terminal" — the course
+   moves from a shell prompt to Python to statistics to neural
+   nets, so the visual system borrows from a lab notebook (index
+   tabs, punch-card numbering, monospace data) crossed with a
+   dark terminal (the very first thing every trainee opens).
+   ============================================================ */
+
+:root{
+  --ink:        #101511;
+  --paper:      #eef1e8;
+  --paper-dim:  #e2e6d9;
+  --line:       #c9d0bd;
+  --moss:       #3c6e47;
+  --moss-dim:   #5c8a68;
+  --amber:      #c98a2c;
+  --rust:       #a8492f;
+  --code-bg:    #0d130f;
+  --code-ink:   #d8e4d0;
+  --code-accent:#7fd88f;
+
+  --font-display: "Fraunces", "Iowan Old Style", "Georgia", serif;
+  --font-body:    "Source Sans 3", "Helvetica Neue", Arial, sans-serif;
+  --font-mono:    "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+
+  --radius: 2px;
+  --max: 980px;
+}
+
+@font-face{ font-family: sysfallback; src: local(Arial); }
+
+*{ box-sizing: border-box; }
+html{ scroll-behavior: smooth; }
+
+body{
+  margin:0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before{
+  content:"";
+  position: fixed; inset:0;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px);
+  background-size: 100% 2.1em;
+  opacity: .08;
+  pointer-events: none;
+  z-index: 0;
+}
+
+a{ color: var(--moss); text-decoration-thickness: 1px; }
+a:hover{ color: var(--rust); }
+
+h1,h2,h3,h4{ font-family: var(--font-display); font-weight: 600; margin: 0 0 .4em; }
+h1{ font-size: clamp(2.2rem, 5vw, 3.4rem); letter-spacing: -.01em; }
+h2{ font-size: clamp(1.5rem, 3vw, 2rem); }
+h3{ font-size: 1.25rem; }
+
+.wrap{ max-width: var(--max); margin: 0 auto; padding: 0 24px; position: relative; z-index:1; }
+
+/* ---------- top bar ---------- */
+.topbar{
+  border-bottom: 1px solid var(--ink);
+  background: var(--paper);
+  position: sticky; top:0; z-index: 50;
+}
+.topbar .wrap{ display:flex; align-items:center; justify-content: space-between; padding: 14px 24px; }
+.brand{ font-family: var(--font-mono); font-weight:600; letter-spacing:.02em; font-size: .95rem; text-transform: uppercase; color: var(--ink); }
+.brand span{ color: var(--moss); }
+.topnav a{ font-family: var(--font-mono); font-size: .85rem; margin-left: 20px; color: var(--ink); text-decoration:none; border-bottom: 1px solid transparent; }
+.topnav a:hover{ border-bottom-color: var(--rust); color: var(--rust); }
+
+/* ---------- hero ---------- */
+.hero{
+  padding: 64px 0 40px;
+  border-bottom: 1px solid var(--line);
+}
+.hero .eyebrow{
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: var(--moss);
+  display:flex; align-items:center; gap:10px;
+  margin-bottom: 14px;
+}
+.hero .eyebrow::before{ content:"$"; color: var(--rust); }
+.hero p.lede{ max-width: 640px; font-size: 1.1rem; color:#2c3329; }
+
+/* ---------- punch-card week index ---------- */
+.week-index{ padding: 40px 0 80px; }
+.week-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px,1fr));
+  gap: 1px;
+  background: var(--ink);
+  border: 1px solid var(--ink);
+}
+.week-card{
+  background: var(--paper);
+  padding: 20px;
+  min-height: 148px;
+  display:flex; flex-direction:column; justify-content: space-between;
+  text-decoration:none;
+  color: var(--ink);
+  transition: background .15s ease;
+  position: relative;
+}
+.week-card:hover{ background: var(--paper-dim); }
+.week-card .num{
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  color: var(--moss-dim);
+}
+.week-card h3{ margin: 10px 0 6px; font-size: 1.05rem; line-height:1.25; }
+.week-card .tag{
+  font-family: var(--font-mono); font-size: .72rem; text-transform:uppercase;
+  letter-spacing: .06em; color: var(--rust);
+}
+.week-card.locked{ color:#8a917f; }
+.week-card.locked .tag{ color:#8a917f; }
+.week-card.active{ background: var(--ink); color: var(--paper); }
+.week-card.active .num{ color: var(--code-accent); }
+.week-card.active .tag{ color: var(--amber); }
+
+/* ---------- day tabs ---------- */
+.daynav{
+  display:flex; flex-wrap:wrap; gap:8px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--line);
+  position: sticky; top: 53px; background: var(--paper); z-index: 40;
+}
+.daynav a{
+  font-family: var(--font-mono); font-size: .82rem;
+  padding: 8px 14px;
+  border: 1px solid var(--ink);
+  text-decoration:none; color: var(--ink);
+  border-radius: var(--radius);
+}
+.daynav a:hover{ background: var(--ink); color: var(--paper); }
+
+/* ---------- lesson blocks ---------- */
+.day-section{ padding: 56px 0; border-bottom: 1px dashed var(--line); }
+.day-section:last-of-type{ border-bottom: none; }
+.day-head{ display:flex; align-items: baseline; gap: 16px; margin-bottom: 8px; }
+.day-head .day-num{
+  font-family: var(--font-mono); font-size: 2.6rem; font-weight:700; color: var(--paper);
+  background: var(--moss); padding: 2px 14px; line-height:1;
+}
+.day-head h2{ margin:0; }
+.day-sub{ font-family: var(--font-mono); font-size: .85rem; color: var(--rust); margin-bottom: 28px; }
+
+.topic{ margin: 30px 0; padding-left: 18px; border-left: 3px solid var(--moss); }
+.topic h3{ margin-bottom: 8px; }
+.topic h3 .hr{ font-family: var(--font-mono); font-size:.7rem; color:#8a917f; margin-left:8px; font-weight:400; }
+.topic p{ margin: 0 0 10px; }
+.topic ul{ margin: 8px 0; padding-left: 22px; }
+.topic li{ margin-bottom: 4px; }
+
+.callout{
+  background: var(--paper-dim);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--amber);
+  padding: 14px 18px;
+  margin: 14px 0;
+  font-size: .95rem;
+}
+.callout.warn{ border-left-color: var(--rust); }
+.callout .tag{ font-family: var(--font-mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color: var(--rust); display:block; margin-bottom:4px;}
+.callout.warn .tag{ color: var(--rust); }
+
+pre{
+  background: var(--code-bg);
+  color: var(--code-ink);
+  font-family: var(--font-mono);
+  font-size: .87rem;
+  padding: 18px 20px;
+  overflow-x: auto;
+  border-radius: var(--radius);
+  margin: 14px 0;
+  line-height: 1.55;
+}
+pre .c{ color: var(--code-accent); } /* comments */
+code{ font-family: var(--font-mono); background: var(--paper-dim); padding: 1px 5px; border-radius: 2px; font-size: .92em; }
+pre code{ background: none; padding:0; }
+
+/* ---------- quiz ---------- */
+.quiz-block{ background:#fff; border:1px solid var(--ink); padding: 20px; margin: 16px 0; }
+.quiz-block p.q{ font-weight:600; margin: 0 0 10px; }
+.quiz-block ol{ margin:0 0 10px; padding-left: 22px; }
+.quiz-block .ans{ font-family: var(--font-mono); font-size: .85rem; color: var(--moss); }
+.quiz-block details summary{ cursor:pointer; font-family: var(--font-mono); font-size:.82rem; color: var(--rust); }
+
+/* ---------- exercises ---------- */
+.ex-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin: 16px 0; }
+.ex-card{ border:1px solid var(--line); background:#fff; padding:16px; }
+.ex-card .lvl{ font-family: var(--font-mono); font-size:.7rem; text-transform:uppercase; letter-spacing:.08em; padding:2px 8px; border-radius: 10px; display:inline-block; margin-bottom:8px;}
+.lvl.easy{ background:#e1f0e4; color: var(--moss); }
+.lvl.medium{ background:#f5e6c9; color:#8a5a12; }
+.lvl.hard{ background:#f3d9d0; color: var(--rust); }
+.lvl.expert{ background: var(--ink); color: var(--paper); }
+
+/* ---------- cheat sheet ---------- */
+.cheat{ background: var(--ink); color: var(--paper); padding: 30px; margin: 20px 0; }
+.cheat h3{ color: var(--code-accent); }
+.cheat table{ width:100%; border-collapse: collapse; font-family: var(--font-mono); font-size: .85rem; }
+.cheat td{ padding: 6px 10px; border-bottom: 1px solid #2a3327; vertical-align: top; }
+.cheat td:first-child{ color: var(--amber); white-space: nowrap; }
+
+/* ---------- mcq self-check ---------- */
+.mcq{ background:#fff; border:1px solid var(--ink); padding:18px; margin:14px 0; }
+.mcq p.q{ font-weight:600; margin:0 0 10px; }
+.mcq-opt{ display:block; width:100%; text-align:left; background: var(--paper); border:1px solid var(--line); padding:8px 12px; margin-bottom:6px; font-family: var(--font-body); cursor:pointer; border-radius: var(--radius); }
+.mcq-opt:hover{ border-color: var(--ink); }
+.mcq-opt.correct{ background:#e1f0e4; border-color: var(--moss); }
+.mcq-opt.wrong{ background:#f3d9d0; border-color: var(--rust); }
+
+/* ---------- footer ---------- */
+footer{ padding: 50px 0 70px; font-family: var(--font-mono); font-size: .8rem; color:#6b715f; border-top:1px solid var(--line); margin-top: 30px;}
+footer a{ color:#6b715f; }
+
+.progress-track{ height: 4px; background: var(--line); position: sticky; top:0; z-index: 60;}
+.progress-fill{ height:100%; background: var(--moss); width:0%; }
+
+@media (max-width: 640px){
+  .day-head .day-num{ font-size: 1.8rem; }
+  .daynav{ position: static; }
+}
