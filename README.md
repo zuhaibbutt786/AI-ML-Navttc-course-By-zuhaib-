@@ -18,7 +18,7 @@ python3 -m http.server 8000
 | Week | Topic | Status |
 |------|-------|--------|
 | 1 | Introduction, Linux Shell Scripting & Python Fundamentals | ✅ [Live](./week1/index.html) |
-| 2 | Python Fundamentals — OOP & Descriptive Statistics | 🔜 |
+| 2 | Python Fundamentals — OOP & Descriptive Statistics | ✅ [Live](./week2/index.html) |
 | 3 | Descriptive Statistics & Probability, NumPy | 🔜 |
 | 4 | Exploratory Data Analysis — Pandas & Seaborn | 🔜 |
 | 5 | Machine Learning I — Regression | 🔜 |

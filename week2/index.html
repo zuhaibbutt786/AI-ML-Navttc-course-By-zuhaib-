@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 2 — Object-Oriented Python &amp; Descriptive Statistics | AI·ML·DL Course</title>
+<meta name="description" content="Week 2 of the NAVTTC AI, ML &amp; Deep Learning course: functions, file &amp; exception handling, full Object-Oriented Programming in Python, and an intro to Descriptive Statistics — written from first principles for complete beginners.">
+<meta name="keywords" content="Python OOP, classes and objects, inheritance, polymorphism, descriptive statistics, mean median mode, NAVTTC, week 2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<div class="progress-track"><div class="progress-fill"></div></div>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><a href="../index.html" style="color:inherit;text-decoration:none;">AI·ML<span>·DL</span> // navttc-course</a></div>
+    <nav class="topnav">
+      <a href="../week1/index.html">Week 1</a>
+      <a href="../index.html">All Weeks</a>
+      <a href="https://github.com/zuhaibbutt786/AI-ML-Navttc-course-By-zuhaib-" target="_blank" rel="noopener">GitHub ↗</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" style="padding-top:44px;">
+  <div class="wrap">
+    <p class="eyebrow">week 2 of 12 · ~20 hours · beginner → intermediate</p>
+    <h1>Object-Oriented Python &amp; Descriptive Statistics</h1>
+    <p class="lede">This week has two halves. First, you'll learn to organize code the way real
+      software is built — functions, then full Object-Oriented Programming. Second, you'll learn
+      to describe a pile of numbers in words — the statistics vocabulary every data scientist uses
+      before they ever train a model. No prior programming or math background is assumed: every
+      idea starts from "what is this and why does it exist" before touching a line of code or a
+      formula.</p>
+  </div>
+</section>
+
+<nav class="daynav">
+  <div class="wrap" style="display:flex;gap:8px;flex-wrap:wrap;">
+    <a href="#day1">Day 1 · Functions, Files &amp; Exceptions</a>
+    <a href="#day2">Day 2 · Classes, Objects &amp; Inheritance</a>
+    <a href="#day3">Day 3 · Polymorphism &amp; Advanced OOP</a>
+    <a href="#day4">Day 4 · Types of Data &amp; Central Tendency</a>
+    <a href="#day5">Day 5 · Dispersion &amp; Position</a>
+    <a href="#cheatsheet">Cheat Sheet</a>
+    <a href="#mcqs">MCQs</a>
+    <a href="#project">Projects</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ============================================================ DAY 1 -->
+<section class="day-section" id="day1">
+  <div class="day-head"><span class="day-num">1</span><h2>Functions, File Handling &amp; Exception Handling</h2></div>
+  <p class="day-sub">Hour 1–4 · Functions &amp; scope · Lambda · Map/Filter · Nested functions · Files · Exceptions</p>
+
+  <div class="topic">
+    <h3>Functions — What They Are and Why They Exist <span class="hr">Hour 2</span></h3>
+    <p><strong>Start from the everyday idea.</strong> Imagine you had to explain, from scratch,
+      how to make a cup of tea, every single time someone wanted one — boil water, add tea, wait,
+      add milk, pour. That's exhausting. Instead you'd write the instructions down once, label
+      them "Make Tea," and from then on just say "make tea" whenever you want one. A
+      <strong>function</strong> is exactly that label: a named, reusable block of instructions you
+      write once and can "call" (run) as many times as you like, with different details each time
+      if you want (e.g. "make tea, but with 2 sugars").</p>
+    <p><strong>Why this matters in code.</strong> Without functions, a program is one long list of
+      steps from top to bottom — and if you need to repeat a calculation five times, you'd have to
+      copy-paste it five times. If you later find a bug in that calculation, you now have to fix it
+      in five places. Functions collapse that into one place: fix it once, and everywhere that
+      calls the function is automatically fixed.</p>
+    <p><strong>Anatomy of a function, piece by piece:</strong></p>
+    <pre>def make_tea(sugars):
+    print(f"Boiling water...")
+    print(f"Adding tea and {sugars} sugar(s)...")
+    print("Tea is ready!")
+
+<span class="c"># calling (running) the function twice, with different input</span>
+make_tea(2)
+make_tea(0)</pre>
+    <ul>
+      <li><code>def</code> — the keyword that says "I am about to define a function."</li>
+      <li><code>make_tea</code> — the <strong>name</strong> you'll use to call it later.</li>
+      <li><code>(sugars)</code> — the <strong>parameter</strong>: a placeholder for a value the
+        caller will supply. When you call <code>make_tea(2)</code>, <code>2</code> is the
+        <strong>argument</strong> — the actual value plugged into that placeholder.</li>
+      <li>The indented lines below <code>def</code> are the function's <strong>body</strong> —
+        what actually runs when it's called.</li>
+    </ul>
+    <div class="callout">
+      <span class="tag">Common beginner confusion</span>
+      "Parameter" and "argument" are often used interchangeably in casual speech, but technically:
+      the <em>parameter</em> is the name in the function's definition (<code>sugars</code>); the
+      <em>argument</em> is the actual value you pass in when calling it (<code>2</code>).
+    </div>
+    <p><strong>Returning a value.</strong> So far our function only <em>prints</em> — it doesn't
+      hand back a result the rest of the program can use. That's what <code>return</code> is for:</p>
+    <pre>def add_numbers(a, b):
+    result = a + b
+    return result   <span class="c"># hands the value back to whoever called this function</span>
+
+total = add_numbers(4, 7)   <span class="c"># total now holds 11</span>
+print(total)</pre>
+    <p><strong>Default arguments.</strong> You can give a parameter a fallback value, used only if
+      the caller doesn't supply one — moving from beginner usage toward more flexible, real-world
+      function design:</p>
+    <pre>def make_tea(sugars=1):     <span class="c"># default: 1 sugar if not specified</span>
+    print(f"Tea with {sugars} sugar(s)")
+
+make_tea()      <span class="c"># uses the default → "Tea with 1 sugar(s)"</span>
+make_tea(3)     <span class="c"># overrides the default → "Tea with 3 sugar(s)"</span></pre>
+    <div class="callout">
+      <span class="tag">Why companies use this</span>
+      Every reusable piece of a real ML pipeline — a data-cleaning step, a model-training
+      routine, an API endpoint — is a function. Functions are the smallest unit of reusable,
+      testable logic in almost every programming language.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Functions and Variable Scope <span class="hr">Hour 2</span></h3>
+    <p><strong>The core idea, in plain words.</strong> A variable created <em>inside</em> a
+      function only exists <em>inside</em> that function — like a conversation that happens in a
+      closed meeting room and stays in that room. This "visibility zone" is called
+      <strong>scope</strong>.</p>
+    <pre>def calculate():
+    result = 42      <span class="c"># 'result' is LOCAL to this function</span>
+    print(result)     <span class="c"># works fine — we're inside the room</span>
+
+calculate()
+print(result)          <span class="c"># NameError! 'result' doesn't exist out here</span></pre>
+    <p><strong>Global scope</strong> is the opposite: a variable created at the top level of your
+      script (outside any function) can be <em>read</em> from inside any function below it:</p>
+    <pre>course_name = "AI & ML"    <span class="c"># global variable</span>
+
+def greet():
+    print(f"Welcome to {course_name}")   <span class="c"># can READ the global</span>
+
+greet()</pre>
+    <div class="callout warn">
+      <span class="tag">Common mistake</span>
+      You can read a global variable inside a function freely, but if you try to <em>assign</em>
+      to a variable with the same name inside a function, Python assumes you meant a new local
+      variable — unless you explicitly say <code>global course_name</code> first. This trips up
+      almost every beginner at least once.
+    </div>
+    <p><strong>Advanced note:</strong> Python looks up a name using the "LEGB" rule — Local, then
+      Enclosing (an outer function, if any), then Global, then Built-in. You don't need to
+      memorize this yet; just know that Python always searches from the innermost scope outward.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Lambda Expressions <span class="hr">Hour 2</span></h3>
+    <p><strong>Start simple.</strong> A <code>lambda</code> is just a function written in one
+      line, with no name (an "anonymous" function) — useful for small, throwaway operations you
+      don't need to reuse elsewhere.</p>
+    <pre><span class="c"># a normal function...</span>
+def square(n):
+    return n * n
+
+<span class="c"># ...and the same thing as a lambda</span>
+square_lambda = lambda n: n * n
+
+print(square(5))          <span class="c"># 25</span>
+print(square_lambda(5))   <span class="c"># 25</span></pre>
+    <p>Read <code>lambda n: n * n</code> as: "a function that takes <code>n</code> and returns
+      <code>n * n</code>." Lambdas are almost never assigned to a variable like above in real code
+      — their real use is being passed directly into another function, which is exactly what
+      <code>map</code> and <code>filter</code> below need.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Map and Filter <span class="hr">Hour 2</span></h3>
+    <p><strong>Map — "apply this to every item."</strong> Imagine a factory conveyor belt where
+      every item passes through the same machine and comes out transformed. <code>map()</code>
+      applies one function to every element of a list and gives you back the transformed results.</p>
+    <pre>prices = [100, 250, 80, 500]
+
+<span class="c"># add 10% tax to every price</span>
+with_tax = list(map(lambda p: p * 1.10, prices))
+print(with_tax)   <span class="c"># [110.0, 275.0, 88.0, 550.0]</span></pre>
+    <p><strong>Filter — "keep only what passes the test."</strong> Imagine a sieve: only items
+      matching a condition fall through and survive; the rest are discarded.</p>
+    <pre>ages = [15, 22, 17, 30, 12, 45]
+
+<span class="c"># keep only ages 18 and above</span>
+adults = list(filter(lambda a: a >= 18, ages))
+print(adults)   <span class="c"># [22, 30, 45]</span></pre>
+    <div class="callout">
+      <span class="tag">Beginner-friendly equivalent</span>
+      Everything <code>map</code> and <code>filter</code> do, a list comprehension (from Week 1)
+      can also do, often more readably: <code>[p * 1.10 for p in prices]</code> and
+      <code>[a for a in ages if a >= 18]</code>. Learn both — you'll see <code>map</code>/
+      <code>filter</code> in older codebases and interview questions, but comprehensions are the
+      more idiomatic modern style.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Inner / Nested Functions <span class="hr">Hour 2</span></h3>
+    <p>A function can be defined <em>inside</em> another function. The inner function is only
+      visible inside the outer one — useful when a small helper step is only ever needed by one
+      specific function and shouldn't clutter the rest of your file.</p>
+    <pre>def process_order(items):
+    def calculate_total(items):        <span class="c"># inner helper, private to process_order</span>
+        return sum(items)
+
+    total = calculate_total(items)
+    print(f"Order total: {total}")
+
+process_order([10, 20, 30])
+<span class="c"># calculate_total([1,2]) here would fail — it doesn't exist outside process_order</span></pre>
+  </div>
+
+  <div class="topic">
+    <h3>File Handling <span class="hr">Hour 4</span></h3>
+    <p><strong>Why this matters immediately.</strong> Every dataset you'll load in this course —
+      CSV files of housing prices, text files of tweets, image files for computer vision — starts
+      with opening a file from disk. Python's <code>open()</code> function is the doorway.</p>
+    <pre><span class="c"># writing to a file — "w" mode creates it (or overwrites it) fresh</span>
+with open("notes.txt", "w") as f:
+    f.write("Week 2: OOP and Statistics\n")
+
+<span class="c"># reading it back — "r" mode</span>
+with open("notes.txt", "r") as f:
+    content = f.read()
+    print(content)
+
+<span class="c"># appending — "a" mode adds to the end without erasing existing content</span>
+with open("notes.txt", "a") as f:
+    f.write("Adding another line.\n")
+
+<span class="c"># reading line by line — memory-efficient for huge files</span>
+with open("notes.txt", "r") as f:
+    for line in f:
+        print(line.strip())</pre>
+    <div class="callout">
+      <span class="tag">Best practice</span>
+      Always use <code>with open(...) as f:</code> rather than calling <code>open()</code> and
+      <code>close()</code> manually. The <code>with</code> block automatically closes the file
+      even if an error happens inside it — a very common source of subtle bugs otherwise.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Exception Handling <span class="hr">Hour 4</span></h3>
+    <p><strong>The everyday analogy.</strong> When you try a risky action — like opening a locked
+      door — you might have a backup plan ready ("if it's locked, use the spare key") instead of
+      the whole plan collapsing. An <strong>exception</strong> is Python's way of signaling "this
+      specific thing went wrong," and <code>try/except</code> is your backup plan.</p>
+    <pre>try:
+    age = int(input("Enter your age: "))
+    print(f"You are {age} years old")
+except ValueError:
+    print("That wasn't a valid number — please enter digits only.")</pre>
+    <p><strong>Building up:</strong> you can catch different error types differently, run cleanup
+      code no matter what happened with <code>finally</code>, and even define your own custom
+      error types for advanced programs:</p>
+    <pre>try:
+    file = open("missing_file.txt")
+    number = 10 / 0
+except FileNotFoundError:
+    print("The file doesn't exist.")
+except ZeroDivisionError:
+    print("Cannot divide by zero.")
+finally:
+    print("This always runs — cleanup, logging, closing connections, etc.")
+
+<span class="c"># custom exception — advanced, but common in real ML pipelines</span>
+class InvalidDatasetError(Exception):
+    pass
+
+def load_dataset(rows):
+    if len(rows) == 0:
+        raise InvalidDatasetError("Dataset is empty!")
+    return rows</pre>
+    <div class="callout warn">
+      <span class="tag">Common mistake</span>
+      Writing a bare <code>except:</code> with nothing after it catches <em>every</em> possible
+      error, including ones you didn't anticipate — this hides real bugs. Always name the specific
+      exception type you expect, like <code>except ValueError:</code>.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">What's the key difference between a parameter and an argument?</p>
+      <button class="mcq-opt" data-correct="true">A parameter is the placeholder name in the definition; an argument is the actual value passed in</button>
+      <button class="mcq-opt" data-correct="false">They mean exactly the same thing with no distinction</button>
+      <button class="mcq-opt" data-correct="false">A parameter is only used in lambdas</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 2 -->
+<section class="day-section" id="day2">
+  <div class="day-head"><span class="day-num">2</span><h2>Classes, Objects &amp; Inheritance</h2></div>
+  <p class="day-sub">Hour 1–4 · Classes &amp; objects · Constructors · Inheritance types · Access specifiers · Composition</p>
+
+  <div class="topic">
+    <h3>Classes and Objects — The Big Idea <span class="hr">Hour 1</span></h3>
+    <p><strong>Forget code for a second.</strong> Think about the concept "Car." There's no single
+      physical car called "Car" — it's a <em>blueprint</em> describing what any car has (wheels,
+      color, engine size) and what any car can do (start, stop, accelerate). Your actual red Toyota
+      in the driveway is one specific, real <em>instance</em> built from that blueprint. In
+      programming: the blueprint is a <strong>class</strong>, and each real thing built from it is
+      an <strong>object</strong> (also called an "instance").</p>
+    <p><strong>Why we need this at all.</strong> Up to now you've stored data in loose variables
+      and lists. But real-world things have both <em>data</em> (a student's name and grade) and
+      <em>behavior</em> (a student can enroll, submit an assignment). Object-Oriented Programming
+      (OOP) bundles data and behavior that belong together into one unit — instead of having them
+      scattered across separate lists and functions that have to be kept in sync by hand.</p>
+    <pre>class Student:
+    def __init__(self, name, grade):   <span class="c"># the constructor — more below</span>
+        self.name = name                 <span class="c"># instance variable — this student's own name</span>
+        self.grade = grade
+
+    def greet(self):                    <span class="c"># an instance method — a behavior</span>
+        print(f"Hi, I'm {self.name} and I'm in grade {self.grade}")
+
+<span class="c"># building two real objects from the one blueprint</span>
+student1 = Student("Ayesha", 10)
+student2 = Student("Bilal", 9)
+
+student1.greet()   <span class="c"># "Hi, I'm Ayesha and I'm in grade 10"</span>
+student2.greet()   <span class="c"># "Hi, I'm Bilal and I'm in grade 9"</span></pre>
+    <div class="callout">
+      <span class="tag">What is <code>self</code>?</span>
+      <code>self</code> is how a method refers to "the specific object I was called on." When you
+      run <code>student1.greet()</code>, Python automatically passes <code>student1</code> in as
+      <code>self</code> — that's how <code>greet()</code> knows to print Ayesha's name and not
+      Bilal's, even though it's the exact same method code for both objects.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Instance Variables &amp; Methods vs. Class Variables &amp; Methods <span class="hr">Hour 1</span></h3>
+    <p><strong>Instance variables</strong> (like <code>self.name</code> above) belong to one
+      specific object — Ayesha's name is separate from Bilal's name. <strong>Class variables</strong>
+      are shared by every object built from that class — think of a school's name, which is the
+      same for every student regardless of which student you ask.</p>
+    <pre>class Student:
+    school_name = "NAVTTC Institute"   <span class="c"># CLASS variable — shared by ALL students</span>
+
+    def __init__(self, name):
+        self.name = name                 <span class="c"># INSTANCE variable — unique per student</span>
+
+s1 = Student("Ayesha")
+s2 = Student("Bilal")
+
+print(s1.school_name)   <span class="c"># "NAVTTC Institute"</span>
+print(s2.school_name)   <span class="c"># "NAVTTC Institute" — same, shared value</span>
+print(s1.name, s2.name) <span class="c"># "Ayesha Bilal" — different, per-object values</span></pre>
+    <p>Similarly, a normal method (decorated with nothing, taking <code>self</code>) operates on
+      one object's data, while a <code>@classmethod</code> (taking <code>cls</code>) operates on
+      the class itself, and a <code>@staticmethod</code> is just a regular function that happens to
+      live inside the class for organizational purposes, needing neither <code>self</code> nor
+      <code>cls</code>.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Constructors and Destructors <span class="hr">Hour 1</span></h3>
+    <p>The <strong>constructor</strong>, <code>__init__</code>, runs automatically the moment an
+      object is created — it "constructs" the object by setting up its starting data (exactly like
+      filling in a form the instant you create a new account). The <strong>destructor</strong>,
+      <code>__del__</code>, runs automatically right before an object is destroyed / garbage
+      collected — useful for cleanup like closing a file or a database connection.</p>
+    <pre>class DatabaseConnection:
+    def __init__(self, name):
+        self.name = name
+        print(f"Opening connection: {name}")
+
+    def __del__(self):
+        print(f"Closing connection: {self.name}")
+
+conn = DatabaseConnection("training_db")
+del conn   <span class="c"># explicitly triggers __del__ → "Closing connection: training_db"</span></pre>
+    <div class="callout warn">
+      <span class="tag">Advanced note</span>
+      In real production code, don't rely on <code>__del__</code> for critical cleanup like
+      closing files — its exact timing isn't guaranteed. Prefer the <code>with</code> statement
+      pattern from Day 1's file handling section instead.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Inheritance — Reusing a Blueprint <span class="hr">Hour 2–3</span></h3>
+    <p><strong>Everyday analogy.</strong> A "Sports Car" and a "Family Car" are both still cars —
+      they share everything a general Car has (wheels, engine, the ability to start) but each adds
+      or changes something specific. Rather than rewriting "Car" from scratch for each, you'd say
+      "Sports Car <em>is a</em> Car, but faster." <strong>Inheritance</strong> lets one class
+      (the <em>child</em> / <em>subclass</em>) automatically get everything from another class
+      (the <em>parent</em> / <em>superclass</em>), then add or override only what's different.</p>
+    <pre>class Animal:                        <span class="c"># parent / base class</span>
+    def __init__(self, name):
+        self.name = name
+    def speak(self):
+        print(f"{self.name} makes a sound")
+
+class Dog(Animal):                    <span class="c"># Dog INHERITS from Animal</span>
+    def speak(self):                   <span class="c"># overriding the parent's method</span>
+        print(f"{self.name} barks")
+
+d = Dog("Rex")
+d.speak()   <span class="c"># "Rex barks" — Dog's own version, not Animal's</span></pre>
+    <p><strong>Multilevel inheritance</strong> — a chain, grandparent → parent → child, where each
+      level builds on the one before:</p>
+    <pre>class Animal:
+    def eat(self): print("eating")
+
+class Mammal(Animal):        <span class="c"># Mammal inherits from Animal</span>
+    def breathe(self): print("breathing air")
+
+class Dog(Mammal):            <span class="c"># Dog inherits from Mammal, which inherits from Animal</span>
+    def bark(self): print("barking")
+
+d = Dog()
+d.eat(); d.breathe(); d.bark()   <span class="c"># Dog has ALL three abilities</span></pre>
+    <p><strong>Hierarchical inheritance</strong> — the reverse shape: one parent, many children,
+      each specializing differently:</p>
+    <pre>class Vehicle:
+    def move(self): print("moving")
+
+class Car(Vehicle): pass
+class Bike(Vehicle): pass
+class Truck(Vehicle): pass
+<span class="c"># Car, Bike, and Truck all separately inherit from the same Vehicle</span></pre>
+    <p><strong>Multiple inheritance</strong> — one child, multiple parents at once (Python allows
+      this, unlike many languages):</p>
+    <pre>class Flyer:
+    def fly(self): print("flying")
+
+class Swimmer:
+    def swim(self): print("swimming")
+
+class Duck(Flyer, Swimmer):   <span class="c"># Duck inherits from BOTH</span>
+    pass
+
+d = Duck()
+d.fly(); d.swim()</pre>
+    <div class="callout">
+      <span class="tag">Method Resolution Order (MRO)</span>
+      When two parents define the same method name, which one wins? Python answers this with the
+      <strong>Method Resolution Order</strong> — a defined left-to-right, depth-first search order.
+      You can inspect it yourself: <code>print(Duck.__mro__)</code>. This becomes important once
+      your class hierarchies get deep — a genuinely advanced topic worth revisiting once you're
+      comfortable with basic inheritance.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Access Specifiers: Public, Protected, Private <span class="hr">Hour 4</span></h3>
+    <p><strong>The idea, before the syntax.</strong> Not every piece of data inside an object
+      should be freely editable from outside. A bank account object shouldn't let outside code just
+      set <code>balance = -999999</code> directly — it should go through a controlled method. Access
+      specifiers are the language's way of marking "this is meant to be used from outside" versus
+      "this is internal, don't touch."</p>
+    <pre>class BankAccount:
+    def __init__(self, balance):
+        self.balance = balance           <span class="c"># public — freely accessible</span>
+        self._pin_attempts = 0            <span class="c"># protected (convention: single underscore)</span>
+        self.__account_number = "12345"   <span class="c"># private (double underscore)</span>
+
+acc = BankAccount(1000)
+print(acc.balance)            <span class="c"># fine — public</span>
+print(acc._pin_attempts)       <span class="c"># works, but the underscore SIGNALS "internal use only"</span>
+<span class="c"># print(acc.__account_number)   -&gt; AttributeError, name-mangled (see below)</span></pre>
+    <ul>
+      <li><strong>Public</strong> (no underscore) — intended for free use from outside the class.</li>
+      <li><strong>Protected</strong> (single underscore <code>_name</code>) — a convention, not
+        enforced by Python, meaning "internal — subclasses may use this, but outside code
+        shouldn't."</li>
+      <li><strong>Private</strong> (double underscore <code>__name</code>) — Python actively makes
+        this harder to access from outside via <strong>name mangling</strong>.</li>
+    </ul>
+    <div class="callout">
+      <span class="tag">Name Mangling explained</span>
+      Python internally renames <code>__account_number</code> to
+      <code>_BankAccount__account_number</code>. It's still technically reachable if you know the
+      mangled name, so this is "strong discouragement," not a hard lock — Python trusts developers
+      more than it enforces rules, which is a real difference from languages like Java.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Inner/Nested Classes <span class="hr">Hour 4</span></h3>
+    <p>Just like a nested function, a class can be defined inside another class — used when one
+      class only makes sense as a small supporting detail of another.</p>
+    <pre>class Car:
+    class Engine:                 <span class="c"># nested class — an Engine only makes sense inside a Car</span>
+        def start(self):
+            print("Engine starting...")
+
+    def __init__(self):
+        self.engine = self.Engine()
+
+my_car = Car()
+my_car.engine.start()</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Association, Aggregation &amp; Composition <span class="hr">Hour 4</span></h3>
+    <p>These describe how two classes <em>relate</em> to each other — moving from a loose
+      connection to a tight one:</p>
+    <ul>
+      <li><strong>Association</strong> — the loosest link: two independent objects that simply
+        know about or use each other, e.g. a <code>Teacher</code> and a <code>Student</code>. Each
+        can exist perfectly well without the other.</li>
+      <li><strong>Aggregation</strong> — a "has-a" relationship where the part can still exist
+        independently of the whole, e.g. a <code>Department</code> "has" <code>Professors</code>,
+        but a professor still exists if the department is dissolved.</li>
+      <li><strong>Composition</strong> — the tightest "has-a": the part <em>cannot</em> exist
+        without the whole, e.g. a <code>House</code> "has" <code>Rooms</code> — a room stops
+        existing conceptually if the house is torn down.</li>
+    </ul>
+    <pre><span class="c"># Composition example — Engine cannot meaningfully exist without a Car owning it</span>
+class Engine:
+    def start(self): print("Vroom")
+
+class Car:
+    def __init__(self):
+        self.engine = Engine()   <span class="c"># Car OWNS and CREATES its own Engine</span>
+
+    def start_car(self):
+        self.engine.start()</pre>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">In <code>Duck(Flyer, Swimmer)</code>, what kind of inheritance is this?</p>
+      <button class="mcq-opt" data-correct="false">Multilevel inheritance</button>
+      <button class="mcq-opt" data-correct="true">Multiple inheritance</button>
+      <button class="mcq-opt" data-correct="false">Hierarchical inheritance</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 3 -->
+<section class="day-section" id="day3">
+  <div class="day-head"><span class="day-num">3</span><h2>Polymorphism &amp; Advanced OOP</h2></div>
+  <p class="day-sub">Hour 1–4 · Polymorphism &amp; operator overloading · Dunder methods · Dynamic polymorphism · Abstract &amp; data classes · Keyword arguments</p>
+
+  <div class="topic">
+    <h3>Polymorphism and Operator Overloading <span class="hr">Hour 1</span></h3>
+    <p><strong>The word, unpacked.</strong> "Poly" = many, "morph" = form. Polymorphism means "the
+      same action name behaves differently depending on what it's used on." You already use this
+      constantly without noticing: <code>+</code> adds two numbers, but also joins two strings.
+      Same symbol, different behavior depending on the type. That's polymorphism baked right into
+      Python's own operators.</p>
+    <pre>print(3 + 4)          <span class="c"># 7 — numeric addition</span>
+print("AI" + "ML")    <span class="c"># "AIML" — string concatenation</span></pre>
+    <p><strong>Operator overloading</strong> means teaching your own class how <code>+</code>,
+      <code>==</code>, or other operators should behave when used on your objects — you're
+      extending this same idea of "the same symbol, new meaning" to types you define yourself.</p>
+    <pre>class Point:
+    def __init__(self, x, y):
+        self.x, self.y = x, y
+
+    def __add__(self, other):          <span class="c"># teaches Python what + means for Points</span>
+        return Point(self.x + other.x, self.y + other.y)
+
+    def __repr__(self):
+        return f"Point({self.x}, {self.y})"
+
+p1 = Point(1, 2)
+p2 = Point(3, 4)
+print(p1 + p2)   <span class="c"># Point(4, 6) — our own custom '+' behavior</span></pre>
+  </div>
+
+  <div class="topic">
+    <h3>Magic Functions / Dunder Methods <span class="hr">Hour 2</span></h3>
+    <p><code>__add__</code> above is one example of a wider family called <strong>dunder methods</strong>
+      (short for "double underscore") or "magic methods" — special names Python automatically
+      calls behind the scenes to make your objects work naturally with built-in syntax like
+      <code>+</code>, <code>len()</code>, <code>print()</code>, and comparisons.</p>
+    <pre>class Book:
+    def __init__(self, title, pages):
+        self.title = title
+        self.pages = pages
+
+    def __str__(self):                  <span class="c"># controls what print(book) shows</span>
+        return f"'{self.title}' ({self.pages} pages)"
+
+    def __len__(self):                  <span class="c"># controls what len(book) returns</span>
+        return self.pages
+
+    def __eq__(self, other):            <span class="c"># controls what book1 == book2 checks</span>
+        return self.pages == other.pages
+
+b1 = Book("Python Basics", 250)
+print(b1)          <span class="c"># 'Python Basics' (250 pages) — uses __str__</span>
+print(len(b1))     <span class="c"># 250 — uses __len__</span></pre>
+    <div class="callout">
+      <span class="tag">Why this matters</span>
+      Every time you've called <code>print(some_object)</code> and gotten a readable sentence
+      instead of <code>&lt;object at 0x7f...&gt;</code>, a dunder method was doing that work.
+      You'll define <code>__init__</code>, <code>__str__</code>, and sometimes <code>__len__</code>
+      or <code>__eq__</code> on almost every custom class you write from here on.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Dynamic Polymorphism (Subclass as Base Class) <span class="hr">Hour 3</span></h3>
+    <p>This is the classic OOP idea: you can treat a <em>child</em> object as if it were its
+      <em>parent</em> type, and the correct, specific version of a method still runs automatically
+      — decided at runtime, hence "dynamic."</p>
+    <pre>class Shape:
+    def area(self):
+        return 0
+
+class Circle(Shape):
+    def __init__(self, r): self.r = r
+    def area(self): return 3.14159 * self.r ** 2
+
+class Square(Shape):
+    def __init__(self, side): self.side = side
+    def area(self): return self.side ** 2
+
+shapes = [Circle(3), Square(4)]     <span class="c"># a list of the PARENT type, holding different children</span>
+for shape in shapes:
+    print(shape.area())              <span class="c"># each calls ITS OWN version of area() automatically</span></pre>
+    <div class="callout">
+      <span class="tag">Real world application</span>
+      This is exactly the pattern behind scikit-learn's models: <code>LinearRegression</code>,
+      <code>RandomForestClassifier</code>, and dozens of others all share a common
+      <code>.fit()</code> and <code>.predict()</code> interface, so the same training loop code
+      works no matter which specific model object you pass into it.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Abstract Method &amp; Class, Empty Class, Data Class <span class="hr">Hour 4</span></h3>
+    <p><strong>Abstract class.</strong> Sometimes you want to define a blueprint that
+      <em>cannot</em> be used directly — only its children can — because it doesn't make sense on
+      its own. "Shape" alone has no area formula; only specific shapes do. Python enforces this
+      with the <code>abc</code> module:</p>
+    <pre>from abc import ABC, abstractmethod
+
+class Shape(ABC):                 <span class="c"># ABC = Abstract Base Class</span>
+    @abstractmethod
+    def area(self):                <span class="c"># no implementation — children MUST provide one</span>
+        pass
+
+<span class="c"># shape = Shape()  -&gt; TypeError: Can't instantiate abstract class</span>
+
+class Circle(Shape):
+    def __init__(self, r): self.r = r
+    def area(self): return 3.14159 * self.r ** 2   <span class="c"># required implementation</span>
+
+c = Circle(2)
+print(c.area())</pre>
+    <p><strong>Empty class</strong> — sometimes you just need a simple namespace/placeholder with
+      no behavior yet:</p>
+    <pre>class Placeholder:
+    pass
+
+p = Placeholder()
+p.note = "filled in later"   <span class="c"># you can still attach attributes dynamically</span></pre>
+    <p><strong>Data class</strong> — a modern, less repetitive way to write classes that mostly
+      just hold data, auto-generating <code>__init__</code> and <code>__repr__</code> for you:</p>
+    <pre>from dataclasses import dataclass
+
+@dataclass
+class Student:
+    name: str
+    grade: int
+
+s = Student("Ayesha", 10)
+print(s)   <span class="c"># Student(name='Ayesha', grade=10) — auto-generated, no __init__ written by hand</span></pre>
+  </div>
+
+  <div class="topic">
+    <h3>Keyword Arguments <span class="hr">Hour 4</span></h3>
+    <p>So far you've called functions by position: <code>make_tea(2)</code> means "2 goes into the
+      first parameter." A <strong>keyword argument</strong> instead names which parameter you mean,
+      so order stops mattering and the call becomes self-documenting:</p>
+    <pre>def create_profile(name, age, country):
+    print(f"{name}, {age}, from {country}")
+
+<span class="c"># positional — order-dependent, easy to mix up</span>
+create_profile("Ayesha", 20, "Pakistan")
+
+<span class="c"># keyword — order-independent, and much clearer to read</span>
+create_profile(age=20, country="Pakistan", name="Ayesha")
+
+<span class="c"># **kwargs — a function that accepts ANY number of keyword arguments</span>
+def show_settings(**kwargs):
+    for key, value in kwargs.items():
+        print(key, "=", value)
+
+show_settings(learning_rate=0.01, epochs=10, batch_size=32)</pre>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">What does <code>__str__</code> control on a custom class?</p>
+      <button class="mcq-opt" data-correct="false">How the object is deleted</button>
+      <button class="mcq-opt" data-correct="true">What is shown when the object is printed</button>
+      <button class="mcq-opt" data-correct="false">Whether the class can be inherited</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 4 -->
+<section class="day-section" id="day4">
+  <div class="day-head"><span class="day-num">4</span><h2>Types of Data &amp; Measures of Central Tendency</h2></div>
+  <p class="day-sub">Hour 1–4 · Structured/unstructured data · Quantitative &amp; qualitative variables · Mean, median, mode</p>
+
+  <p><strong>Why we're switching gears.</strong> The next two days move from "how do I write code"
+    to "how do I describe a real pile of numbers in words a decision-maker can understand." This is
+    <strong>statistics</strong> — and every idea below is something you already do informally in
+    daily life (like knowing your "typical" commute time); we're just going to make it precise and
+    give it a name.</p>
+
+  <div class="topic">
+    <h3>Structured vs. Unstructured Data <span class="hr">Hour 1</span></h3>
+    <p><strong>Structured data</strong> fits neatly into rows and columns, like a spreadsheet or a
+      database table — every entry has a clear, predictable place: a "Name" column, an "Age"
+      column, a "City" column. It's easy for a computer to search and calculate on directly.</p>
+    <p><strong>Unstructured data</strong> has no such fixed shape — a photo, a voice recording, a
+      free-form customer review, a PDF. A computer can't directly compute "the average" of a set
+      of photos the way it can average a column of numbers; unstructured data usually needs to be
+      converted into structured, numeric form first (this conversion is a huge part of what
+      Machine Learning and Deep Learning, later in this course, actually do).</p>
+    <div class="callout">
+      <span class="tag">Real world example</span>
+      A hospital's patient records table (name, age, blood pressure) is structured. The X-ray
+      images and doctors' handwritten notes attached to that same patient are unstructured.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Quantitative Data — Numerical, Continuous, Discrete <span class="hr">Hour 1–2</span></h3>
+    <p><strong>Quantitative data</strong> is anything you can meaningfully do arithmetic on — it
+      answers "how much" or "how many." It splits into two further beginner-friendly categories:</p>
+    <ul>
+      <li><strong>Discrete</strong> — countable in whole, separate steps; you can list every
+        possible value. Number of children in a family (0, 1, 2, 3...) — you can never have 2.5
+        children.</li>
+      <li><strong>Continuous</strong> — can take <em>any</em> value within a range, including
+        fractions, limited only by how precisely you measure. Height (170.2 cm, 170.23 cm,
+        170.234 cm...) — there's always a finer measurement possible.</li>
+    </ul>
+    <div class="callout">
+      <span class="tag">Quick test you can apply yourself</span>
+      Ask: "could this value ever be a fraction and still make sense?" Number of students in a
+      class → no → discrete. Temperature in a room → yes (22.6°C) → continuous.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Qualitative Data — Categorical, Nominal, Ordinal, Binary <span class="hr">Hour 1–2</span></h3>
+    <p><strong>Qualitative (categorical) data</strong> describes a quality or category rather than
+      an amount — it answers "what kind," not "how much." You can't meaningfully average it. It
+      splits further:</p>
+    <ul>
+      <li><strong>Nominal</strong> — categories with no natural order: eye color (blue, brown,
+        green), country of birth, blood type. "Blue" isn't "more" or "less" than "brown," they're
+        just different.</li>
+      <li><strong>Ordinal</strong> — categories that DO have a meaningful order, but the gaps
+        between them aren't precisely measurable: a satisfaction survey (poor, fair, good,
+        excellent) or education level (high school, bachelor's, master's). "Excellent" is clearly
+        better than "poor," but we can't say it's exactly "3 units better."</li>
+      <li><strong>Binary</strong> — exactly two possible categories: yes/no, pass/fail, true/false,
+        spam/not-spam. This special case shows up constantly in ML as the target for a
+        "classification" model.</li>
+    </ul>
+    <div class="callout warn">
+      <span class="tag">Common mistake</span>
+      Encoding a nominal category as numbers (red=1, blue=2, green=3) for a computer to use can
+      accidentally imply a false order or false distance ("is blue really halfway between red and
+      green?"). This is a genuinely important, easy-to-miss trap you'll return to when you reach
+      data preprocessing for Machine Learning in Week 4–5.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Measures of Central Tendency — Mean, Median, Mode <span class="hr">Hour 3–4</span></h3>
+    <p><strong>The plain-language question these answer:</strong> "If I had to describe this whole
+      list of numbers using just ONE typical number, what would it be?" There are three honest
+      answers, each useful in different situations.</p>
+
+    <p><strong>Mean (the "average").</strong> Add up every value, divide by how many values there
+      are. This is the one most people already call "average."</p>
+    <pre>scores = [70, 85, 90, 60, 95]
+mean = sum(scores) / len(scores)
+print(mean)   <span class="c"># 80.0</span></pre>
+    <div class="callout warn">
+      <span class="tag">Common mistake — the mean's weak spot</span>
+      The mean is easily pulled off-center by one extreme value ("outlier"). If nine people earn
+      $50,000 and one person earns $5,000,000, the mean salary looks huge and misleading — it no
+      longer represents a "typical" person in that group.
+    </div>
+
+    <p><strong>Median (the true middle).</strong> Sort every value in order, and pick the exact
+      middle one (or the average of the two middle ones if there's an even count). The median
+      isn't dragged around by extreme values the way the mean is — which is exactly why "median
+      household income," not mean, is the number governments usually report.</p>
+    <pre>salaries = [50000, 52000, 51000, 53000, 5000000]
+sorted_salaries = sorted(salaries)   <span class="c"># [50000, 51000, 52000, 53000, 5000000]</span>
+median = sorted_salaries[2]           <span class="c"># the middle (3rd of 5) value → 52000</span>
+print(median)   <span class="c"># 52000 — much more "typical" than the mean would be here</span></pre>
+
+    <p><strong>Mode (the most frequent value).</strong> Simply, whichever value appears most
+      often. It's the only one of the three that also works for qualitative/categorical data
+      (you can't take the "mean" of favorite colors, but you can find the most common one).</p>
+    <pre>favorite_colors = ["blue", "red", "blue", "green", "blue", "red"]
+<span class="c"># "blue" appears 3 times — more than any other color</span>
+<span class="c"># mode = "blue"</span>
+
+from statistics import mean, median, mode
+print(mean([70, 85, 90, 60, 95]))     <span class="c"># 80</span>
+print(median([70, 85, 90, 60, 95]))    <span class="c"># 85</span>
+print(mode(["blue","red","blue","green"]))  <span class="c"># 'blue'</span></pre>
+    <div class="callout">
+      <span class="tag">How to choose which one to report</span>
+      Use the <strong>mean</strong> for symmetric numeric data with no extreme outliers. Use the
+      <strong>median</strong> when outliers or skew are present (income, house prices, response
+      times). Use the <strong>mode</strong> for categorical data, or to answer "what's the single
+      most common thing."
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">Why is median usually preferred over mean when reporting typical income?</p>
+      <button class="mcq-opt" data-correct="false">Median is always mathematically larger</button>
+      <button class="mcq-opt" data-correct="true">Median isn't distorted by a few extremely high or low values</button>
+      <button class="mcq-opt" data-correct="false">Mean only works on text data</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 5 -->
+<section class="day-section" id="day5">
+  <div class="day-head"><span class="day-num">5</span><h2>Measures of Dispersion &amp; Position</h2></div>
+  <p class="day-sub">Hour 1–4 · Variance, std. deviation, coefficient of variation, skewness, kurtosis · Z-score, percentile, quartile</p>
+
+  <div class="topic">
+    <h3>Why We Need More Than Just "the Typical Value" <span class="hr">Hour 1</span></h3>
+    <p>Two classes could both have a mean score of 75 — but in one class, everyone scored between
+      70–80, and in the other, scores ranged wildly from 20–100. The <strong>mean alone hides this
+      difference completely</strong>. <strong>Dispersion</strong> (also called "spread" or
+      "variability") measures how bunched-together or how scattered the data is around its center
+      — arguably just as important as the center itself.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Variance and Standard Deviation <span class="hr">Hour 1–2</span></h3>
+    <p><strong>Building the idea step by step.</strong> To measure "how spread out," a natural
+      first instinct is: for each value, find its distance from the mean, then average those
+      distances. There's a catch — some distances are negative (below the mean) and some positive
+      (above), and they'd cancel out to roughly zero if we just averaged them directly. The fix:
+      square each distance first (which also always makes it positive), then average those
+      squared distances. That average is called the <strong>variance</strong>.</p>
+    <pre>scores = [70, 85, 90, 60, 95]
+mean = sum(scores) / len(scores)                       <span class="c"># 80.0</span>
+squared_diffs = [(x - mean) ** 2 for x in scores]
+variance = sum(squared_diffs) / len(scores)
+print(variance)   <span class="c"># 176.0</span></pre>
+    <div class="callout warn">
+      <span class="tag">Why variance alone is awkward</span>
+      Because we squared the distances, variance is in "squared units" — if your data is in
+      dollars, variance is in "dollars squared," which isn't intuitive to reason about directly.
+    </div>
+    <p><strong>Standard deviation</strong> fixes exactly that: it's simply the square root of the
+      variance, bringing the units back to something directly comparable to the original data
+      (dollars, not dollars-squared). It's the single most commonly reported spread measure in
+      statistics.</p>
+    <pre>import math
+std_dev = math.sqrt(variance)
+print(std_dev)   <span class="c"># ≈ 13.27</span>
+
+<span class="c"># or, using the built-in statistics module directly:</span>
+from statistics import variance, stdev
+print(variance(scores))
+print(stdev(scores))</pre>
+    <div class="callout">
+      <span class="tag">Intuition to keep</span>
+      A small standard deviation means values cluster tightly around the mean (consistent,
+      predictable). A large standard deviation means values are scattered widely (inconsistent,
+      less predictable) — this single number is why "risk" in finance is so often measured with
+      standard deviation of returns.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Coefficient of Variation <span class="hr">Hour 1–2</span></h3>
+    <p><strong>The problem it solves.</strong> A standard deviation of "5" is huge if the mean is
+      10, but tiny if the mean is 10,000 — you can't fairly compare the "spread" of two different
+      datasets using raw standard deviation alone if their scales differ wildly. The
+      <strong>coefficient of variation (CV)</strong> fixes this by expressing standard deviation as
+      a percentage of the mean, making spread comparable across totally different scales.</p>
+    <pre>cv = (std_dev / mean) * 100
+print(cv)   <span class="c"># ≈ 16.6% — spread relative to the average, as a percentage</span></pre>
+    <div class="callout">
+      <span class="tag">Real world example</span>
+      Comparing the volatility of a stock priced around $5 versus one priced around $500 by raw
+      standard deviation alone is misleading; comparing their coefficients of variation gives a
+      fair, scale-independent comparison of relative risk.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Skewness and Kurtosis <span class="hr">Hour 1–2</span></h3>
+    <p><strong>Skewness</strong> describes whether your data leans lopsided to one side of the
+      mean rather than being symmetric. Picture a histogram (a bar chart of how often each value
+      range occurs):</p>
+    <ul>
+      <li><strong>Symmetric</strong> (skewness ≈ 0) — a balanced, mirror-image shape, like classic
+        exam scores clustering around an average.</li>
+      <li><strong>Right-skewed / positive skew</strong> — a long tail stretching to the right;
+        most values are low/moderate but a few very high ones pull the tail out (classic example:
+        household income, where most people earn moderate amounts but a few earn enormous
+        amounts).</li>
+      <li><strong>Left-skewed / negative skew</strong> — the mirror opposite, a long tail stretching
+        left (example: age at retirement, where most people retire in a narrow late-career range
+        but a few retire very young).</li>
+    </ul>
+    <p><strong>Kurtosis</strong> describes how "heavy-tailed" or "peaked" the distribution is
+      compared to a standard bell curve — in plain terms, how likely extreme outliers are. High
+      kurtosis means more frequent extreme values than a normal bell curve would predict (relevant
+      in finance for estimating the real risk of rare, extreme market crashes).</p>
+    <pre>from scipy.stats import skew, kurtosis
+data = [70, 85, 90, 60, 95, 100, 100, 98]
+print(skew(data))
+print(kurtosis(data))</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Measures of Position — Z-Score, Percentile, Quartile <span class="hr">Hour 3–4</span></h3>
+    <p><strong>The question these answer:</strong> "Given one single value, where does it stand
+      relative to the rest of the data?" — not the shape of the whole dataset, but the position of
+      one point within it.</p>
+
+    <p><strong>Z-score</strong> answers "how many standard deviations away from the mean is this
+      one value?" It converts any raw value into a universal, comparable unit.</p>
+    <pre>z = (x - mean) / std_dev
+
+<span class="c"># example: your exam score is 92, class mean is 80, std dev is 10</span>
+z_score = (92 - 80) / 10
+print(z_score)   <span class="c"># 1.2 → your score is 1.2 standard deviations above average</span></pre>
+    <div class="callout">
+      <span class="tag">Why this is powerful</span>
+      A Z-score lets you compare values from totally different scales fairly — e.g. "was my SAT
+      score of 1400 or my friend's IELTS score of 8 more impressive relative to their own
+      distributions?" Z-scores make that an apples-to-apples comparison.
+    </div>
+
+    <p><strong>Percentile</strong> tells you what fraction of the data falls below a given value.
+      "You scored in the 90th percentile" means 90% of everyone else scored lower than you.</p>
+    <p><strong>Quartiles</strong> are just three specific, especially useful percentiles that
+      split the data into four equal quarters:</p>
+    <ul>
+      <li><strong>Q1 (25th percentile)</strong> — 25% of values fall below this point.</li>
+      <li><strong>Q2 (50th percentile)</strong> — this is just the median again, the halfway point.</li>
+      <li><strong>Q3 (75th percentile)</strong> — 75% of values fall below this point.</li>
+    </ul>
+    <pre>import numpy as np
+data = [55, 60, 65, 70, 75, 80, 85, 90, 95, 100]
+
+q1 = np.percentile(data, 25)
+q2 = np.percentile(data, 50)   <span class="c"># same as the median</span>
+q3 = np.percentile(data, 75)
+print(q1, q2, q3)</pre>
+    <div class="callout warn">
+      <span class="tag">Advanced note — the IQR</span>
+      <code>Q3 - Q1</code> is called the <strong>Interquartile Range (IQR)</strong> — the spread
+      of just the "middle 50%" of your data, ignoring extreme values entirely. It's the standard
+      tool for flagging outliers: any value more than 1.5×IQR below Q1 or above Q3 is typically
+      treated as an outlier worth investigating, a technique you'll use constantly once you reach
+      data cleaning in Week 4.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">A Z-score of 2.0 means a value is:</p>
+      <button class="mcq-opt" data-correct="false">Exactly at the mean</button>
+      <button class="mcq-opt" data-correct="true">Two standard deviations above the mean</button>
+      <button class="mcq-opt" data-correct="false">In the bottom 2% of the data</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ CHEAT SHEET -->
+<section class="day-section" id="cheatsheet">
+  <h2>Week 2 Cheat Sheet</h2>
+  <div class="cheat">
+    <h3>Python — Functions &amp; OOP</h3>
+    <table>
+      <tr><td>def f(x):</td><td>define a function</td></tr>
+      <tr><td>lambda x: x*2</td><td>anonymous one-line function</td></tr>
+      <tr><td>map(f, list) / filter(f, list)</td><td>transform every item / keep only matches</td></tr>
+      <tr><td>try / except / finally</td><td>handle errors safely</td></tr>
+      <tr><td>with open(f) as x:</td><td>safely open &amp; auto-close a file</td></tr>
+      <tr><td>class C: def __init__(self):</td><td>define a class &amp; its constructor</td></tr>
+      <tr><td>class Child(Parent):</td><td>inheritance</td></tr>
+      <tr><td>_protected / __private</td><td>access specifier conventions</td></tr>
+      <tr><td>__str__ / __add__ / __len__</td><td>dunder / magic methods</td></tr>
+      <tr><td>@abstractmethod / @dataclass</td><td>abstract methods / auto-generated data classes</td></tr>
+    </table>
+    <h3 style="margin-top:20px;">Statistics</h3>
+    <table>
+      <tr><td>Mean</td><td>sum ÷ count — pulled by outliers</td></tr>
+      <tr><td>Median</td><td>true middle value — resistant to outliers</td></tr>
+      <tr><td>Mode</td><td>most frequent value — works on categories too</td></tr>
+      <tr><td>Variance / Std. Dev.</td><td>average squared spread / its square root</td></tr>
+      <tr><td>Coefficient of Variation</td><td>std dev ÷ mean, as a % — compares spread across scales</td></tr>
+      <tr><td>Skewness</td><td>lopsidedness of the distribution</td></tr>
+      <tr><td>Kurtosis</td><td>"tailedness" — how extreme the outliers tend to be</td></tr>
+      <tr><td>Z-score</td><td>(x − mean) ÷ std dev — position in standard-deviation units</td></tr>
+      <tr><td>Percentile / Quartile</td><td>% of data below a point / the 25-50-75% split points</td></tr>
+      <tr><td>IQR</td><td>Q3 − Q1 — spread of the middle 50%, used to flag outliers</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ MCQS -->
+<section class="day-section" id="mcqs">
+  <h2>Week 2 MCQs — 20 Questions</h2>
+  <p>Click an option to check yourself.</p>
+
+  <div class="mcq"><p class="q">1. What does a function's <code>return</code> statement do?</p>
+    <button class="mcq-opt" data-correct="false">Prints a value to the screen</button>
+    <button class="mcq-opt" data-correct="true">Hands a value back to the code that called the function</button>
+    <button class="mcq-opt" data-correct="false">Deletes the function</button></div>
+
+  <div class="mcq"><p class="q">2. A variable created inside a function, with no <code>global</code> keyword, is:</p>
+    <button class="mcq-opt" data-correct="true">Local to that function</button>
+    <button class="mcq-opt" data-correct="false">Automatically global</button>
+    <button class="mcq-opt" data-correct="false">Deleted immediately</button></div>
+
+  <div class="mcq"><p class="q">3. <code>lambda x: x + 1</code> is best described as:</p>
+    <button class="mcq-opt" data-correct="true">An anonymous, one-line function</button>
+    <button class="mcq-opt" data-correct="false">A loop</button>
+    <button class="mcq-opt" data-correct="false">A class definition</button></div>
+
+  <div class="mcq"><p class="q">4. <code>filter()</code> is used to:</p>
+    <button class="mcq-opt" data-correct="false">Transform every element</button>
+    <button class="mcq-opt" data-correct="true">Keep only elements matching a condition</button>
+    <button class="mcq-opt" data-correct="false">Sort a list</button></div>
+
+  <div class="mcq"><p class="q">5. Which statement safely closes a file automatically?</p>
+    <button class="mcq-opt" data-correct="false">open("f.txt")</button>
+    <button class="mcq-opt" data-correct="true">with open("f.txt") as f:</button>
+    <button class="mcq-opt" data-correct="false">read("f.txt")</button></div>
+
+  <div class="mcq"><p class="q">6. A bare <code>except:</code> with no error type named is risky because:</p>
+    <button class="mcq-opt" data-correct="true">It silently catches every error, hiding real bugs</button>
+    <button class="mcq-opt" data-correct="false">It only works with ValueError</button>
+    <button class="mcq-opt" data-correct="false">It crashes the program on purpose</button></div>
+
+  <div class="mcq"><p class="q">7. In a class, <code>self</code> refers to:</p>
+    <button class="mcq-opt" data-correct="true">The specific object the method was called on</button>
+    <button class="mcq-opt" data-correct="false">The class name itself</button>
+    <button class="mcq-opt" data-correct="false">A global variable</button></div>
+
+  <div class="mcq"><p class="q">8. A class variable, compared to an instance variable, is:</p>
+    <button class="mcq-opt" data-correct="true">Shared by every object of that class</button>
+    <button class="mcq-opt" data-correct="false">Unique to each object</button>
+    <button class="mcq-opt" data-correct="false">Only usable in functions, not classes</button></div>
+
+  <div class="mcq"><p class="q">9. Which special method runs automatically when an object is created?</p>
+    <button class="mcq-opt" data-correct="false">__del__</button>
+    <button class="mcq-opt" data-correct="true">__init__</button>
+    <button class="mcq-opt" data-correct="false">__str__</button></div>
+
+  <div class="mcq"><p class="q">10. One parent class, many child classes each inheriting from it separately, is:</p>
+    <button class="mcq-opt" data-correct="false">Multilevel inheritance</button>
+    <button class="mcq-opt" data-correct="true">Hierarchical inheritance</button>
+    <button class="mcq-opt" data-correct="false">Multiple inheritance</button></div>
+
+  <div class="mcq"><p class="q">11. A double-underscore attribute like <code>__balance</code> triggers:</p>
+    <button class="mcq-opt" data-correct="true">Name mangling</button>
+    <button class="mcq-opt" data-correct="false">Automatic deletion</button>
+    <button class="mcq-opt" data-correct="false">A syntax error always</button></div>
+
+  <div class="mcq"><p class="q">12. Composition ("House has Rooms") implies:</p>
+    <button class="mcq-opt" data-correct="true">The part cannot meaningfully exist without the whole</button>
+    <button class="mcq-opt" data-correct="false">The part can exist completely independently</button>
+    <button class="mcq-opt" data-correct="false">There is no relationship at all</button></div>
+
+  <div class="mcq"><p class="q">13. Operator overloading lets you:</p>
+    <button class="mcq-opt" data-correct="true">Define how operators like + behave for your own class</button>
+    <button class="mcq-opt" data-correct="false">Overload a computer's CPU</button>
+    <button class="mcq-opt" data-correct="false">Delete an operator entirely</button></div>
+
+  <div class="mcq"><p class="q">14. An abstract method defined with <code>@abstractmethod</code>:</p>
+    <button class="mcq-opt" data-correct="true">Must be implemented by any concrete subclass</button>
+    <button class="mcq-opt" data-correct="false">Can never be overridden</button>
+    <button class="mcq-opt" data-correct="false">Runs automatically on import</button></div>
+
+  <div class="mcq"><p class="q">15. Continuous quantitative data is best described as:</p>
+    <button class="mcq-opt" data-correct="true">Able to take any value within a range, including fractions</button>
+    <button class="mcq-opt" data-correct="false">Only whole, countable numbers</button>
+    <button class="mcq-opt" data-correct="false">A category with no order</button></div>
+
+  <div class="mcq"><p class="q">16. Ordinal data differs from nominal data because ordinal data:</p>
+    <button class="mcq-opt" data-correct="true">Has a meaningful order between categories</button>
+    <button class="mcq-opt" data-correct="false">Can be averaged directly</button>
+    <button class="mcq-opt" data-correct="false">Is always numeric</button></div>
+
+  <div class="mcq"><p class="q">17. Which central tendency measure is least affected by extreme outliers?</p>
+    <button class="mcq-opt" data-correct="false">Mean</button>
+    <button class="mcq-opt" data-correct="true">Median</button>
+    <button class="mcq-opt" data-correct="false">They're all equally affected</button></div>
+
+  <div class="mcq"><p class="q">18. Standard deviation is calculated as:</p>
+    <button class="mcq-opt" data-correct="true">The square root of the variance</button>
+    <button class="mcq-opt" data-correct="false">The mean divided by the count</button>
+    <button class="mcq-opt" data-correct="false">The highest value minus the lowest</button></div>
+
+  <div class="mcq"><p class="q">19. A right-skewed (positively skewed) distribution has:</p>
+    <button class="mcq-opt" data-correct="true">A long tail stretching toward higher values</button>
+    <button class="mcq-opt" data-correct="false">Perfect symmetry</button>
+    <button class="mcq-opt" data-correct="false">No tail at all</button></div>
+
+  <div class="mcq"><p class="q">20. The Interquartile Range (IQR) is calculated as:</p>
+    <button class="mcq-opt" data-correct="true">Q3 minus Q1</button>
+    <button class="mcq-opt" data-correct="false">The mean minus the median</button>
+    <button class="mcq-opt" data-correct="false">The maximum value only</button></div>
+</section>
+
+<!-- ============================================================ EXERCISES -->
+<section class="day-section" id="exercises">
+  <h2>Practical Exercises</h2>
+  <div class="ex-grid">
+    <div class="ex-card"><span class="lvl easy">Easy</span><p>Write a function <code>is_even(n)</code> that returns <code>True</code> or <code>False</code>. Then use <code>filter()</code> with it to keep only even numbers from a list of 1–20.</p></div>
+    <div class="ex-card"><span class="lvl medium">Medium</span><p>Create a <code>Person</code> class with <code>name</code> and <code>age</code>, then a <code>Student</code> class that inherits from it and adds a <code>grade</code> attribute plus a <code>study()</code> method.</p></div>
+    <div class="ex-card"><span class="lvl hard">Hard</span><p>Build a <code>Shape</code> abstract base class with an abstract <code>area()</code> method, then implement <code>Rectangle</code> and <code>Triangle</code> subclasses and loop through a list of both, printing each area (dynamic polymorphism).</p></div>
+    <div class="ex-card"><span class="lvl expert">Expert</span><p>Given a list of 15 exam scores, write a script (no external libraries) that computes and prints the mean, median, mode, variance, standard deviation, and Z-score of the highest scorer — using only functions you write yourself.</p></div>
+  </div>
+</section>
+
+<!-- ============================================================ PROJECTS -->
+<section class="day-section" id="project" style="border-bottom:none;">
+  <h2>Mini Project</h2>
+  <p><strong>Library Management System (Console).</strong> Build a <code>Book</code> class
+    (title, author, is_borrowed) and a <code>Library</code> class that holds a list of Book
+    objects and offers methods to add a book, borrow a book (with a try/except for "book not
+    found"), and return a book. Use file handling to save the library's state to a text file when
+    the program exits, and reload it when it starts.</p>
+
+  <h2 style="margin-top:40px;">Industry Project</h2>
+  <p><strong>Employee Performance Statistics Report.</strong> Given a CSV-style list of employee
+    monthly sales figures, write a Python program using classes (an <code>Employee</code> class and
+    a <code>Team</code> class using composition) that computes each employee's mean and standard
+    deviation of sales, flags any employee whose Z-score is below −1.5 as "needs support," and
+    prints a formatted summary report — the same category of report a real sales-ops analyst
+    builds monthly.</p>
+
+  <h2 style="margin-top:40px;">Homework</h2>
+  <p>In your own words (no code), write a short paragraph explaining to a non-technical friend why
+    a company would report "median household income" instead of "mean household income" — and give
+    one more real-world example, outside of income, where the same reasoning applies.</p>
+</section>
+
+<!-- ============================================================ RESOURCES -->
+<section class="day-section" id="resources" style="border-bottom:none;">
+  <h2>Additional Resources</h2>
+  <ul>
+    <li><a href="https://docs.python.org/3/tutorial/classes.html" target="_blank" rel="noopener">Official Python Docs — Classes</a></li>
+    <li><a href="https://docs.python.org/3/library/exceptions.html" target="_blank" rel="noopener">Official Python Docs — Built-in Exceptions</a></li>
+    <li><a href="https://docs.python.org/3/library/dataclasses.html" target="_blank" rel="noopener">Official Python Docs — Data Classes</a></li>
+    <li><a href="https://docs.python.org/3/library/statistics.html" target="_blank" rel="noopener">Official Python Docs — statistics module</a></li>
+    <li><a href="https://www.data-to-viz.com/" target="_blank" rel="noopener">data-to-viz.com — choosing the right chart for your data</a></li>
+    <li><a href="https://www.w3schools.com/python/python_classes.asp" target="_blank" rel="noopener">W3Schools — Python Classes/Objects</a></li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    Week 2 of 12 · NAVTTC AI/ML/DL Course · <a href="../week1/index.html">← Week 1</a> · <a href="../index.html">All weeks</a>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
