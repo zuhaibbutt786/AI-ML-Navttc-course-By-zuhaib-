@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 7 — Deep Learning I: Neural Networks &amp; CNNs | AI·ML·DL Course</title>
+<meta name="description" content="Week 7 of the NAVTTC AI, ML &amp; Deep Learning course: Boosting ensembles, Multilayer Perceptrons, backpropagation, activation functions, vanishing gradients, dropout, Keras/TensorFlow/PyTorch, and Convolutional Neural Networks for images and text.">
+<meta name="keywords" content="deep learning, MLP, neural network, backpropagation, activation function, dropout, CNN, Keras, TensorFlow, PyTorch, boosting, XGBoost, NAVTTC, week 7">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<div class="progress-track"><div class="progress-fill"></div></div>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><a href="../index.html" style="color:inherit;text-decoration:none;">AI·ML<span>·DL</span> // navttc-course</a></div>
+    <nav class="topnav">
+      <a href="../week6/index.html">Week 6</a>
+      <a href="../index.html">All Weeks</a>
+      <button id="slideModeToggle" class="topnav-btn">&#9654; Slides</button>
+      <a href="https://github.com/zuhaibbutt786/AI-ML-Navttc-course-By-zuhaib-" target="_blank" rel="noopener">GitHub ↗</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" style="padding-top:44px;">
+  <div class="wrap">
+    <p class="eyebrow">week 7 of 12 · ~20 hours · intermediate → advanced</p>
+    <h1>Deep Learning I — Neural Networks &amp; CNNs</h1>
+    <p class="lede">This week is the turning point from classical ML into <strong>deep learning</strong>.
+      Day 1 closes the classical chapter with <strong>Boosting</strong> ensembles (AdaBoost,
+      Gradient Boosting, XGBoost). Days 2–5 build the foundation of neural networks:
+      multilayer perceptrons, forward and backward passes, activation functions, the
+      vanishing-gradient problem, dropout, then hands-on training with <strong>Keras /
+      TensorFlow / PyTorch</strong>, and finally <strong>Convolutional Neural Networks</strong>
+      for images (2D) and text (1D). By Friday you will train your first neural net from scratch
+      and classify images with a CNN.</p>
+    <div class="meta-row">
+      <span>Prerequisites: Weeks 1–6 (Python, NumPy, gradients, logistic regression, metrics)</span>
+      <span>Tools: NumPy · scikit-learn · Keras / TensorFlow · (optional) PyTorch</span>
+    </div>
+  </div>
+</section>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#day1">Day 1 · Boosting</a>
+    <a href="#day2">Day 2 · MLP &amp; Backprop</a>
+    <a href="#day3">Day 3 · Keras / TF / Torch</a>
+    <a href="#day4">Day 4 · CNNs</a>
+    <a href="#day5">Day 5 · Practice</a>
+    <a href="#cheatsheet">Cheat Sheet</a>
+    <a href="#mcqs">MCQs</a>
+    <a href="#project">Projects</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ============================================================ DAY 1 -->
+<section class="day-section" id="day1">
+  <div class="day-head"><span class="day-num">1</span><h2>Boosting — Closing Classical ML</h2></div>
+  <p class="day-sub">Hour 2–4 · From weak learners to strong ensembles (Tasks 56–64)</p>
+
+  <div class="topic">
+    <h3>Why Boosting Before Neural Nets? <span class="hr">Hour 2</span></h3>
+    <p>Last week you used a single Decision Tree and a Random Forest. <strong>Boosting</strong>
+      is another ensemble idea: instead of averaging independent trees, you train them
+      <em>sequentially</em>, each new tree focusing on the mistakes of the previous ones.
+      The result is often the strongest “out-of-the-box” model on tabular data — and still
+      dominates many Kaggle competitions alongside neural nets.</p>
+    <p>Three names you will meet in industry:</p>
+    <ul>
+      <li><strong>AdaBoost</strong> — reweights hard examples; historically important</li>
+      <li><strong>Gradient Boosting</strong> — each tree fits the residual (negative gradient) of the loss</li>
+      <li><strong>XGBoost / LightGBM / CatBoost</strong> — highly optimized gradient boosting libraries used in production</li>
+    </ul>
+  </div>
+
+  <div class="video-embed">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/3CC4N4z3GJc" title="Gradient Boosting" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="video-caption">Video: “Gradient Boosting — Clearly Explained” — StatQuest</p>
+
+  <div class="topic">
+    <h3>Gradient Boosting in One Picture <span class="hr">Hour 2–3</span></h3>
+    <pre>Start with a simple model F₀ (e.g. predict the mean)
+For m = 1 … M:
+    1. Compute residuals  rᵢ = yᵢ − Fₘ₋₁(xᵢ)     <span class="c"># what the current model still gets wrong</span>
+    2. Fit a small tree hₘ to the residuals
+    3. Update:  Fₘ = Fₘ₋₁ + η · hₘ               <span class="c"># η = learning rate (shrinkage)</span>
+Final prediction = F_M(x)</pre>
+    <p>The learning rate η keeps each step small so the ensemble generalizes better.
+      Typical values: 0.01 – 0.3. More trees + smaller η is usually safer than few trees + large η.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Hands-on with scikit-learn &amp; XGBoost <span class="hr">Hour 3–4</span></h3>
+    <pre>from sklearn.ensemble import GradientBoostingClassifier, AdaBoostClassifier
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X, y = load_breast_cancer(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+gb = GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=42)
+gb.fit(X_train, y_train)
+print(classification_report(y_test, gb.predict(X_test)))
+
+<span class="c"># Industry favourite (install: pip install xgboost)</span>
+<span class="c"># from xgboost import XGBClassifier</span>
+<span class="c"># xgb = XGBClassifier(n_estimators=100, learning_rate=0.1, max_depth=3, eval_metric='logloss')</span>
+<span class="c"># xgb.fit(X_train, y_train)</span></pre>
+    <div class="callout">
+      <span class="tag">When to use what</span>
+      Tabular data with mixed feature types → start with Gradient Boosting / XGBoost / LightGBM.
+      Images, audio, free-form text at scale → neural networks (the rest of this week and beyond).
+      Many production systems use both: boosting on structured features + a neural net on raw text/images.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">In gradient boosting, each new tree is primarily trained to:</p>
+      <button class="mcq-opt" data-correct="true">Fit the residuals (errors) of the current ensemble</button>
+      <button class="mcq-opt" data-correct="false">Ignore previous trees and start from scratch</button>
+      <button class="mcq-opt" data-correct="false">Only use the easiest examples</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 2 -->
+<section class="day-section" id="day2">
+  <div class="day-head"><span class="day-num">2</span><h2>MLP — Feed-Forward Neural Networks</h2></div>
+  <p class="day-sub">Hour 1–4 · Forward pass, activations, loss, backpropagation, regularization</p>
+
+  <div class="topic">
+    <h3>From Logistic Regression to a Neural Network <span class="hr">Hour 1</span></h3>
+    <p>Logistic Regression (Week 5) is a single neuron: weighted sum → sigmoid → probability.
+      A <strong>Multilayer Perceptron (MLP)</strong> stacks many such neurons in layers.
+      Hidden layers learn intermediate representations; the output layer produces the final prediction.</p>
+    <pre>Input layer   →  Hidden layer(s)  →  Output layer
+  x₁, x₂, …        z = g(Wx + b)       ŷ = softmax(…)  or  sigmoid(…)
+                   g = activation</pre>
+    <p>Each connection has a weight. Training means adjusting all weights so the network’s
+      predictions match the labels — exactly the same “guess → measure error → update” loop
+      you already know from gradient descent, just with far more parameters.</p>
+  </div>
+
+  <div class="video-embed">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/aircAruvnKk" title="Neural Networks" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="video-caption">Video: “But what is a neural network?” — 3Blue1Brown (highly recommended)</p>
+
+  <div class="topic">
+    <h3>Forward Pass &amp; Activation Functions <span class="hr">Hour 1–2</span></h3>
+    <p>The <strong>forward pass</strong> computes the output from the input by matrix multiplies
+      and non-linear activations at each layer:</p>
+    <pre>z¹ = W¹x + b¹
+a¹ = g(z¹)          <span class="c"># hidden activation</span>
+z² = W²a¹ + b²
+ŷ  = g_out(z²)      <span class="c"># output (sigmoid / softmax / linear)</span></pre>
+    <p>Without a non-linearity <code>g</code>, stacking layers collapses to one big linear model.
+      Common activations:</p>
+    <table>
+      <thead>
+        <tr><th>Function</th><th>Formula</th><th>Typical use</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>ReLU</strong></td><td>max(0, z)</td><td>Default for hidden layers</td></tr>
+        <tr><td><strong>Sigmoid</strong></td><td>1 / (1 + e⁻ᶻ)</td><td>Binary output, gates</td></tr>
+        <tr><td><strong>Tanh</strong></td><td>(eᶻ − e⁻ᶻ) / (eᶻ + e⁻ᶻ)</td><td>Hidden layers (older nets)</td></tr>
+        <tr><td><strong>Softmax</strong></td><td>eᶻᵢ / Σ eᶻⱼ</td><td>Multi-class output</td></tr>
+        <tr><td><strong>Leaky ReLU</strong></td><td>max(αz, z)</td><td>Avoids “dead” ReLUs</td></tr>
+      </tbody>
+    </table>
+    <pre>import numpy as np
+
+def relu(z):
+    return np.maximum(0, z)
+
+def sigmoid(z):
+    return 1 / (1 + np.exp(-np.clip(z, -500, 500)))
+
+def softmax(z):
+    e = np.exp(z - z.max(axis=-1, keepdims=True))  <span class="c"># stable</span>
+    return e / e.sum(axis=-1, keepdims=True)</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Loss: Cross-Entropy <span class="hr">Hour 2</span></h3>
+    <p>For classification we almost always use <strong>cross-entropy</strong> loss (the same idea
+      behind logistic regression’s cost function, generalized to many classes):</p>
+    <pre>Binary:     L = −[ y log ŷ + (1−y) log(1−ŷ) ]
+Multi-class: L = − Σₖ yₖ log ŷₖ     <span class="c">(y one-hot)</span></pre>
+    <p>Cross-entropy + softmax has a clean gradient and pushes probability mass onto the correct class.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Computational Graph &amp; Backpropagation <span class="hr">Hour 2–3</span></h3>
+    <p><strong>Backpropagation</strong> is just the chain rule applied systematically from the loss
+      back to every weight. Modern frameworks build a <em>computational graph</em> during the
+      forward pass and then walk it backwards to compute gradients automatically
+      (autograd / automatic differentiation).</p>
+    <pre>Forward:  store intermediate activations
+Backward: δ_output = ŷ − y                         <span class="c"># for softmax + CE</span>
+          δ_hidden = (W²ᵀ δ_output) ⊙ g'(z¹)
+          ∂L/∂W² = a¹ᵀ δ_output
+          ∂L/∂W¹ = xᵀ δ_hidden
+Then: W ← W − η · ∂L/∂W</pre>
+    <div class="callout">
+      <span class="tag">Intuition</span>
+      Each weight is blamed in proportion to how much it contributed to the final error.
+      That “blame signal” is exactly the gradient. 3Blue1Brown’s calculus series on backprop
+      is the clearest visual explanation available.
+    </div>
+  </div>
+
+  <div class="video-embed">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/Ilg3gGewQ5U" title="Backpropagation" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="video-caption">Video: “What is backpropagation really doing?” — 3Blue1Brown</p>
+
+  <div class="topic">
+    <h3>Vanishing &amp; Exploding Gradients <span class="hr">Hour 3</span></h3>
+    <p>In deep networks the gradient can shrink toward zero (vanishing) or blow up (exploding)
+      as it is multiplied through many layers. Symptoms: training stalls, or weights become NaN.</p>
+    <ul>
+      <li><strong>Causes:</strong> sigmoid/tanh in deep stacks, poor weight initialization, very deep nets</li>
+      <li><strong>Fixes:</strong> ReLU activations, careful init (He / Xavier), residual connections (later),
+        gradient clipping, batch normalization</li>
+    </ul>
+  </div>
+
+  <div class="topic">
+    <h3>Overfitting, Underfitting &amp; Dropout <span class="hr">Hour 4</span></h3>
+    <p>Neural nets are high-capacity models — they memorize training data easily.</p>
+    <ul>
+      <li><strong>Underfitting:</strong> both train and test error high → bigger model, train longer, better features</li>
+      <li><strong>Overfitting:</strong> train error low, test error high → more data, regularization, early stopping</li>
+    </ul>
+    <p><strong>Dropout</strong> randomly sets a fraction of activations to zero during training
+      (typical rate 0.2–0.5). At test time all units are used (scaled). It forces the network
+      not to rely on any single neuron — a powerful regularizer.</p>
+    <pre><span class="c"># conceptual dropout during training</span>
+mask = (np.random.rand(*a.shape) > drop_rate) / (1 - drop_rate)
+a_dropped = a * mask</pre>
+    <div class="callout warn">
+      <span class="tag">Remember</span>
+      Dropout is active only at training time. Frameworks handle the train/eval switch for you
+      when you call <code>model.train()</code> / <code>model.eval()</code> (PyTorch) or when
+      using the right mode in Keras.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">Why do we need non-linear activation functions between layers?</p>
+      <button class="mcq-opt" data-correct="true">Without them, stacked layers collapse into a single linear transform</button>
+      <button class="mcq-opt" data-correct="false">They make training faster on CPUs only</button>
+      <button class="mcq-opt" data-correct="false">They are required only for regression</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 3 -->
+<section class="day-section" id="day3">
+  <div class="day-head"><span class="day-num">3</span><h2>Implementing Neural Nets — Keras, TensorFlow, PyTorch</h2></div>
+  <p class="day-sub">Hour 1–4 · From theory to a trainable model in a few lines</p>
+
+  <div class="topic">
+    <h3>Choosing a Framework <span class="hr">Hour 1</span></h3>
+    <table>
+      <thead>
+        <tr><th>Framework</th><th>Strength</th><th>Typical use</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Keras (tf.keras)</strong></td><td>Fastest path to a working model</td><td>Teaching, prototypes, many production APIs</td></tr>
+        <tr><td><strong>TensorFlow</strong></td><td>Deployment, mobile, TF Serving</td><td>Large-scale production</td></tr>
+        <tr><td><strong>PyTorch</strong></td><td>Research, dynamic graphs, debugging</td><td>Research labs, modern industry default</td></tr>
+      </tbody>
+    </table>
+    <p>This course uses <strong>Keras</strong> for clarity; the same ideas transfer to PyTorch.</p>
+  </div>
+
+  <div class="topic">
+    <h3>First MLP in Keras <span class="hr">Hour 1–2</span></h3>
+    <pre>import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+
+<span class="c"># Example: binary classification on a feature matrix X (n_samples, n_features)</span>
+model = keras.Sequential([
+    layers.Input(shape=(X_train.shape[1],)),
+    layers.Dense(64, activation='relu'),
+    layers.Dropout(0.3),
+    layers.Dense(32, activation='relu'),
+    layers.Dense(1, activation='sigmoid')
+])
+
+model.compile(
+    optimizer=keras.optimizers.Adam(learning_rate=1e-3),
+    loss='binary_crossentropy',
+    metrics=['accuracy', keras.metrics.AUC(name='auc')]
+)
+
+history = model.fit(
+    X_train, y_train,
+    validation_split=0.2,
+    epochs=30,
+    batch_size=32,
+    callbacks=[
+        keras.callbacks.EarlyStopping(patience=5, restore_best_weights=True)
+    ]
+)
+
+model.evaluate(X_test, y_test)
+ŷ = (model.predict(X_test) > 0.5).astype(int)</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Same Idea in PyTorch <span class="hr">Hour 2–3</span></h3>
+    <pre>import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, TensorDataset
+
+class MLP(nn.Module):
+    def __init__(self, n_in):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(n_in, 64),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(64, 32),
+            nn.ReLU(),
+            nn.Linear(32, 1)
+        )
+    def forward(self, x):
+        return self.net(x).squeeze(-1)
+
+model = MLP(X_train.shape[1])
+opt = torch.optim.Adam(model.parameters(), lr=1e-3)
+loss_fn = nn.BCEWithLogitsLoss()
+
+X_t = torch.tensor(X_train, dtype=torch.float32)
+y_t = torch.tensor(y_train, dtype=torch.float32)
+loader = DataLoader(TensorDataset(X_t, y_t), batch_size=32, shuffle=True)
+
+model.train()
+for epoch in range(30):
+    for xb, yb in loader:
+        opt.zero_grad()
+        loss = loss_fn(model(xb), yb)
+        loss.backward()
+        opt.step()</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Training Hygiene Checklist <span class="hr">Hour 3–4</span></h3>
+    <ul>
+      <li>Scale inputs (StandardScaler / MinMax) — neural nets are sensitive to feature scale</li>
+      <li>Use a validation set or validation_split; monitor val_loss</li>
+      <li>EarlyStopping to avoid overfitting</li>
+      <li>Start with Adam and lr ≈ 1e-3; adjust if loss explodes or plateaus</li>
+      <li>Batch size 32–256 is a solid default on CPU/GPU</li>
+      <li>Plot train vs val curves — the most important debugging tool</li>
+    </ul>
+    <pre>import matplotlib.pyplot as plt
+plt.plot(history.history['loss'], label='train')
+plt.plot(history.history['val_loss'], label='val')
+plt.legend(); plt.xlabel('epoch'); plt.ylabel('loss')
+plt.title('Learning curves')</pre>
+    <div class="callout">
+      <span class="tag">Animation / visualization</span>
+      For visual intuition of how layers transform data, explore the neural-network animations at
+      <a href="https://nnfs.io/neural_network_animations" target="_blank" rel="noopener">nnfs.io/neural_network_animations</a>
+      and the classic TensorFlow Playground (playground.tensorflow.org).
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">EarlyStopping is mainly used to:</p>
+      <button class="mcq-opt" data-correct="true">Stop training when validation performance stops improving, reducing overfitting</button>
+      <button class="mcq-opt" data-correct="false">Increase the learning rate automatically</button>
+      <button class="mcq-opt" data-correct="false">Replace the need for a loss function</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 4 -->
+<section class="day-section" id="day4">
+  <div class="day-head"><span class="day-num">4</span><h2>Convolutional Neural Networks (CNNs)</h2></div>
+  <p class="day-sub">Hour 1–4 · Spatial filters for images and sequences for text</p>
+
+  <div class="topic">
+    <h3>Why Convolutions? <span class="hr">Hour 1</span></h3>
+    <p>A fully connected layer on a 224×224 RGB image would need tens of millions of weights
+      just for the first layer — and would ignore the fact that nearby pixels are related.
+      <strong>Convolution</strong> slides small learnable filters across the image, detecting
+      local patterns (edges, textures, then parts, then objects) with far fewer parameters
+      and translation equivariance.</p>
+    <pre>Input image
+  → Conv + ReLU + (optional Pool)   <span class="c"># low-level features</span>
+  → Conv + ReLU + Pool              <span class="c"># mid-level</span>
+  → …
+  → Flatten / GlobalAveragePool
+  → Dense → Softmax                 <span class="c"># class scores</span></pre>
+  </div>
+
+  <div class="video-embed">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/YRhxdVk_sIs" title="CNNs" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="video-caption">Video: Convolutional Neural Networks explained (intuitive walkthrough)</p>
+
+  <div class="topic">
+    <h3>2D CNN for Image Classification <span class="hr">Hour 1–2</span></h3>
+    <pre>from tensorflow.keras import layers, models
+
+model = models.Sequential([
+    layers.Input(shape=(28, 28, 1)),          <span class="c"># e.g. MNIST</span>
+    layers.Conv2D(32, 3, activation='relu'),
+    layers.MaxPooling2D(2),
+    layers.Conv2D(64, 3, activation='relu'),
+    layers.MaxPooling2D(2),
+    layers.Flatten(),
+    layers.Dense(64, activation='relu'),
+    layers.Dropout(0.4),
+    layers.Dense(10, activation='softmax')
+])
+
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+<span class="c"># history = model.fit(x_train, y_train, epochs=5, validation_split=0.1)</span></pre>
+    <p>Key layer ideas:</p>
+    <ul>
+      <li><code>Conv2D(filters, kernel_size)</code> — learnable filters</li>
+      <li><code>MaxPooling2D</code> — downsample, keep strongest response</li>
+      <li><code>Flatten</code> or <code>GlobalAveragePooling2D</code> — connect to dense head</li>
+    </ul>
+  </div>
+
+  <div class="topic">
+    <h3>1D CNN for Text / Sequences <span class="hr">Hour 3–4</span></h3>
+    <p>The same idea works on sequences: slide filters over token embeddings to detect
+      local n-gram patterns. 1D CNNs are fast and strong baselines for text classification
+      before you move to RNNs / Transformers (Weeks 8–9).</p>
+    <pre>vocab_size = 10000
+max_len = 200
+embed_dim = 64
+
+text_model = models.Sequential([
+    layers.Embedding(vocab_size, embed_dim, input_length=max_len),
+    layers.Conv1D(128, 5, activation='relu'),
+    layers.GlobalMaxPooling1D(),
+    layers.Dense(64, activation='relu'),
+    layers.Dense(1, activation='sigmoid')
+])
+
+text_model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+<span class="c"># text_model.fit(x_train_seq, y_train, epochs=5, validation_split=0.2)</span></pre>
+    <div class="callout">
+      <span class="tag">Industry note</span>
+      CNNs still power many vision systems (with ResNet, EfficientNet, etc.). For pure text,
+      Transformers dominate benchmarks, but 1D CNNs remain useful when you need speed and
+      a simple pipeline on moderate data.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">The main reason CNNs use shared convolutional filters instead of a fully connected first layer on images is:</p>
+      <button class="mcq-opt" data-correct="true">Far fewer parameters and local pattern detection with translation equivariance</button>
+      <button class="mcq-opt" data-correct="false">They only work on black-and-white images</button>
+      <button class="mcq-opt" data-correct="false">They remove the need for any non-linear activation</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 5 -->
+<section class="day-section" id="day5">
+  <div class="day-head"><span class="day-num">5</span><h2>Code Practice — End-to-End Neural Nets</h2></div>
+  <p class="day-sub">Hour 1–4 · Put MLP and CNN skills into working experiments</p>
+
+  <div class="topic">
+    <h3>Practice Track A — MLP on Tabular Data</h3>
+    <ol>
+      <li>Load a tabular dataset (breast cancer, wine, or a Kaggle CSV)</li>
+      <li>Train/test split + StandardScaler</li>
+      <li>Build a Keras MLP with Dropout and EarlyStopping</li>
+      <li>Compare against GradientBoostingClassifier from Day 1 on the same split</li>
+      <li>Report accuracy, F1, and a short note on which model you would ship and why</li>
+    </ol>
+  </div>
+
+  <div class="topic">
+    <h3>Practice Track B — CNN on MNIST or Fashion-MNIST</h3>
+    <pre>from tensorflow.keras.datasets import mnist
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+x_train = x_train[..., None] / 255.0
+x_test  = x_test[..., None] / 255.0
+
+<span class="c"># Use the Conv2D model from Day 4</span>
+<span class="c"># model.fit(x_train, y_train, epochs=5, validation_split=0.1, batch_size=128)</span>
+<span class="c"># model.evaluate(x_test, y_test)</span></pre>
+    <p>Stretch goals: data augmentation (<code>RandomRotation</code>, <code>RandomZoom</code>),
+      a confusion matrix, and saving the model with <code>model.save('mnist_cnn.keras')</code>.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Practice Track C — From-Scratch Mini MLP (NumPy)</h3>
+    <p>Implement a 2-layer network with ReLU + softmax, cross-entropy, and manual backprop
+      for a small problem (e.g. XOR or a 2D toy dataset). This locks in the math before
+      you rely entirely on autograd.</p>
+    <pre><span class="c"># Sketch</span>
+<span class="c"># W1, b1, W2, b2 = init...</span>
+<span class="c"># for epoch in range(N):</span>
+<span class="c">#     a1 = relu(X @ W1 + b1)</span>
+<span class="c">#     probs = softmax(a1 @ W2 + b2)</span>
+<span class="c">#     loss = cross_entropy(probs, y)</span>
+<span class="c">#     # backward + SGD update</span></pre>
+  </div>
+
+  <div class="topic">
+    <h3>Debugging Playbook</h3>
+    <ul>
+      <li>Loss is NaN → lower learning rate, clip gradients, check for log(0)</li>
+      <li>Loss flat from epoch 1 → learning rate too small, or labels/features wrong scale</li>
+      <li>Train acc ≫ val acc → more dropout, more data, simpler model, early stop</li>
+      <li>Both acc low → undercapacity or undertraining; train longer / wider net</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ CHEAT SHEET -->
+<section class="day-section" id="cheatsheet">
+  <div class="day-head"><span class="day-num">★</span><h2>Week 7 Cheat Sheet</h2></div>
+
+  <div class="topic">
+    <h3>Boosting vs Neural Net (quick chooser)</h3>
+    <table>
+      <thead>
+        <tr><th></th><th>Gradient Boosting / XGBoost</th><th>MLP / CNN</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Best data</td><td>Tabular, mixed types</td><td>Images, audio, large text, raw signals</td></tr>
+        <tr><td>Feature scaling</td><td>Often optional for trees</td><td>Usually required</td></tr>
+        <tr><td>Interpretability</td><td>Feature importances, SHAP</td><td>Harder (saliency, Grad-CAM)</td></tr>
+        <tr><td>Data size</td><td>Strong on small–medium</td><td>Shines with large data + GPU</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="topic">
+    <h3>MLP building blocks</h3>
+    <pre>Dense(units, activation)
+Dropout(rate)          <span class="c"># train only</span>
+Activation: ReLU (hidden), sigmoid / softmax (output)
+Loss: binary_crossentropy | sparse_categorical_crossentropy
+Optimizer: Adam(lr=1e-3)
+Callbacks: EarlyStopping(patience=…, restore_best_weights=True)</pre>
+  </div>
+
+  <div class="topic">
+    <h3>CNN building blocks</h3>
+    <pre>Conv2D(filters, kernel_size, activation='relu')
+MaxPooling2D(pool_size)
+Conv1D(...) + GlobalMaxPooling1D / GlobalAveragePooling1D
+Flatten() or GlobalAveragePooling2D()
+Then Dense head + softmax / sigmoid</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Gradient health</h3>
+    <pre>Vanishing  → ReLU, He init, residual links, BatchNorm
+Exploding  → lower lr, gradient clipping
+Overfit    → Dropout, early stopping, more data, weight decay</pre>
+  </div>
+</section>
+
+<!-- ============================================================ MCQs -->
+<section class="day-section" id="mcqs">
+  <div class="day-head"><span class="day-num">?</span><h2>Self-Check MCQs (20 questions)</h2></div>
+  <p class="day-sub">Click an answer to check. Revisit the matching day if several are wrong.</p>
+
+  <div class="mcq"><p class="q">1. Gradient boosting trains each new tree mainly on:</p>
+    <button class="mcq-opt" data-correct="true">The residuals of the current ensemble</button>
+    <button class="mcq-opt" data-correct="false">A random subset of features only</button>
+    <button class="mcq-opt" data-correct="false">Only correctly classified examples</button></div>
+
+  <div class="mcq"><p class="q">2. A Multilayer Perceptron differs from logistic regression mainly by:</p>
+    <button class="mcq-opt" data-correct="true">Having one or more hidden layers with non-linear activations</button>
+    <button class="mcq-opt" data-correct="false">Not using any weights</button>
+    <button class="mcq-opt" data-correct="false">Only working for regression</button></div>
+
+  <div class="mcq"><p class="q">3. ReLU(z) is defined as:</p>
+    <button class="mcq-opt" data-correct="true">max(0, z)</button>
+    <button class="mcq-opt" data-correct="false">1 / (1 + e⁻ᶻ)</button>
+    <button class="mcq-opt" data-correct="false">tanh(z)</button></div>
+
+  <div class="mcq"><p class="q">4. Without non-linear activations, a deep stack of dense layers is equivalent to:</p>
+    <button class="mcq-opt" data-correct="true">A single linear transformation</button>
+    <button class="mcq-opt" data-correct="false">A random forest</button>
+    <button class="mcq-opt" data-correct="false">A convolutional network</button></div>
+
+  <div class="mcq"><p class="q">5. Cross-entropy loss for classification measures:</p>
+    <button class="mcq-opt" data-correct="true">How well predicted class probabilities match the true labels</button>
+    <button class="mcq-opt" data-correct="false">Only the Euclidean distance between weights</button>
+    <button class="mcq-opt" data-correct="false">The number of layers in the network</button></div>
+
+  <div class="mcq"><p class="q">6. Backpropagation is fundamentally:</p>
+    <button class="mcq-opt" data-correct="true">The chain rule applied to compute gradients of the loss w.r.t. each weight</button>
+    <button class="mcq-opt" data-correct="false">A method to increase the learning rate every epoch</button>
+    <button class="mcq-opt" data-correct="false">A replacement for the loss function</button></div>
+
+  <div class="mcq"><p class="q">7. Vanishing gradients make training hard because:</p>
+    <button class="mcq-opt" data-correct="true">Updates to early layers become tiny and learning stalls</button>
+    <button class="mcq-opt" data-correct="false">The dataset shrinks automatically</button>
+    <button class="mcq-opt" data-correct="false">Softmax can no longer be used</button></div>
+
+  <div class="mcq"><p class="q">8. Dropout helps mainly by:</p>
+    <button class="mcq-opt" data-correct="true">Reducing co-adaptation of neurons and acting as regularization</button>
+    <button class="mcq-opt" data-correct="false">Increasing the number of parameters</button>
+    <button class="mcq-opt" data-correct="false">Removing the need for a validation set</button></div>
+
+  <div class="mcq"><p class="q">9. Dropout is applied:</p>
+    <button class="mcq-opt" data-correct="true">During training only (disabled at evaluation time)</button>
+    <button class="mcq-opt" data-correct="false">Only at test time</button>
+    <button class="mcq-opt" data-correct="false">Never in CNNs</button></div>
+
+  <div class="mcq"><p class="q">10. A common default optimizer for neural nets is:</p>
+    <button class="mcq-opt" data-correct="true">Adam</button>
+    <button class="mcq-opt" data-correct="false">K-means</button>
+    <button class="mcq-opt" data-correct="false">Apriori</button></div>
+
+  <div class="mcq"><p class="q">11. EarlyStopping monitors validation metrics in order to:</p>
+    <button class="mcq-opt" data-correct="true">Halt training when generalization stops improving</button>
+    <button class="mcq-opt" data-correct="false">Force the model to use more epochs</button>
+    <button class="mcq-opt" data-correct="false">Replace cross-entropy with MSE</button></div>
+
+  <div class="mcq"><p class="q">12. For image data, Conv2D layers are preferred over a huge Dense first layer because they:</p>
+    <button class="mcq-opt" data-correct="true">Share filters spatially and use far fewer parameters</button>
+    <button class="mcq-opt" data-correct="false">Only work with one color channel</button>
+    <button class="mcq-opt" data-correct="false">Eliminate the need for labels</button></div>
+
+  <div class="mcq"><p class="q">13. MaxPooling2D typically:</p>
+    <button class="mcq-opt" data-correct="true">Downsamples feature maps while keeping strong activations</button>
+    <button class="mcq-opt" data-correct="false">Increases image resolution</button>
+    <button class="mcq-opt" data-correct="false">Computes the softmax</button></div>
+
+  <div class="mcq"><p class="q">14. A 1D CNN for text usually starts with:</p>
+    <button class="mcq-opt" data-correct="true">An Embedding layer, then Conv1D over the sequence</button>
+    <button class="mcq-opt" data-correct="false">A Decision Tree</button>
+    <button class="mcq-opt" data-correct="false">Only TF-IDF without any neural layers</button></div>
+
+  <div class="mcq"><p class="q">15. Softmax is most often used:</p>
+    <button class="mcq-opt" data-correct="true">As the output activation for multi-class classification</button>
+    <button class="mcq-opt" data-correct="false">As the only activation in every hidden layer</button>
+    <button class="mcq-opt" data-correct="false">To initialize weights</button></div>
+
+  <div class="mcq"><p class="q">16. He / Xavier initialization helps primarily with:</p>
+    <button class="mcq-opt" data-correct="true">Keeping activation and gradient scales healthy at the start of training</button>
+    <button class="mcq-opt" data-correct="false">Choosing the batch size</button>
+    <button class="mcq-opt" data-correct="false">Downloading datasets</button></div>
+
+  <div class="mcq"><p class="q">17. If training loss is low but validation loss is high, the model is likely:</p>
+    <button class="mcq-opt" data-correct="true">Overfitting</button>
+    <button class="mcq-opt" data-correct="false">Underfitting</button>
+    <button class="mcq-opt" data-correct="false">Perfectly calibrated</button></div>
+
+  <div class="mcq"><p class="q">18. XGBoost is best described as:</p>
+    <button class="mcq-opt" data-correct="true">An optimized gradient-boosting library widely used on tabular data</button>
+    <button class="mcq-opt" data-correct="false">A type of convolutional filter</button>
+    <button class="mcq-opt" data-correct="false">A replacement for softmax</button></div>
+
+  <div class="mcq"><p class="q">19. In Keras, model.compile(...) sets:</p>
+    <button class="mcq-opt" data-correct="true">Optimizer, loss function, and metrics</button>
+    <button class="mcq-opt" data-correct="false">Only the number of epochs</button>
+    <button class="mcq-opt" data-correct="false">The GPU driver version</button></div>
+
+  <div class="mcq"><p class="q">20. Feature scaling before training an MLP is important because:</p>
+    <button class="mcq-opt" data-correct="true">Gradient-based optimizers work much more reliably when inputs share a similar scale</button>
+    <button class="mcq-opt" data-correct="false">Neural nets cannot read unscaled integers at all</button>
+    <button class="mcq-opt" data-correct="false">It removes the need for a non-linear activation</button></div>
+</section>
+
+<!-- ============================================================ PROJECTS -->
+<section class="day-section" id="project">
+  <div class="day-head"><span class="day-num">🚀</span><h2>Week 7 Projects</h2></div>
+
+  <div class="topic">
+    <h3>Project 1 — Boosting vs MLP on Tabular Data</h3>
+    <p>Pick one structured dataset. Train (1) GradientBoostingClassifier or XGBClassifier and
+      (2) a Keras MLP with Dropout + EarlyStopping. Compare test metrics and training time.
+      Write 5–10 lines on which you would deploy for a business dashboard and why.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Project 2 — MNIST CNN</h3>
+    <p>Train a small Conv2D network on MNIST or Fashion-MNIST. Target ≥ 98% test accuracy on
+      MNIST with ≤ 10 epochs. Save the model and show 10 misclassified examples.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Project 3 — 1D CNN Sentiment Classifier</h3>
+    <p>Reuse a movie-review or SMS dataset from Week 6. Replace TF-IDF + LinearSVC with
+      Embedding + Conv1D + GlobalMaxPool. Compare F1 scores. Note speed and overfitting behavior.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Week 7 of 12 · NAVTTC AI / ML / Deep Learning · Neural networks foundation</p>
+    <p><a href="../week6/index.html">← Week 6</a> · <a href="../index.html">All Weeks</a> · Week 8 (RNN / LSTM / GRU) next</p>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
