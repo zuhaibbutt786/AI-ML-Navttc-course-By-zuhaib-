@@ -88,6 +88,35 @@
   <div class="day-head"><span class="day-num">1</span><h2>Word Embeddings — Word2Vec</h2></div>
   <p class="day-sub">Hour 2–4 · From one-hot to dense semantic vectors</p>
 
+  <!-- WORKED-SKIPGRAM -->
+
+  <div class="topic" id="worked-skipgram">
+    <h3>Worked example — Skip-gram pairs (window = 1)</h3>
+    <pre>Sentence: "I love deep learning"
+Tokens:  [I, love, deep, learning]
+
+Skip-gram training pairs (target → context):
+  love     → I
+  love     → deep
+  deep     → love
+  deep     → learning
+  learning → deep
+  (and edge cases for “I”)
+
+Idea: the model learns a vector for “deep” that is good at predicting
+nearby words “love” and “learning”. After training on lots of text,
+similar words end up with similar vectors.</pre>
+    <p><strong>Cosine similarity</strong> of two vectors a, b:</p>
+    <pre>cosθ = (a · b) / (|a| |b|)
+
+Example: a = [1, 2], b = [2, 3]
+a·b = 1*2 + 2*3 = 8
+|a| = √5 ≈ 2.236,  |b| = √13 ≈ 3.606
+cosθ ≈ 8 / (2.236*3.606) ≈ 0.99  (very similar direction)</pre>
+  </div>
+
+
+
   <div class="topic">
     <h3>Why Embeddings Beat One-Hot / BoW <span class="hr">Hour 2</span></h3>
     <p>One-hot vectors treat every word as orthogonal — “cat” and “dog” are as different as
