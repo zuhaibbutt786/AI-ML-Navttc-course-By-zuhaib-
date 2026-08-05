@@ -227,6 +227,27 @@ print(clean_text(sample))
   <div class="day-head"><span class="day-num">2</span><h2>Text Pipeline — Tokenization to Features</h2></div>
   <p class="day-sub">Hour 1–4 · Turning cleaned text into model-ready numbers</p>
 
+  <!-- WORKED-BOW -->
+
+  <div class="topic" id="worked-bow">
+    <h3>Worked example — Bag of Words on 3 sentences</h3>
+    <pre>Doc1: "I love ml"
+Doc2: "I love nlp"
+Doc3: "ml is fun"
+
+Vocabulary (sorted): [fun, i, is, love, ml, nlp]
+Count vectors:
+Doc1 → [0, 1, 0, 1, 1, 0]
+Doc2 → [0, 1, 0, 1, 0, 1]
+Doc3 → [1, 0, 1, 0, 1, 0]
+
+Dot product Doc1·Doc2 = 1+1 = 2  (share “i” and “love”)
+Doc1·Doc3 = 1  (share “ml” only)</pre>
+    <p><strong>TF-IDF idea:</strong> words that appear in almost every doc (like “i”) get a smaller weight; rare informative words get a larger weight.</p>
+  </div>
+
+
+
   <div class="topic">
     <h3>Tokenization &amp; Word Segmentation <span class="hr">Hour 1</span></h3>
     <p><strong>Tokenization</strong> splits text into smaller units (tokens) — usually words or
@@ -377,6 +398,29 @@ print(sim)
 <section class="day-section" id="day3">
   <div class="day-head"><span class="day-num">3</span><h2>Testing, Evaluation Metrics &amp; Imbalance</h2></div>
   <p class="day-sub">Hour 1–4 · How to know if your model is actually good</p>
+
+  <!-- WORKED-METRICS -->
+
+  <div class="topic" id="worked-metrics">
+    <h3>Worked example — confusion matrix with numbers</h3>
+    <p><strong>Spam filter test:</strong> 10 emails. Spam = positive class.</p>
+    <pre>True labels:  spam spam ham  spam ham  ham  spam ham  ham  spam
+Predictions:  spam ham  ham  spam ham  spam spam ham  ham  spam
+
+Count:
+  TP (spam→spam) = 4
+  FN (spam→ham)  = 1
+  FP (ham→spam)  = 1
+  TN (ham→ham)   = 4
+
+Accuracy  = (TP+TN)/10 = 8/10 = 0.80
+Precision = TP/(TP+FP) = 4/5 = 0.80   “of emails I called spam, 80% were spam”
+Recall    = TP/(TP+FN) = 4/5 = 0.80   “I caught 80% of real spam”
+F1        = 2·0.80·0.80/(0.80+0.80) = 0.80</pre>
+    <p>If the model always predicts “ham”, accuracy can still look high when spam is rare — that is why precision/recall matter.</p>
+  </div>
+
+
 
   <div class="topic">
     <h3>Why Accuracy Alone Lies <span class="hr">Hour 1–2</span></h3>
