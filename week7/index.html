@@ -164,6 +164,35 @@ print(classification_report(y_test, gb.predict(X_test)))
   <div class="day-head"><span class="day-num">2</span><h2>MLP — Feed-Forward Neural Networks</h2></div>
   <p class="day-sub">Hour 1–4 · Forward pass, activations, loss, backpropagation, regularization</p>
 
+  <!-- WORKED-FORWARD -->
+
+  <div class="topic" id="worked-forward">
+    <h3>Worked example — one forward pass (numbers)</h3>
+    <p>Tiny network: 2 inputs → 2 hidden (ReLU) → 1 output (sigmoid). Binary classification.</p>
+    <pre>Input x = [1.0, 0.5]
+
+Hidden weights W1 = [[0.2, 0.4],
+                     [0.6, 0.1]]   # shape (2 in × 2 hidden)
+Hidden bias  b1 = [0.1, −0.2]
+
+z1 = x · W1 + b1
+   = [1.0*0.2 + 0.5*0.6,  1.0*0.4 + 0.5*0.1] + [0.1, −0.2]
+   = [0.2+0.3, 0.4+0.05] + [0.1, −0.2]
+   = [0.6, 0.25]
+
+a1 = ReLU(z1) = [max(0,0.6), max(0,0.25)] = [0.6, 0.25]
+
+Output weights W2 = [0.5, −0.3],  b2 = 0.0
+z2 = 0.6*0.5 + 0.25*(−0.3) + 0 = 0.30 − 0.075 = 0.225
+ŷ  = σ(0.225) ≈ 0.556
+
+If true label y = 1:
+  loss ≈ −log(0.556) ≈ 0.59</pre>
+    <p>Backprop would nudge W1, W2 so that next time ŷ moves closer to 1.</p>
+  </div>
+
+
+
   <div class="topic">
     <h3>From Logistic Regression to a Neural Network <span class="hr">Hour 1</span></h3>
     <p>Logistic Regression (Week 5) is a single neuron: weighted sum → sigmoid → probability.
@@ -422,6 +451,26 @@ plt.title('Learning curves')</pre>
 <section class="day-section" id="day4">
   <div class="day-head"><span class="day-num">4</span><h2>Convolutional Neural Networks (CNNs)</h2></div>
   <p class="day-sub">Hour 1–4 · Spatial filters for images and sequences for text</p>
+
+  <!-- WORKED-CONV -->
+
+  <div class="topic" id="worked-conv">
+    <h3>Worked example — 1D convolution (toy)</h3>
+    <pre>Input signal (length 5):  [1, 2, 3, 2, 1]
+Filter (kernel size 3):   [1, 0, −1]
+
+Slide filter:
+  pos0: 1*1 + 2*0 + 3*(−1) = 1−3 = −2
+  pos1: 2*1 + 3*0 + 2*(−1) = 2−2 =  0
+  pos2: 3*1 + 2*0 + 1*(−1) = 3−1 =  2
+
+Output feature map: [−2, 0, 2]
+
+Meaning: this filter responds to “rising then falling” patterns.
+In images, 2D filters learn edges the same way — just on a grid.</pre>
+  </div>
+
+
 
   <div class="topic">
     <h3>Why Convolutions? <span class="hr">Hour 1</span></h3>
