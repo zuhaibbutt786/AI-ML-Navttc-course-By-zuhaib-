@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 9 — Word Embeddings &amp; Sequence Models | AI·ML·DL Course</title>
+<meta name="description" content="Week 9 of the NAVTTC AI, ML &amp; Deep Learning course: Word2Vec (CBOW &amp; Skip-gram), Gensim training, custom embeddings, and sequence model patterns — 1-to-1, 1-to-many, many-to-1, many-to-many — with Keras code and quizzes.">
+<meta name="keywords" content="Word2Vec, CBOW, Skip-gram, Gensim, word embeddings, sequence models, encoder decoder, many-to-many, NAVTTC, week 9">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<div class="progress-track"><div class="progress-fill"></div></div>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><a href="../index.html" style="color:inherit;text-decoration:none;">AI·ML<span>·DL</span> // navttc-course</a></div>
+    <nav class="topnav">
+      <a href="../week8/index.html">Week 8</a>
+      <a href="../index.html">All Weeks</a>
+      <button id="slideModeToggle" class="topnav-btn">&#9654; Slides</button>
+      <a href="https://github.com/zuhaibbutt786/AI-ML-Navttc-course-By-zuhaib-" target="_blank" rel="noopener">GitHub ↗</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" style="padding-top:44px;">
+  <div class="wrap">
+    <p class="eyebrow">week 9 of 12 · ~20 hours · intermediate → advanced</p>
+    <h1>Word Embeddings &amp; Sequence Model Patterns</h1>
+    <p class="lede">Week 6 gave you Bag-of-Words and TF-IDF — sparse, high-dimensional, no notion of
+      similarity. This week replaces that with <strong>dense word embeddings</strong>: vectors where
+      “king − man + woman ≈ queen”. You will train <strong>Word2Vec</strong> (CBOW and Skip-gram)
+      with Gensim, plug custom embeddings into Keras, then systematize the four
+      <strong>sequence I/O patterns</strong> (1→1, 1→many, many→1, many→many) that underly
+      translation, captioning, tagging, and classification. This is the last classical-DL
+      sequence week before the project and Azure modules.</p>
+    <div class="meta-row">
+      <span>Prerequisites: Weeks 6–8 (NLP pipeline, RNN/LSTM/GRU, Keras Embedding)</span>
+      <span>Tools: Gensim · TensorFlow / Keras · NumPy</span>
+    </div>
+  </div>
+</section>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#day1">Day 1 · Word2Vec</a>
+    <a href="#day2">Day 2 · Gensim</a>
+    <a href="#day3">Day 3 · Sequence Models</a>
+    <a href="#day4">Day 4 · 1→1 &amp; 1→Many</a>
+    <a href="#day5">Day 5 · Many→1 &amp; Many→Many</a>
+    <a href="#cheatsheet">Cheat Sheet</a>
+    <a href="#mcqs">MCQs</a>
+    <a href="#project">Projects</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ============================================================ DAY 1 -->
+<section class="day-section" id="day1">
+  <div class="day-head"><span class="day-num">1</span><h2>Word Embeddings — Word2Vec</h2></div>
+  <p class="day-sub">Hour 2–4 · From one-hot to dense semantic vectors</p>
+
+  <div class="topic">
+    <h3>Why Embeddings Beat One-Hot / BoW <span class="hr">Hour 2</span></h3>
+    <p>One-hot vectors treat every word as orthogonal — “cat” and “dog” are as different as
+      “cat” and “quantum”. <strong>Word embeddings</strong> place each word in a continuous
+      vector space (often 50–300 dimensions) so that related words land near each other.
+      Arithmetic on those vectors recovers analogies and power downstream models with far
+      fewer parameters than huge sparse bags.</p>
+    <pre><span class="c"># Conceptual: after training</span>
+vec("king") - vec("man") + vec("woman")  ≈  vec("queen")
+vec("Paris") - vec("France") + vec("Italy") ≈ vec("Rome")</pre>
+  </div>
+
+  <div class="video-embed">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/viZrOnJclY0" title="Word2Vec" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="video-caption">Video: Word2Vec — intuition and training objective</p>
+
+  <div class="topic">
+    <h3>CBOW vs Skip-gram <span class="hr">Hour 2–3</span></h3>
+    <p><strong>Word2Vec</strong> (Mikolov et al., 2013) trains a shallow net so that context predicts
+      a word — or a word predicts its context:</p>
+    <table>
+      <thead>
+        <tr><th>Variant</th><th>Input</th><th>Predicts</th><th>Often better when…</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>CBOW</strong> (Continuous Bag of Words)</td>
+          <td>Context window around a target</td><td>The target word</td>
+          <td>Large data, frequent words, faster training</td>
+        </tr>
+        <tr>
+          <td><strong>Skip-gram</strong></td>
+          <td>A single target word</td>
+          <td>Words in its context window</td>
+          <td>Smaller data, rare words, richer geometry</td>
+        </tr>
+      </tbody>
+    </table>
+    <pre>Window size w = 2, sentence: "the quick brown fox jumps"
+Skip-gram pairs for target "brown":
+  (brown → quick), (brown → the), (brown → fox), (brown → jumps)
+CBOW for target "brown":
+  {the, quick, fox, jumps} → brown</pre>
+    <p>Training uses hierarchical softmax or <strong>negative sampling</strong> so you do not
+      compute a full softmax over the entire vocabulary every step.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Properties You Should Expect <span class="hr">Hour 3–4</span></h3>
+    <ul>
+      <li>Cosine similarity ≈ semantic / syntactic relatedness</li>
+      <li>Linear analogies work surprisingly often (but not always)</li>
+      <li>Out-of-vocabulary (OOV) words need a strategy: &lt;UNK&gt;, subword models (FastText), or character CNNs</li>
+      <li>Domain matters: general Wikipedia embeddings ≠ medical or legal text</li>
+    </ul>
+    <div class="callout">
+      <span class="tag">Modern context</span>
+      Static Word2Vec assigns <em>one</em> vector per word type. Contextual models (ELMo, BERT)
+      give different vectors for “bank” in “river bank” vs “money bank”. You still need Word2Vec
+      literacy: it is fast, interpretable, and a strong baseline for many production systems.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">Skip-gram Word2Vec is trained to:</p>
+      <button class="mcq-opt" data-correct="true">Predict context words given a target word</button>
+      <button class="mcq-opt" data-correct="false">Predict a target word from a bag of context words only</button>
+      <button class="mcq-opt" data-correct="false">Cluster documents with K-means</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 2 -->
+<section class="day-section" id="day2">
+  <div class="day-head"><span class="day-num">2</span><h2>Gensim &amp; Custom Embedding Training</h2></div>
+  <p class="day-sub">Hour 1–4 · Train, inspect, and export vectors for Keras</p>
+
+  <div class="topic">
+    <h3>Training Word2Vec with Gensim <span class="hr">Hour 1–2</span></h3>
+    <pre><span class="c"># pip install gensim</span>
+from gensim.models import Word2Vec
+
+<span class="c"># sentences: list of token lists</span>
+sentences = [
+    ["machine", "learning", "is", "fun"],
+    ["deep", "learning", "uses", "neural", "networks"],
+    ["natural", "language", "processing", "needs", "embeddings"],
+    <span class="c"># ... thousands more lines from your corpus</span>
+]
+
+model = Word2Vec(
+    sentences,
+    vector_size=100,   <span class="c"># embedding dimension</span>
+    window=5,
+    min_count=2,
+    sg=1,              <span class="c"># 1 = Skip-gram, 0 = CBOW</span>
+    negative=5,
+    workers=4,
+    epochs=10
+)
+
+print(model.wv.most_similar("learning", topn=5))
+print(model.wv.similarity("machine", "deep"))
+<span class="c"># Analogy: king - man + woman</span>
+print(model.wv.most_similar(positive=["king", "woman"], negative=["man"], topn=3))</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Saving, Loading &amp; KeyedVectors <span class="hr">Hour 2</span></h3>
+    <pre>model.save("w2v_custom.model")
+model.wv.save("w2v_custom.kv")          <span class="c"># vectors only — smaller</span>
+
+from gensim.models import KeyedVectors
+kv = KeyedVectors.load("w2v_custom.kv")
+<span class="c"># Or load pretrained Google News / domain vectors if licensed for your use</span></pre>
+  </div>
+
+  <div class="topic">
+    <h3>Plug Embeddings into Keras <span class="hr">Hour 3–4</span></h3>
+    <pre>import numpy as np
+from tensorflow.keras.layers import Embedding
+
+vocab = list(model.wv.index_to_key)
+word2idx = {w: i + 1 for i, w in enumerate(vocab)}  <span class="c"># 0 reserved for pad</span>
+embed_dim = model.wv.vector_size
+embedding_matrix = np.zeros((len(vocab) + 1, embed_dim))
+for w, i in word2idx.items():
+    embedding_matrix[i] = model.wv[w]
+
+emb_layer = Embedding(
+    input_dim=len(vocab) + 1,
+    output_dim=embed_dim,
+    weights=[embedding_matrix],
+    trainable=False,          <span class="c"># freeze, or True to fine-tune</span>
+    mask_zero=True
+)</pre>
+    <div class="callout warn">
+      <span class="tag">Alignment</span>
+      The row index of each word in <code>embedding_matrix</code> must match the integer IDs
+      your Tokenizer (or custom word2idx) produces. A single off-by-one error silently
+      destroys performance.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Practical Training Tips</h3>
+    <ul>
+      <li>Clean and tokenize consistently with the downstream model</li>
+      <li><code>min_count</code> filters noise; raise it on huge messy corpora</li>
+      <li>More epochs help small corpora; diminishing returns on very large ones</li>
+      <li>Evaluate with analogy sets <em>and</em> an actual task metric (classification F1)</li>
+      <li>FastText (subword n-grams) helps OOV and morphologically rich languages</li>
+    </ul>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">In Gensim Word2Vec, sg=1 means:</p>
+      <button class="mcq-opt" data-correct="true">Skip-gram training</button>
+      <button class="mcq-opt" data-correct="false">CBOW training</button>
+      <button class="mcq-opt" data-correct="false">Stop-gradient mode</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 3 -->
+<section class="day-section" id="day3">
+  <div class="day-head"><span class="day-num">3</span><h2>Sequence Models — The Big Picture</h2></div>
+  <p class="day-sub">Hour 1–4 · Mapping I/O shapes to architectures</p>
+
+  <div class="topic">
+    <h3>Four Patterns You Must Recognize <span class="hr">Hour 1–2</span></h3>
+    <p>Almost every sequence application is one of these (or a composition of them):</p>
+    <table>
+      <thead>
+        <tr><th>Pattern</th><th>Input</th><th>Output</th><th>Examples</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>1 → 1</strong></td><td>Fixed vector</td><td>Fixed vector / class</td><td>Classic MLP on engineered features</td></tr>
+        <tr><td><strong>1 → Many</strong></td><td>One vector / image</td><td>Sequence</td><td>Image captioning, conditional generation</td></tr>
+        <tr><td><strong>Many → 1</strong></td><td>Sequence</td><td>One label / value</td><td>Sentiment, document class, series anomaly score</td></tr>
+        <tr><td><strong>Many → Many</strong></td><td>Sequence</td><td>Sequence (aligned or not)</td><td>POS/NER (aligned), translation (encoder–decoder)</td></tr>
+      </tbody>
+    </table>
+    <p>Week 8 focused on many→1 (LSTM classifier). This week makes the other shapes explicit
+      and shows how encoder–decoder setups unlock unaligned many→many tasks.</p>
+  </div>
+
+  <div class="video-embed">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/CznICCPa62s" title="Sequence models" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="video-caption">Video: Sequence-to-sequence models overview</p>
+
+  <div class="topic">
+    <h3>Encoder–Decoder Sketch <span class="hr">Hour 3–4</span></h3>
+    <pre>Encoder:  x_1…x_T  →  RNN  →  context vector c  (last state or attention summary)
+Decoder:  start → RNN(c) → y_1 → RNN → y_2 → … until end token</pre>
+    <p>Teacher forcing feeds the true previous token during training; at inference the model
+      consumes its own predictions (or beam search candidates). Attention (Week 10 direction)
+      lets the decoder look at all encoder states instead of a single fixed vector.</p>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">Sentiment analysis of a full review is best described as:</p>
+      <button class="mcq-opt" data-correct="true">Many → 1</button>
+      <button class="mcq-opt" data-correct="false">1 → Many</button>
+      <button class="mcq-opt" data-correct="false">1 → 1 only</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 4 -->
+<section class="day-section" id="day4">
+  <div class="day-head"><span class="day-num">4</span><h2>1 → 1 and 1 → Many</h2></div>
+  <p class="day-sub">Hour 1–4 · Fixed inputs and sequence generation from a seed</p>
+
+  <div class="topic">
+    <h3>1 → 1 — Still Relevant <span class="hr">Hour 1</span></h3>
+    <p>When features are already a fixed vector (tabular + pretrained sentence embedding,
+      pooled CNN features), a Dense head is a 1→1 map. You already built these in Weeks 5–7.
+      The new idea is: obtain that vector from a frozen encoder (Word2Vec mean-pool, or a
+      CNN/RNN encoder) then classify.</p>
+    <pre><span class="c"># Mean-pool Word2Vec vectors → logistic / MLP head</span>
+def doc_vector(tokens, kv):
+    vecs = [kv[w] for w in tokens if w in kv]
+    return np.mean(vecs, axis=0) if vecs else np.zeros(kv.vector_size)</pre>
+  </div>
+
+  <div class="topic">
+    <h3>1 → Many — Generate a Sequence from One Vector <span class="hr">Hour 2–4</span></h3>
+    <p>Classic uses: image captioning (CNN image vector → LSTM decoder) and conditional
+      language models that start from a topic or style embedding.</p>
+    <pre>from tensorflow.keras import layers, models
+
+<span class="c"># Decoder conditioned on a fixed context vector c (e.g. image features)</span>
+context_dim = 256
+vocab_size = 5000
+max_len = 20
+
+image_input = layers.Input(shape=(context_dim,))
+x = layers.RepeatVector(max_len)(image_input)          <span class="c"># tile c across time</span>
+x = layers.LSTM(128, return_sequences=True)(x)
+out = layers.TimeDistributed(layers.Dense(vocab_size, activation='softmax'))(x)
+caption_model = models.Model(image_input, out)
+caption_model.compile(optimizer='adam', loss='sparse_categorical_crossentropy')</pre>
+    <div class="callout">
+      <span class="tag">Inference</span>
+      Generation is usually autoregressive: feed the predicted token back in, or use
+      <code>predict</code> step-by-step with a start token. Greedy decoding is simple;
+      beam search improves quality at higher cost.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">Image captioning is typically modeled as:</p>
+      <button class="mcq-opt" data-correct="true">1 → Many (image features → word sequence)</button>
+      <button class="mcq-opt" data-correct="false">Many → 1 only</button>
+      <button class="mcq-opt" data-correct="false">Pure unsupervised clustering</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 5 -->
+<section class="day-section" id="day5">
+  <div class="day-head"><span class="day-num">5</span><h2>Many → 1 and Many → Many</h2></div>
+  <p class="day-sub">Hour 1–4 · Classification from sequences and aligned / unaligned sequence outputs</p>
+
+  <div class="topic">
+    <h3>Many → 1 — Sequence Classification (Recap + Embeddings) <span class="hr">Hour 1–2</span></h3>
+    <pre>from tensorflow.keras import layers, models
+
+model = models.Sequential([
+    layers.Embedding(input_dim=10001, output_dim=100, mask_zero=True,
+                     weights=[embedding_matrix], trainable=True),
+    layers.Bidirectional(layers.LSTM(64)),
+    layers.Dropout(0.3),
+    layers.Dense(1, activation='sigmoid')
+])
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])</pre>
+    <p>Compare: trainable random Embedding vs frozen Word2Vec vs fine-tuned Word2Vec.
+      Fine-tuning often wins when you have enough labeled data.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Many → Many (Aligned) — Token Tagging <span class="hr">Hour 2–3</span></h3>
+    <pre>n_tags = 9   <span class="c"># e.g. BIO NER tags</span>
+tagger = models.Sequential([
+    layers.Embedding(10001, 100, mask_zero=True),
+    layers.Bidirectional(layers.LSTM(64, return_sequences=True)),
+    layers.TimeDistributed(layers.Dense(n_tags, activation='softmax'))
+])
+tagger.compile(optimizer='adam', loss='sparse_categorical_crossentropy')</pre>
+    <p>Each input token maps to one output tag. Padding must be masked so pad positions
+      do not dominate the loss.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Many → Many (Unaligned) — Encoder–Decoder <span class="hr">Hour 3–4</span></h3>
+    <pre><span class="c"># Minimal seq2seq without attention</span>
+latent = 128
+encoder_inputs = layers.Input(shape=(None,))
+enc_emb = layers.Embedding(src_vocab, 64, mask_zero=True)(encoder_inputs)
+_, state_h, state_c = layers.LSTM(latent, return_state=True)(enc_emb)
+encoder_states = [state_h, state_c]
+
+decoder_inputs = layers.Input(shape=(None,))
+dec_emb = layers.Embedding(tgt_vocab, 64, mask_zero=True)(decoder_inputs)
+dec_lstm = layers.LSTM(latent, return_sequences=True, return_state=True)
+dec_out, _, _ = dec_lstm(dec_emb, initial_state=encoder_states)
+dec_dense = layers.Dense(tgt_vocab, activation='softmax')
+decoder_outputs = dec_dense(dec_out)
+
+seq2seq = models.Model([encoder_inputs, decoder_inputs], decoder_outputs)
+seq2seq.compile(optimizer='adam', loss='sparse_categorical_crossentropy')</pre>
+    <div class="callout">
+      <span class="tag">Next step</span>
+      Fixed context vectors bottleneck long inputs. <strong>Attention</strong> (and later
+      Transformers) lets the decoder look at all encoder states — covered as you move into
+      Week 10–style advanced sequence work and modern NLP stacks.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ CHEAT SHEET -->
+<section class="day-section" id="cheatsheet">
+  <div class="day-head"><span class="day-num">★</span><h2>Week 9 Cheat Sheet</h2></div>
+
+  <div class="topic">
+    <h3>Word2Vec</h3>
+    <pre>CBOW:   context → target     (fast, good on frequent words)
+Skip-gram: target → context  (better on rare words, richer geometry)
+Gensim: Word2Vec(..., sg=1, vector_size=100, window=5, min_count=2)
+Export matrix → Keras Embedding(weights=[matrix], trainable=...)</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Sequence patterns</h3>
+    <pre>1 → 1        Dense / MLP on fixed features
+1 → Many     RepeatVector / decoder from seed (captions)
+Many → 1     RNN/CNN encoder → Dense (sentiment)
+Many → Many  return_sequences + TimeDistributed (tags)
+             or encoder–decoder (translation)</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Keras reminders</h3>
+    <pre>mask_zero=True on Embedding when 0 is pad
+return_sequences=True for token-level outputs or stacked RNNs
+TimeDistributed(Dense(...)) for per-timestep classifiers
+Freeze embeddings: trainable=False; fine-tune later if needed</pre>
+  </div>
+</section>
+
+<!-- ============================================================ MCQs -->
+<section class="day-section" id="mcqs">
+  <div class="day-head"><span class="day-num">?</span><h2>Self-Check MCQs (20 questions)</h2></div>
+  <p class="day-sub">Click an answer to check yourself.</p>
+
+  <div class="mcq"><p class="q">1. Dense word embeddings mainly improve on one-hot vectors by:</p>
+    <button class="mcq-opt" data-correct="true">Placing related words near each other in a continuous space</button>
+    <button class="mcq-opt" data-correct="false">Using only integer IDs with no geometry</button>
+    <button class="mcq-opt" data-correct="false">Removing the need for any neural network</button></div>
+
+  <div class="mcq"><p class="q">2. CBOW predicts:</p>
+    <button class="mcq-opt" data-correct="true">A target word from its surrounding context</button>
+    <button class="mcq-opt" data-correct="false">Context words from a single target only</button>
+    <button class="mcq-opt" data-correct="false">Document labels directly</button></div>
+
+  <div class="mcq"><p class="q">3. Skip-gram is often preferred when:</p>
+    <button class="mcq-opt" data-correct="true">You care about rare words and richer vector geometry</button>
+    <button class="mcq-opt" data-correct="false">You only have image data</button>
+    <button class="mcq-opt" data-correct="false">You must avoid any neural training</button></div>
+
+  <div class="mcq"><p class="q">4. Negative sampling is used to:</p>
+    <button class="mcq-opt" data-correct="true">Avoid a full softmax over the entire vocabulary during training</button>
+    <button class="mcq-opt" data-correct="false">Delete negative movie reviews</button>
+    <button class="mcq-opt" data-correct="false">Normalize RGB images</button></div>
+
+  <div class="mcq"><p class="q">5. In Gensim, vector_size controls:</p>
+    <button class="mcq-opt" data-correct="true">The dimensionality of each word vector</button>
+    <button class="mcq-opt" data-correct="false">The number of CPU cores only</button>
+    <button class="mcq-opt" data-correct="false">The batch size of a CNN</button></div>
+
+  <div class="mcq"><p class="q">6. min_count in Word2Vec:</p>
+    <button class="mcq-opt" data-correct="true">Ignores tokens rarer than the threshold</button>
+    <button class="mcq-opt" data-correct="false">Sets the maximum sentence length</button>
+    <button class="mcq-opt" data-correct="false">Is the learning rate</button></div>
+
+  <div class="mcq"><p class="q">7. When injecting a Gensim matrix into Keras Embedding, you must ensure:</p>
+    <button class="mcq-opt" data-correct="true">Row indices align with the tokenizer’s integer word IDs</button>
+    <button class="mcq-opt" data-correct="false">The matrix is always square</button>
+    <button class="mcq-opt" data-correct="false">Dropout is disabled forever</button></div>
+
+  <div class="mcq"><p class="q">8. Static Word2Vec assigns:</p>
+    <button class="mcq-opt" data-correct="true">One vector per word type, independent of sentence context</button>
+    <button class="mcq-opt" data-correct="false">A different vector for every occurrence automatically</button>
+    <button class="mcq-opt" data-correct="false">No vectors for verbs</button></div>
+
+  <div class="mcq"><p class="q">9. Many → 1 sequence models are ideal for:</p>
+    <button class="mcq-opt" data-correct="true">Classifying an entire sequence into one label</button>
+    <button class="mcq-opt" data-correct="false">Generating a caption from one image only</button>
+    <button class="mcq-opt" data-correct="false">Pixel-wise segmentation only</button></div>
+
+  <div class="mcq"><p class="q">10. 1 → Many is a natural fit for:</p>
+    <button class="mcq-opt" data-correct="true">Image captioning</button>
+    <button class="mcq-opt" data-correct="false">Spam detection of an email body alone</button>
+    <button class="mcq-opt" data-correct="false">K-means clustering</button></div>
+
+  <div class="mcq"><p class="q">11. Aligned many → many tagging usually needs:</p>
+    <button class="mcq-opt" data-correct="true">return_sequences=True and a per-timestep output layer</button>
+    <button class="mcq-opt" data-correct="false">A single scalar output</button>
+    <button class="mcq-opt" data-correct="false">No embedding layer ever</button></div>
+
+  <div class="mcq"><p class="q">12. An encoder–decoder without attention compresses the input into:</p>
+    <button class="mcq-opt" data-correct="true">A fixed context vector (e.g. final encoder state)</button>
+    <button class="mcq-opt" data-correct="false">A random forest</button>
+    <button class="mcq-opt" data-correct="false">A confusion matrix</button></div>
+
+  <div class="mcq"><p class="q">13. Teacher forcing means:</p>
+    <button class="mcq-opt" data-correct="true">Feeding ground-truth previous tokens to the decoder during training</button>
+    <button class="mcq-opt" data-correct="false">Never using labels</button>
+    <button class="mcq-opt" data-correct="false">Clipping all gradients to zero</button></div>
+
+  <div class="mcq"><p class="q">14. Freezing embedding weights (trainable=False) is useful when:</p>
+    <button class="mcq-opt" data-correct="true">You have limited labeled data and strong pretrained vectors</button>
+    <button class="mcq-opt" data-correct="false">You want the largest possible model always</button>
+    <button class="mcq-opt" data-correct="false">You are not using text</button></div>
+
+  <div class="mcq"><p class="q">15. Cosine similarity on word vectors measures:</p>
+    <button class="mcq-opt" data-correct="true">How similarly oriented two vectors are (relatedness)</button>
+    <button class="mcq-opt" data-correct="false">Edit distance between spellings only</button>
+    <button class="mcq-opt" data-correct="false">TF-IDF magnitude only</button></div>
+
+  <div class="mcq"><p class="q">16. OOV means:</p>
+    <button class="mcq-opt" data-correct="true">Out-of-vocabulary tokens not seen in training</button>
+    <button class="mcq-opt" data-correct="false">Optimal output variance</button>
+    <button class="mcq-opt" data-correct="false">Only visual objects</button></div>
+
+  <div class="mcq"><p class="q">17. FastText improves on plain Word2Vec mainly by:</p>
+    <button class="mcq-opt" data-correct="true">Using subword n-grams so rare and unseen word forms get vectors</button>
+    <button class="mcq-opt" data-correct="false">Removing all morphology</button>
+    <button class="mcq-opt" data-correct="false">Training only on images</button></div>
+
+  <div class="mcq"><p class="q">18. TimeDistributed(Dense(n_tags)) is used to:</p>
+    <button class="mcq-opt" data-correct="true">Apply the same Dense classifier at every timestep</button>
+    <button class="mcq-opt" data-correct="false">Collapse the time axis immediately</button>
+    <button class="mcq-opt" data-correct="false">Replace the optimizer</button></div>
+
+  <div class="mcq"><p class="q">19. A major limitation of a fixed context vector in basic seq2seq is:</p>
+    <button class="mcq-opt" data-correct="true">Information bottleneck on long source sequences</button>
+    <button class="mcq-opt" data-correct="false">It cannot be implemented in Keras</button>
+    <button class="mcq-opt" data-correct="false">It requires no training data</button></div>
+
+  <div class="mcq"><p class="q">20. Domain-specific embeddings are important because:</p>
+    <button class="mcq-opt" data-correct="true">Word usage and similarity differ across domains (e.g. medical vs news)</button>
+    <button class="mcq-opt" data-correct="false">All text domains share identical vocabulary geometry always</button>
+    <button class="mcq-opt" data-correct="false">Embeddings cannot be trained on specialized corpora</button></div>
+</section>
+
+<!-- ============================================================ PROJECTS -->
+<section class="day-section" id="project">
+  <div class="day-head"><span class="day-num">🚀</span><h2>Week 9 Projects</h2></div>
+
+  <div class="topic">
+    <h3>Project 1 — Train Domain Word2Vec</h3>
+    <p>Collect a domain corpus (news, product reviews, or course notes). Train Skip-gram and
+      CBOW with Gensim. Report most_similar for 10 seed terms and 5 analogy results. Save
+      KeyedVectors for reuse.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Project 2 — Embedding Ablation on Sentiment</h3>
+    <p>On IMDB or your Week 6 data, train three BiLSTM classifiers: (a) random Embedding,
+      (b) frozen Word2Vec, (c) fine-tuned Word2Vec. Compare accuracy/F1 and training curves.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Project 3 — Sequence Pattern Lab</h3>
+    <p>Implement one many→1 classifier and one many→many tagger (even on a tiny synthetic
+      dataset). Document tensor shapes at each layer. Optionally sketch a minimal
+      encoder–decoder and note where attention would plug in.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Week 9 of 12 · NAVTTC AI / ML / Deep Learning · Embeddings &amp; sequence patterns</p>
+    <p><a href="../week8/index.html">← Week 8</a> · <a href="../index.html">All Weeks</a> · Week 10 (project / OJT) next</p>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
