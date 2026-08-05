@@ -86,6 +86,25 @@
   <div class="day-head"><span class="day-num">1</span><h2>Recurrent Neural Networks (RNNs)</h2></div>
   <p class="day-sub">Hour 1–4 · Sequence modelling, the recurrence, vanishing gradients</p>
 
+  <!-- WORKED-RNN -->
+
+  <div class="topic" id="worked-rnn">
+    <h3>Worked example — RNN step (simplified numbers)</h3>
+    <p>Hidden size = 1 for clarity. Sequence of three inputs: x₁=0.5, x₂=0.3, x₃=0.8</p>
+    <pre>h_t = tanh(W_h · h_{t−1} + W_x · x_t + b)
+Use W_h=0.5, W_x=0.4, b=0, h₀=0
+
+t=1: h1 = tanh(0.5*0 + 0.4*0.5) = tanh(0.20) ≈ 0.197
+t=2: h2 = tanh(0.5*0.197 + 0.4*0.3) = tanh(0.218) ≈ 0.215
+t=3: h3 = tanh(0.5*0.215 + 0.4*0.8) = tanh(0.427) ≈ 0.403
+
+Final h3 ≈ 0.403 summarizes the whole sequence (many-to-one).
+Many-to-many would also emit an output y_t at each step from h_t.</pre>
+    <p>LSTM/GRU replace this simple tanh with <strong>gates</strong> so useful information can stay for many steps without vanishing.</p>
+  </div>
+
+
+
   <div class="topic">
     <h3>Why Sequences Need Memory <span class="hr">Hour 1</span></h3>
     <p>A bag-of-words or a 1D CNN sees a fixed window. An <strong>RNN</strong> keeps a hidden state
@@ -157,6 +176,31 @@ def rnn_step(x_t, h_prev, Wxh, Whh, Why, bh, by):
 <section class="day-section" id="day2">
   <div class="day-head"><span class="day-num">2</span><h2>Long Short-Term Memory (LSTM)</h2></div>
   <p class="day-sub">Hour 1–4 · Gates, cell state, and why LSTMs remember</p>
+
+  <!-- WORKED-LSTM -->
+
+  <div class="topic" id="worked-lstm-gates">
+    <h3>Worked example — LSTM gates (one step, toy values)</h3>
+    <pre>Previous cell c_{t−1} = 0.8, previous hidden h_{t−1} = 0.5, input x_t = 0.3
+
+Suppose the network outputs:
+  forget gate  f_t = 0.9   (keep most of old memory)
+  input gate   i_t = 0.4   (write a moderate amount of new info)
+  candidate    c̃_t = 0.6
+  output gate  o_t = 0.7
+
+New cell:
+  c_t = f_t * c_{t−1} + i_t * c̃_t
+      = 0.9*0.8 + 0.4*0.6
+      = 0.72 + 0.24 = 0.96
+
+New hidden:
+  h_t = o_t * tanh(c_t) ≈ 0.7 * tanh(0.96) ≈ 0.7 * 0.74 ≈ 0.52
+
+Interpretation: the cell held on to old memory (0.72) and added some new signal (0.24).</pre>
+  </div>
+
+
 
   <div class="topic">
     <h3>The Cell State Highway <span class="hr">Hour 1</span></h3>
