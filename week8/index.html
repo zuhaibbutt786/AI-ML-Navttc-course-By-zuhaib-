@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Week 8 — Deep Learning II: RNN, LSTM &amp; GRU | AI·ML·DL Course</title>
-<meta name="description" content="Week 8 of the NAVTTC AI, ML &amp; Deep Learning course: Recurrent Neural Networks, vanishing gradients in time, LSTM gates, GRU, and hands-on sequence modeling with Keras for text and time series.">
-<meta name="keywords" content="RNN, LSTM, GRU, recurrent neural network, sequence model, vanishing gradient, Keras, time series, text generation, NAVTTC, week 8">
+<meta name="description" content="Week 8 of the NAVTTC AI, ML &amp; Deep Learning course: Recurrent Neural Networks, vanishing gradients on sequences, Long Short-Term Memory (LSTM), Gated Recurrent Units (GRU), sequence classification and generation with Keras.">
+<meta name="keywords" content="RNN, LSTM, GRU, recurrent neural network, sequence model, vanishing gradient, Keras, TensorFlow, deep learning, NAVTTC, week 8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/css/style.css">
@@ -30,15 +30,16 @@
   <div class="wrap">
     <p class="eyebrow">week 8 of 12 · ~20 hours · intermediate → advanced</p>
     <h1>Deep Learning II — RNN, LSTM &amp; GRU</h1>
-    <p class="lede">Last week you built feed-forward nets and CNNs that treat each input independently
-      (or with local filters). Real language, speech, and sensor streams are <strong>sequences</strong>:
-      order matters, and the past should influence the present. This week introduces
-      <strong>Recurrent Neural Networks</strong>, then the gated variants that made long-range
-      memory practical — <strong>LSTM</strong> and <strong>GRU</strong>. By Friday you will train
-      sequence classifiers and generators in Keras and understand when to prefer each architecture.</p>
+    <p class="lede">Last week you trained feed-forward nets and CNNs that treat each input as an independent
+      snapshot. Real language, audio, and time-series are <strong>sequences</strong> — the meaning of
+      “bank” depends on the words that came before it. This week introduces
+      <strong>Recurrent Neural Networks (RNNs)</strong>, diagnoses the vanishing-gradient problem on
+      long sequences, then builds the two architectures that fixed it:
+      <strong>Long Short-Term Memory (LSTM)</strong> and the lighter <strong>Gated Recurrent Unit (GRU)</strong>.
+      By Friday you will classify sentiment with an LSTM and generate text with a character-level RNN.</p>
     <div class="meta-row">
-      <span>Prerequisites: Week 7 (MLP, backprop, Keras basics, embeddings idea)</span>
-      <span>Tools: TensorFlow / Keras · NumPy · (optional) PyTorch</span>
+      <span>Prerequisites: Week 7 (MLP, backprop, Keras, embeddings intuition)</span>
+      <span>Tools: NumPy · Keras / TensorFlow · (optional) PyTorch</span>
     </div>
   </div>
 </section>
@@ -47,9 +48,9 @@
   <div class="wrap">
     <a href="#day1">Day 1 · RNNs</a>
     <a href="#day2">Day 2 · LSTM</a>
-    <a href="#day3">Day 3 · LSTM Practice</a>
+    <a href="#day3">Day 3 · LSTM Code</a>
     <a href="#day4">Day 4 · GRU</a>
-    <a href="#day5">Day 5 · GRU Practice</a>
+    <a href="#day5">Day 5 · Practice</a>
     <a href="#cheatsheet">Cheat Sheet</a>
     <a href="#mcqs">MCQs</a>
     <a href="#project">Projects</a>
@@ -58,522 +59,488 @@
 
 <main class="wrap">
 
-<!-- ============================================================ DAY 1 -->
 <section class="day-section" id="day1">
   <div class="day-head"><span class="day-num">1</span><h2>Recurrent Neural Networks (RNNs)</h2></div>
-  <p class="day-sub">Hour 2–4 · Memory over time, BPTT, and why plain RNNs struggle</p>
+  <p class="day-sub">Hour 1–4 · Sequence modelling, the recurrence, vanishing gradients</p>
 
   <div class="topic">
-    <h3>Why Sequences Need Recurrence <span class="hr">Hour 2</span></h3>
-    <p>An MLP maps a fixed-size vector to an output. A sentence can be 5 words or 50; a sensor
-      trace can be 100 steps or 10,000. <strong>Recurrent</strong> models process the sequence
-      step by step, carrying a <em>hidden state</em> that summarizes what has been seen so far:</p>
-    <pre>h_t = tanh(W_hh h_{t-1} + W_xh x_t + b)
-y_t = W_hy h_t + b_y     <span class="c"># optional output at each step</span></pre>
-    <p>The same weights are reused at every time step — the network “rolls out” in time.
-      That weight sharing is what lets one model handle variable-length inputs.</p>
+    <h3>Why Sequences Need Memory <span class="hr">Hour 1</span></h3>
+    <p>A bag-of-words or a 1D CNN sees a fixed window. An <strong>RNN</strong> keeps a hidden state
+      that is updated at every time step, so information from the start of a sentence can still
+      influence the prediction at the end:</p>
+    <pre>hₜ = tanh(Wₕₕ hₜ₋₁ + Wₓₕ xₜ + b)
+ŷₜ = softmax(Wₕᵧ hₜ + bᵧ)</pre>
+    <p>The same weight matrices are reused at every step — that is the “recurrent” part.
+      Unrolled over a sequence of length T, the graph looks like a deep chain of T layers that
+      share parameters.</p>
     <ul>
-      <li><strong>Many-to-one:</strong> whole sequence → one label (sentiment, anomaly score)</li>
-      <li><strong>Many-to-many:</strong> sequence → sequence (POS tags, translation encoder states)</li>
-      <li><strong>One-to-many:</strong> seed → sequence (image captioning, generation)</li>
+      <li><strong>Many-to-one:</strong> whole sequence → one label (sentiment, topic)</li>
+      <li><strong>Many-to-many:</strong> sequence → sequence (NER, translation, tagging)</li>
+      <li><strong>One-to-many:</strong> seed → generated sequence (image caption, text generation)</li>
     </ul>
   </div>
 
   <div class="video-embed">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/LHXXI4-IEns" title="RNNs" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/LHXXI4-IEns" title="RNNs explained" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
   </div>
   <p class="video-caption">Video: Recurrent Neural Networks — intuitive overview</p>
 
   <div class="topic">
-    <h3>Backpropagation Through Time (BPTT) <span class="hr">Hour 3</span></h3>
-    <p>Training unrolls the net for T steps and applies the chain rule across time.
-      Gradients flow backward from the loss at step T all the way to step 1.
-      In practice we often use <strong>truncated BPTT</strong> — backprop only through the last
-      k steps — for memory and stability.</p>
-    <pre><span class="c"># Conceptual Keras SimpleRNN (many-to-one classifier)</span>
-from tensorflow.keras import layers, models
-
-model = models.Sequential([
-    layers.Embedding(input_dim=10000, output_dim=64, input_length=200),
-    layers.SimpleRNN(64),
-    layers.Dense(1, activation='sigmoid')
-])
-model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])</pre>
+    <h3>Vanishing &amp; Exploding Gradients on Sequences <span class="hr">Hour 2–3</span></h3>
+    <p>When you backpropagate through time (BPTT), the gradient is multiplied by the same
+      recurrent matrix at every step. If the largest singular value of that matrix is &lt; 1,
+      gradients shrink exponentially with sequence length (vanishing). If &gt; 1, they explode.</p>
+    <ul>
+      <li><strong>Symptom of vanishing:</strong> the model only uses the last few tokens; early context is ignored</li>
+      <li><strong>Symptom of exploding:</strong> loss becomes NaN; weights grow without bound</li>
+      <li><strong>Mitigations before LSTM:</strong> gradient clipping, careful init, shorter sequences, truncated BPTT</li>
+    </ul>
+    <div class="callout warn">
+      <span class="tag">Key insight</span>
+      Plain RNNs struggle to learn dependencies longer than ~10–20 steps. That is why almost
+      nobody ships a vanilla RNN for real text or audio anymore — LSTM / GRU (and later Transformers)
+      solved the practical memory problem.
+    </div>
   </div>
 
   <div class="topic">
-    <h3>The Vanishing (and Exploding) Gradient Problem in Time <span class="hr">Hour 3–4</span></h3>
-    <p>As gradients multiply through many time steps, they often shrink toward zero.
-      Early tokens stop influencing the loss — the network “forgets” the beginning of a long sequence.
-      Exploding gradients (large products) cause NaNs; gradient clipping is the usual fix for those.</p>
-    <div class="callout warn">
-      <span class="tag">Why this matters</span>
-      Plain SimpleRNN is a teaching tool. For real tasks with long dependencies you almost always
-      reach for <strong>LSTM</strong> or <strong>GRU</strong> (Days 2–5) — or, later, Transformers.
-    </div>
-    <p>Mitigations used historically and still useful:</p>
-    <ul>
-      <li>Gradient clipping (<code>clipnorm</code> / <code>clipvalue</code> in optimizers)</li>
-      <li>Careful initialization</li>
-      <li>Gated cells (LSTM, GRU) that learn what to remember and what to forget</li>
-    </ul>
+    <h3>A Minimal NumPy RNN Step <span class="hr">Hour 3–4</span></h3>
+    <pre>import numpy as np
+
+def rnn_step(x_t, h_prev, Wxh, Whh, Why, bh, by):
+    """One time step of a simple RNN."""
+    h = np.tanh(Whh @ h_prev + Wxh @ x_t + bh)
+    y = Why @ h + by
+    return h, y
+
+<span class="c"># Toy: sequence of one-hot vectors, vocabulary size V, hidden size H</span>
+<span class="c"># for t in range(T):</span>
+<span class="c">#     h, y = rnn_step(x[t], h, Wxh, Whh, Why, bh, by)</span>
+<span class="c">#     # y can be softmaxed for next-token prediction</span></pre>
+    <p>In practice you will use framework layers. The mental model above is enough to understand
+      every LSTM/GRU diagram you will see for the rest of the week.</p>
   </div>
 
   <div class="quiz-block">
     <div class="mcq">
-      <p class="q">What does the hidden state h_t represent in a basic RNN?</p>
-      <button class="mcq-opt" data-correct="true">A summary of the sequence seen up to time t</button>
-      <button class="mcq-opt" data-correct="false">Only the current input x_t with no memory</button>
-      <button class="mcq-opt" data-correct="false">The learning rate at step t</button>
+      <p class="q">The main reason a plain RNN struggles with long sequences is:</p>
+      <button class="mcq-opt" data-correct="true">Gradients vanish or explode when backpropagated through many time steps</button>
+      <button class="mcq-opt" data-correct="false">It cannot use GPUs</button>
+      <button class="mcq-opt" data-correct="false">It requires labelled data at every time step only</button>
     </div>
   </div>
 </section>
 
-<!-- ============================================================ DAY 2 -->
 <section class="day-section" id="day2">
   <div class="day-head"><span class="day-num">2</span><h2>Long Short-Term Memory (LSTM)</h2></div>
-  <p class="day-sub">Hour 1–4 · Gates, cell state, and long-range memory</p>
+  <p class="day-sub">Hour 1–4 · Gates, cell state, and why LSTMs remember</p>
 
   <div class="topic">
-    <h3>The Core Idea — A Highway for Gradients <span class="hr">Hour 1–2</span></h3>
-    <p>LSTM (Hochreiter &amp; Schmidhuber, 1997) adds an explicit <strong>cell state</strong> c_t
-      that runs through time with only minor linear interactions. Gates control what enters,
-      what is forgotten, and what is exposed as the hidden output:</p>
-    <pre>f_t = σ(W_f · [h_{t-1}, x_t] + b_f)     <span class="c"># forget gate</span>
-i_t = σ(W_i · [h_{t-1}, x_t] + b_i)     <span class="c"># input gate</span>
-c̃_t = tanh(W_c · [h_{t-1}, x_t] + b_c)  <span class="c"># candidate cell</span>
-c_t = f_t ⊙ c_{t-1} + i_t ⊙ c̃_t         <span class="c"># new cell state</span>
-o_t = σ(W_o · [h_{t-1}, x_t] + b_o)     <span class="c"># output gate</span>
-h_t = o_t ⊙ tanh(c_t)                   <span class="c"># hidden output</span></pre>
-    <ul>
-      <li><strong>Forget gate</strong> — how much of the old cell to keep</li>
-      <li><strong>Input gate</strong> — how much of the new candidate to write</li>
-      <li><strong>Output gate</strong> — how much of the cell to expose as h_t</li>
-    </ul>
-    <p>Because c_t is mostly additive, gradients can flow across many steps without repeated
-      multiplication by small factors — the practical cure for vanishing gradients in time.</p>
+    <h3>The Cell State Highway <span class="hr">Hour 1</span></h3>
+    <p>An LSTM adds a <strong>cell state</strong> <code>cₜ</code> that runs through the sequence
+      with only minor linear interactions. Three gates (sigmoid outputs in [0, 1]) control
+      what is written, forgotten, and read:</p>
+    <pre>fₜ = σ(W_f · [hₜ₋₁, xₜ] + b_f)     <span class="c"># forget gate</span>
+iₜ = σ(W_i · [hₜ₋₁, xₜ] + b_i)     <span class="c"># input gate</span>
+c̃ₜ = tanh(W_c · [hₜ₋₁, xₜ] + b_c)  <span class="c"># candidate cell</span>
+cₜ = fₜ ⊙ cₜ₋₁ + iₜ ⊙ c̃ₜ           <span class="c"># new cell state</span>
+oₜ = σ(W_o · [hₜ₋₁, xₜ] + b_o)     <span class="c"># output gate</span>
+hₜ = oₜ ⊙ tanh(cₜ)                 <span class="c"># hidden output</span></pre>
+    <p>Because the cell update is mostly additive, gradients can flow for hundreds of steps
+      without vanishing. That is the core design win of the 1997 Hochreiter &amp; Schmidhuber paper.</p>
   </div>
 
   <div class="video-embed">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/YCzL96nL7j0" title="LSTM" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/8HyCNIVRbSU" title="LSTM explained" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
   </div>
-  <p class="video-caption">Video: LSTM explained (gates and cell state)</p>
+  <p class="video-caption">Video: LSTM networks — clear gate-by-gate walkthrough</p>
 
   <div class="topic">
-    <h3>LSTM in Keras <span class="hr">Hour 2–4</span></h3>
-    <pre>from tensorflow.keras import layers, models
+    <h3>Gate Intuition <span class="hr">Hour 2</span></h3>
+    <table>
+      <thead>
+        <tr><th>Gate</th><th>Role</th><th>Typical behaviour</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Forget</strong></td><td>What to erase from cell</td><td>Near 1 for important long-term info</td></tr>
+        <tr><td><strong>Input</strong></td><td>What new info to write</td><td>Opens when current token is useful</td></tr>
+        <tr><td><strong>Output</strong></td><td>What to expose as hₜ</td><td>Selects which parts of cell matter now</td></tr>
+      </tbody>
+    </table>
+    <div class="callout">
+      <span class="tag">Visualization</span>
+      For animated views of how activations flow through time, explore
+      <a href="https://nnfs.io/neural_network_animations" target="_blank" rel="noopener">nnfs.io neural-network animations</a>
+      and the classic colah.github.io LSTM post diagrams.
+    </div>
+  </div>
 
-<span class="c"># Many-to-one text classifier</span>
+  <div class="topic">
+    <h3>Bidirectional &amp; Stacked LSTMs <span class="hr">Hour 3–4</span></h3>
+    <p><strong>Bidirectional LSTM</strong> runs one LSTM left-to-right and another right-to-left,
+      then concatenates the hidden states. Useful when the whole sequence is available at once
+      (document classification, NER) — not for pure online generation.</p>
+    <p><strong>Stacked (deep) LSTM</strong> puts several LSTM layers on top of each other so higher
+      layers see more abstract temporal features. Typical depth in practice: 1–3 layers before
+      Transformers took over large-scale NLP.</p>
+    <pre><span class="c"># Conceptual shapes</span>
+<span class="c"># input:  (batch, timesteps, features)</span>
+<span class="c"># LSTM → (batch, timesteps, units)   if return_sequences=True</span>
+<span class="c"># LSTM → (batch, units)              if return_sequences=False (last step only)</span></pre>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">The additive cell-state update in an LSTM primarily helps with:</p>
+      <button class="mcq-opt" data-correct="true">Allowing gradients to flow across many time steps without vanishing</button>
+      <button class="mcq-opt" data-correct="false">Reducing the number of parameters to zero</button>
+      <button class="mcq-opt" data-correct="false">Making the model only work on images</button>
+    </div>
+  </div>
+</section>
+
+<section class="day-section" id="day3">
+  <div class="day-head"><span class="day-num">3</span><h2>LSTM Code Practice</h2></div>
+  <p class="day-sub">Hour 1–4 · Sentiment classifier and sequence modelling in Keras</p>
+
+  <div class="topic">
+    <h3>Many-to-One: Sentiment with Embedding + LSTM <span class="hr">Hour 1–2</span></h3>
+    <pre>import tensorflow as tf
+from tensorflow.keras import layers, models
+
+vocab_size = 10000
+max_len = 200
+embed_dim = 64
+lstm_units = 64
+
 model = models.Sequential([
-    layers.Embedding(10000, 64, input_length=200),
-    layers.LSTM(64),                    <span class="c"># returns last hidden state by default</span>
+    layers.Embedding(vocab_size, embed_dim, input_length=max_len, mask_zero=True),
+    layers.LSTM(lstm_units, dropout=0.2, recurrent_dropout=0.2),
+    layers.Dense(32, activation='relu'),
     layers.Dropout(0.3),
     layers.Dense(1, activation='sigmoid')
 ])
-model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
-<span class="c"># Stacked LSTM — return sequences to the next LSTM</span>
-stacked = models.Sequential([
-    layers.Embedding(10000, 64, input_length=200),
-    layers.LSTM(64, return_sequences=True),
-    layers.LSTM(32),
-    layers.Dense(1, activation='sigmoid')
-])
+model.compile(
+    optimizer=tf.keras.optimizers.Adam(1e-3),
+    loss='binary_crossentropy',
+    metrics=['accuracy', tf.keras.metrics.AUC(name='auc')]
+)
 
-<span class="c"># Bidirectional LSTM — read past and future context</span>
-bi = models.Sequential([
-    layers.Embedding(10000, 64, input_length=200),
-    layers.Bidirectional(layers.LSTM(32)),
+<span class="c"># history = model.fit(x_train, y_train, epochs=8, batch_size=64,</span>
+<span class="c">#                     validation_split=0.15,</span>
+<span class="c">#                     callbacks=[tf.keras.callbacks.EarlyStopping(patience=2, restore_best_weights=True)])</span></pre>
+    <p><code>mask_zero=True</code> tells the LSTM to ignore padding tokens — critical when
+      sequences have different lengths.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Return Sequences &amp; Stacked LSTM <span class="hr">Hour 2–3</span></h3>
+    <pre>model = models.Sequential([
+    layers.Embedding(vocab_size, embed_dim, input_length=max_len, mask_zero=True),
+    layers.LSTM(128, return_sequences=True, dropout=0.2),
+    layers.LSTM(64, dropout=0.2),
     layers.Dense(1, activation='sigmoid')
 ])</pre>
+    <p>First LSTM outputs a sequence of hidden states; the second LSTM reads that sequence
+      and collapses it to a single vector for classification.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Many-to-Many: Character-Level Text Generation Sketch <span class="hr">Hour 3–4</span></h3>
+    <pre><span class="c"># After training a model that predicts next character:</span>
+<span class="c"># seed = "The meaning of life is"</span>
+<span class="c"># for _ in range(200):</span>
+<span class="c">#     x = encode(seed[-max_len:])</span>
+<span class="c">#     probs = model.predict(x, verbose=0)[0]</span>
+<span class="c">#     next_id = sample(probs, temperature=0.8)</span>
+<span class="c">#     seed += id_to_char[next_id]</span></pre>
+    <p>Temperature &lt; 1 makes the distribution sharper (more conservative); &gt; 1 makes it more random.
+      This simple loop is the ancestor of modern language-model sampling.</p>
     <div class="callout">
-      <span class="tag">return_sequences</span>
-      <code>return_sequences=True</code> when the next layer needs the full time axis
-      (stacked RNN, attention, token-level labels). Leave it <code>False</code> (default)
-      for a single vector summary into a Dense head.
+      <span class="tag">Industry note</span>
+      Production text generation moved to Transformers years ago, but LSTMs remain excellent
+      teaching models and are still used in speech, time-series forecasting, and edge devices
+      where a smaller recurrent model is enough.
     </div>
   </div>
 
   <div class="quiz-block">
     <div class="mcq">
-      <p class="q">The LSTM cell state helps with long-range learning mainly because:</p>
-      <button class="mcq-opt" data-correct="true">It is updated mostly additively, so gradients can flow across many time steps</button>
-      <button class="mcq-opt" data-correct="false">It removes the need for any non-linear activation</button>
-      <button class="mcq-opt" data-correct="false">It only stores the last input token</button>
+      <p class="q">In Keras, mask_zero=True on an Embedding layer is used so that:</p>
+      <button class="mcq-opt" data-correct="true">Padding tokens are ignored by the recurrent layers</button>
+      <button class="mcq-opt" data-correct="false">The model never uses GPUs</button>
+      <button class="mcq-opt" data-correct="false">All sequences become the same fixed length of zero</button>
     </div>
   </div>
 </section>
 
-<!-- ============================================================ DAY 3 -->
-<section class="day-section" id="day3">
-  <div class="day-head"><span class="day-num">3</span><h2>LSTM Code Practice</h2></div>
-  <p class="day-sub">Hour 1–4 · End-to-end sequence classification and generation sketches</p>
-
-  <div class="topic">
-    <h3>Practice A — Sentiment with LSTM <span class="hr">Hour 1–2</span></h3>
-    <pre>from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.datasets import imdb
-
-<span class="c"># Built-in IMDB (or use your Week 6 reviews)</span>
-(x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=10000)
-x_train = pad_sequences(x_train, maxlen=200)
-x_test  = pad_sequences(x_test, maxlen=200)
-
-model = models.Sequential([
-    layers.Embedding(10000, 64, input_length=200),
-    layers.LSTM(64, dropout=0.2, recurrent_dropout=0.2),
-    layers.Dense(1, activation='sigmoid')
-])
-model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-history = model.fit(x_train, y_train, epochs=3, batch_size=64,
-                    validation_split=0.1)
-print(model.evaluate(x_test, y_test))</pre>
-  </div>
-
-  <div class="topic">
-    <h3>Practice B — Time Series Forecasting <span class="hr">Hour 2–3</span></h3>
-    <pre>import numpy as np
-
-def make_windows(series, window=30):
-    X, y = [], []
-    for i in range(len(series) - window):
-        X.append(series[i:i+window])
-        y.append(series[i+window])
-    X = np.array(X)[..., None]   <span class="c"># (samples, timesteps, features)</span>
-    return X, np.array(y)
-
-<span class="c"># series = your 1-D numpy array of values</span>
-<span class="c"># X, y = make_windows(series)</span>
-ts_model = models.Sequential([
-    layers.Input(shape=(30, 1)),
-    layers.LSTM(32),
-    layers.Dense(1)
-])
-ts_model.compile(optimizer='adam', loss='mse')
-<span class="c"># ts_model.fit(X_train, y_train, epochs=20, validation_split=0.1)</span></pre>
-  </div>
-
-  <div class="topic">
-    <h3>Practice C — Next-Character / Next-Token Sketch <span class="hr">Hour 3–4</span></h3>
-    <pre><span class="c"># Character-level: one-hot or embedding over a small vocab</span>
-gen = models.Sequential([
-    layers.Input(shape=(seq_len, vocab_size)),
-    layers.LSTM(128, return_sequences=True),
-    layers.LSTM(128),
-    layers.Dense(vocab_size, activation='softmax')
-])
-gen.compile(optimizer='adam', loss='categorical_crossentropy')
-<span class="c"># Train on sliding windows; sample with temperature at inference time</span></pre>
-    <div class="callout">
-      <span class="tag">Sampling tip</span>
-      At generation time, divide logits by a <em>temperature</em> T before softmax.
-      T &lt; 1 → sharper / more confident; T &gt; 1 → more random. This is a standard control
-      for creative vs conservative text.
-    </div>
-  </div>
-
-  <div class="topic">
-    <h3>Debugging LSTM Training</h3>
-    <ul>
-      <li>Loss NaN → clip gradients, lower lr, check padding/masking</li>
-      <li>Overfit fast → dropout / recurrent_dropout, fewer units, more data</li>
-      <li>Ignores early tokens → try Bidirectional, or longer training; confirm maxlen is enough</li>
-      <li>Slow on CPU → smaller units, shorter sequences, or GPU</li>
-    </ul>
-  </div>
-</section>
-
-<!-- ============================================================ DAY 4 -->
 <section class="day-section" id="day4">
   <div class="day-head"><span class="day-num">4</span><h2>Gated Recurrent Unit (GRU)</h2></div>
-  <p class="day-sub">Hour 1–4 · A lighter gate design that often matches LSTM quality</p>
+  <p class="day-sub">Hour 1–4 · A lighter alternative to LSTM</p>
 
   <div class="topic">
-    <h3>GRU vs LSTM <span class="hr">Hour 1–2</span></h3>
-    <p>GRU (Cho et al., 2014) simplifies the LSTM gating structure:</p>
-    <ul>
-      <li>Combines forget and input into a single <strong>update gate</strong></li>
-      <li>Uses a <strong>reset gate</strong> to control how much past state enters the candidate</li>
-      <li>No separate cell state — the hidden state carries memory</li>
-    </ul>
-    <pre>z_t = σ(W_z · [h_{t-1}, x_t])          <span class="c"># update gate</span>
-r_t = σ(W_r · [h_{t-1}, x_t])          <span class="c"># reset gate</span>
-h̃_t = tanh(W · [r_t ⊙ h_{t-1}, x_t])  <span class="c"># candidate</span>
-h_t = (1 − z_t) ⊙ h_{t-1} + z_t ⊙ h̃_t  <span class="c"># interpolate</span></pre>
+    <h3>Fewer Gates, Same Idea <span class="hr">Hour 1–2</span></h3>
+    <p>The GRU (Cho et al., 2014) merges the forget and input gates into a single
+      <strong>update gate</strong> and combines cell and hidden state into one vector:</p>
+    <pre>zₜ = σ(W_z · [hₜ₋₁, xₜ])          <span class="c"># update gate</span>
+rₜ = σ(W_r · [hₜ₋₁, xₜ])          <span class="c"># reset gate</span>
+h̃ₜ = tanh(W · [rₜ ⊙ hₜ₋₁, xₜ])    <span class="c"># candidate</span>
+hₜ = (1 − zₜ) ⊙ hₜ₋₁ + zₜ ⊙ h̃ₜ</pre>
+    <p>Result: fewer parameters, often similar accuracy to LSTM on many sequence tasks,
+      slightly faster training. When in doubt, try both; the difference is rarely dramatic
+      on medium-sized data.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Keras GRU in One Block <span class="hr">Hour 2–3</span></h3>
+    <pre>model = models.Sequential([
+    layers.Embedding(vocab_size, 64, input_length=max_len, mask_zero=True),
+    layers.GRU(64, dropout=0.2, recurrent_dropout=0.2),
+    layers.Dense(1, activation='sigmoid')
+])
+
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+<span class="c"># model.fit(...)</span></pre>
+    <p>API is intentionally parallel to <code>LSTM</code>: same arguments for
+      <code>return_sequences</code>, <code>dropout</code>, <code>recurrent_dropout</code>,
+      bidirectional wrappers, etc.</p>
+  </div>
+
+  <div class="topic">
+    <h3>LSTM vs GRU — Practical Chooser <span class="hr">Hour 3–4</span></h3>
     <table>
       <thead>
         <tr><th></th><th>LSTM</th><th>GRU</th></tr>
       </thead>
       <tbody>
-        <tr><td>Gates</td><td>3 (forget, input, output)</td><td>2 (update, reset)</td></tr>
-        <tr><td>States</td><td>cell + hidden</td><td>hidden only</td></tr>
-        <tr><td>Parameters</td><td>More</td><td>Fewer → often faster</td></tr>
-        <tr><td>Quality</td><td>Strong baseline</td><td>Often similar on many tasks</td></tr>
+        <tr><td>Parameters</td><td>More (3 gates + cell)</td><td>Fewer (2 gates)</td></tr>
+        <tr><td>Long dependencies</td><td>Excellent</td><td>Very good</td></tr>
+        <tr><td>Speed / memory</td><td>Heavier</td><td>Lighter</td></tr>
+        <tr><td>Default when unsure</td><td>Still a safe choice</td><td>Great first try on smaller data</td></tr>
       </tbody>
     </table>
-    <p>Rule of thumb: try GRU first when you want speed; switch to LSTM if validation plateaus
-      and you can afford extra capacity. Both beat SimpleRNN on long dependencies.</p>
-  </div>
-
-  <div class="video-embed">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/akOt1A-S5gc" title="GRU" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
-  </div>
-  <p class="video-caption">Video: GRU vs LSTM — practical comparison</p>
-
-  <div class="topic">
-    <h3>GRU in Keras <span class="hr">Hour 2–4</span></h3>
-    <pre>gru_model = models.Sequential([
-    layers.Embedding(10000, 64, input_length=200),
-    layers.GRU(64, dropout=0.2, recurrent_dropout=0.2),
-    layers.Dense(1, activation='sigmoid')
-])
-gru_model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-
-<span class="c"># Bidirectional + stacked pattern works the same way as LSTM</span>
-bi_gru = models.Sequential([
-    layers.Embedding(10000, 64, input_length=200),
-    layers.Bidirectional(layers.GRU(32, return_sequences=True)),
-    layers.Bidirectional(layers.GRU(32)),
-    layers.Dense(1, activation='sigmoid')
-])</pre>
     <div class="callout">
-      <span class="tag">Masking</span>
-      When you pad sequences, use <code>mask_zero=True</code> on Embedding (index 0 = pad)
-      so RNN layers skip pad timesteps. Keras propagates the mask automatically to LSTM/GRU.
+      <span class="tag">After this week</span>
+      Week 9 moves to word embeddings (Word2Vec, GloVe, custom training) and richer sequence
+      models that sit on top of these recurrent building blocks.
     </div>
   </div>
 
   <div class="quiz-block">
     <div class="mcq">
-      <p class="q">Compared with LSTM, a GRU typically has:</p>
-      <button class="mcq-opt" data-correct="true">Fewer gates and no separate cell state</button>
-      <button class="mcq-opt" data-correct="false">More gates and a deeper cell state</button>
-      <button class="mcq-opt" data-correct="false">No recurrent connections at all</button>
+      <p class="q">Compared with LSTM, a GRU typically:</p>
+      <button class="mcq-opt" data-correct="true">Has fewer parameters and often similar accuracy on many sequence tasks</button>
+      <button class="mcq-opt" data-correct="false">Cannot process sequential data at all</button>
+      <button class="mcq-opt" data-correct="false">Always requires twice as many layers</button>
     </div>
   </div>
 </section>
 
-<!-- ============================================================ DAY 5 -->
 <section class="day-section" id="day5">
-  <div class="day-head"><span class="day-num">5</span><h2>GRU Code Practice &amp; Architecture Choices</h2></div>
-  <p class="day-sub">Hour 1–4 · Side-by-side experiments and deployment notes</p>
+  <div class="day-head"><span class="day-num">5</span><h2>Code Practice — End-to-End Sequence Models</h2></div>
+  <p class="day-sub">Hour 1–4 · Solidify RNN / LSTM / GRU skills</p>
 
   <div class="topic">
-    <h3>Head-to-Head: SimpleRNN vs LSTM vs GRU <span class="hr">Hour 1–2</span></h3>
-    <pre>def make_model(cell):
-    return models.Sequential([
-        layers.Embedding(10000, 64, input_length=200, mask_zero=True),
-        cell,
-        layers.Dense(1, activation='sigmoid')
-    ])
-
-candidates = {
-    'rnn':  layers.SimpleRNN(64),
-    'lstm': layers.LSTM(64),
-    'gru':  layers.GRU(64),
-}
-<span class="c"># for name, cell in candidates.items():</span>
-<span class="c">#     m = make_model(cell)</span>
-<span class="c">#     m.compile(...)</span>
-<span class="c">#     hist = m.fit(..., verbose=0)</span>
-<span class="c">#     print(name, m.evaluate(x_test, y_test))</span></pre>
-    <p>Record test accuracy, training time per epoch, and final val_loss. On IMDB-scale text,
-      LSTM and GRU should clearly beat SimpleRNN; GRU is often slightly faster.</p>
+    <h3>Practice Track A — Sentiment LSTM</h3>
+    <ol>
+      <li>Load a binary text dataset (IMDB via <code>keras.datasets.imdb</code> or a CSV of reviews)</li>
+      <li>Pad sequences to a fixed length; keep <code>mask_zero=True</code></li>
+      <li>Train Embedding → LSTM → Dense; plot train/val accuracy</li>
+      <li>Try bidirectional LSTM and a stacked LSTM; compare AUC</li>
+      <li>Write 5 lines on which variant you would ship and why</li>
+    </ol>
   </div>
 
   <div class="topic">
-    <h3>Many-to-Many Labeling Sketch <span class="hr">Hour 2–3</span></h3>
-    <pre><span class="c"># Token-level labels (e.g. NER tags) — same length in / out</span>
-tagger = models.Sequential([
-    layers.Embedding(vocab_size, 64, mask_zero=True),
-    layers.Bidirectional(layers.LSTM(64, return_sequences=True)),
-    layers.TimeDistributed(layers.Dense(n_tags, activation='softmax'))
-])
-tagger.compile(optimizer='adam', loss='sparse_categorical_crossentropy')</pre>
+    <h3>Practice Track B — GRU vs LSTM</h3>
+    <pre><span class="c"># Same data, same embedding size, same units</span>
+<span class="c"># model_lstm = ... layers.LSTM(64) ...</span>
+<span class="c"># model_gru  = ... layers.GRU(64)  ...</span>
+<span class="c"># Compare: final val AUC, number of parameters, wall-clock time per epoch</span></pre>
   </div>
 
   <div class="topic">
-    <h3>When to Use What (including Week 7 CNNs) <span class="hr">Hour 3–4</span></h3>
-    <table>
-      <thead>
-        <tr><th>Situation</th><th>Prefer</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Short text, need speed</td><td>1D CNN or linear model on TF-IDF</td></tr>
-        <tr><td>Medium text, order matters</td><td>GRU / LSTM (often Bidirectional)</td></tr>
-        <tr><td>Long documents, large data</td><td>Transformers (Week 9+ direction)</td></tr>
-        <tr><td>Univariate / light multivariate series</td><td>LSTM / GRU forecasting</td></tr>
-        <tr><td>Images</td><td>CNN (Week 7), not RNN</td></tr>
-      </tbody>
-    </table>
-    <div class="callout">
-      <span class="tag">Production note</span>
-      Export with <code>model.save('lstm_sentiment.keras')</code>. For serving, TensorFlow
-      Serving or a simple FastAPI wrapper around <code>keras.models.load_model</code> is enough
-      for many internal tools. Measure latency on CPU before assuming you need a GPU.
-    </div>
+    <h3>Practice Track C — Character-Level Language Model</h3>
+    <p>Train a small LSTM or GRU to predict the next character on a public domain text
+      (e.g. a short novel). Generate 200–500 characters with temperature sampling.
+      Observe how temperature changes coherence vs diversity.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Debugging Playbook for Sequence Models</h3>
+    <ul>
+      <li>Loss NaN → lower learning rate, clipnorm=1.0 on the optimizer, check for empty sequences</li>
+      <li>Model ignores early tokens → try LSTM/GRU instead of plain RNN, increase units, bidirectional</li>
+      <li>Severe overfitting → more dropout / recurrent_dropout, smaller embedding, more data</li>
+      <li>Slow training → reduce max_len, use CuDNN-friendly settings (no recurrent_dropout on GPU), or switch to GRU</li>
+    </ul>
   </div>
 </section>
 
-<!-- ============================================================ CHEAT SHEET -->
 <section class="day-section" id="cheatsheet">
   <div class="day-head"><span class="day-num">★</span><h2>Week 8 Cheat Sheet</h2></div>
 
   <div class="topic">
-    <h3>Architecture at a glance</h3>
-    <pre>SimpleRNN:  h_t = tanh(W_h h_{t-1} + W_x x_t)
-LSTM:       gates f, i, o + cell state c_t  (best long memory, more params)
-GRU:        gates z, r + hidden only         (fewer params, often as good)</pre>
+    <h3>When to use which sequence model</h3>
+    <table>
+      <thead>
+        <tr><th>Model</th><th>Strength</th><th>Typical use</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Vanilla RNN</td><td>Simple, few params</td><td>Teaching only; short sequences</td></tr>
+        <tr><td>LSTM</td><td>Long memory, robust</td><td>Default recurrent baseline</td></tr>
+        <tr><td>GRU</td><td>Faster, fewer params</td><td>Similar tasks, tighter budgets</td></tr>
+        <tr><td>1D CNN</td><td>Local patterns, fast</td><td>Short text, strong baseline (Week 7)</td></tr>
+        <tr><td>Transformer</td><td>Long range, parallel</td><td>Modern large-scale NLP (later)</td></tr>
+      </tbody>
+    </table>
   </div>
 
   <div class="topic">
-    <h3>Keras flags you will use constantly</h3>
-    <pre>return_sequences=True   # pass full sequence to next layer
-return_state=True       # also return final state(s) — encoder style
-Bidirectional(...)      # forward + backward
-mask_zero=True          # on Embedding when 0 = pad
-dropout / recurrent_dropout</pre>
+    <h3>Keras one-liners</h3>
+    <pre>layers.Embedding(vocab, dim, mask_zero=True)
+layers.LSTM(units, return_sequences=False/True, dropout=…, recurrent_dropout=…)
+layers.GRU(units, …)
+layers.Bidirectional(layers.LSTM(units))
+optimizer = tf.keras.optimizers.Adam(1e-3, clipnorm=1.0)</pre>
   </div>
 
   <div class="topic">
-    <h3>Training checklist</h3>
-    <pre>1. Pad / truncate to maxlen; mask pads
-2. Embedding → RNN → Dense
-3. Adam + binary_crossentropy or sparse_categorical_crossentropy
-4. Clipnorm if gradients explode
-5. EarlyStopping on val_loss
-6. Compare GRU vs LSTM on your metric and budget</pre>
+    <h3>Shapes to remember</h3>
+    <pre>Input to RNN/LSTM/GRU:  (batch, timesteps, features)
+return_sequences=True  → (batch, timesteps, units)
+return_sequences=False → (batch, units)   # last time step</pre>
   </div>
 </section>
 
-<!-- ============================================================ MCQs -->
 <section class="day-section" id="mcqs">
   <div class="day-head"><span class="day-num">?</span><h2>Self-Check MCQs (20 questions)</h2></div>
-  <p class="day-sub">Click an answer to check yourself.</p>
+  <p class="day-sub">Click an answer to check. Revisit the matching day if several are wrong.</p>
 
-  <div class="mcq"><p class="q">1. RNNs are designed primarily to handle:</p>
-    <button class="mcq-opt" data-correct="true">Variable-length sequential data where order matters</button>
-    <button class="mcq-opt" data-correct="false">Only fixed-size image patches</button>
-    <button class="mcq-opt" data-correct="false">Unlabeled clustering only</button></div>
+  <div class="mcq"><p class="q">1. An RNN differs from a feed-forward MLP mainly by:</p>
+    <button class="mcq-opt" data-correct="true">Sharing weights across time steps and maintaining a hidden state</button>
+    <button class="mcq-opt" data-correct="false">Having no activation functions</button>
+    <button class="mcq-opt" data-correct="false">Only working on images</button></div>
 
-  <div class="mcq"><p class="q">2. Weight sharing across time steps means:</p>
-    <button class="mcq-opt" data-correct="true">The same W matrices are reused at every t</button>
-    <button class="mcq-opt" data-correct="false">Each time step has completely independent weights</button>
-    <button class="mcq-opt" data-correct="false">Weights are never updated</button></div>
+  <div class="mcq"><p class="q">2. Vanishing gradients in RNNs make it hard to:</p>
+    <button class="mcq-opt" data-correct="true">Learn long-range dependencies</button>
+    <button class="mcq-opt" data-correct="false">Use any non-linear activation</button>
+    <button class="mcq-opt" data-correct="false">Train on a single time step</button></div>
 
   <div class="mcq"><p class="q">3. BPTT stands for:</p>
     <button class="mcq-opt" data-correct="true">Backpropagation Through Time</button>
-    <button class="mcq-opt" data-correct="false">Binary Projection Tensor Transform</button>
-    <button class="mcq-opt" data-correct="false">Batch Parallel Training Technique</button></div>
+    <button class="mcq-opt" data-correct="false">Binary Probability Training Technique</button>
+    <button class="mcq-opt" data-correct="false">Batch Parallel Tensor Transform</button></div>
 
-  <div class="mcq"><p class="q">4. Vanishing gradients in deep unrolls cause:</p>
-    <button class="mcq-opt" data-correct="true">Early timesteps to stop influencing the loss effectively</button>
-    <button class="mcq-opt" data-correct="false">The vocabulary size to shrink</button>
-    <button class="mcq-opt" data-correct="false">Softmax to become linear</button></div>
+  <div class="mcq"><p class="q">4. The LSTM cell state is updated mostly by:</p>
+    <button class="mcq-opt" data-correct="true">Additive combinations controlled by gates</button>
+    <button class="mcq-opt" data-correct="false">Only multiplicative resets with no memory</button>
+    <button class="mcq-opt" data-correct="false">Random noise each step</button></div>
 
-  <div class="mcq"><p class="q">5. The LSTM forget gate controls:</p>
+  <div class="mcq"><p class="q">5. The forget gate in an LSTM controls:</p>
     <button class="mcq-opt" data-correct="true">How much of the previous cell state is kept</button>
-    <button class="mcq-opt" data-correct="false">The learning rate schedule</button>
-    <button class="mcq-opt" data-correct="false">The embedding dimension</button></div>
+    <button class="mcq-opt" data-correct="false">The learning rate of the optimizer</button>
+    <button class="mcq-opt" data-correct="false">The size of the embedding matrix</button></div>
 
-  <div class="mcq"><p class="q">6. LSTM’s cell state helps long-range learning because updates are mostly:</p>
-    <button class="mcq-opt" data-correct="true">Additive</button>
-    <button class="mcq-opt" data-correct="false">Random</button>
-    <button class="mcq-opt" data-correct="false">Discrete only</button></div>
+  <div class="mcq"><p class="q">6. A bidirectional LSTM is most appropriate when:</p>
+    <button class="mcq-opt" data-correct="true">The entire sequence is available and both past and future context help</button>
+    <button class="mcq-opt" data-correct="false">You must generate tokens strictly left-to-right online</button>
+    <button class="mcq-opt" data-correct="false">You have no labels</button></div>
 
-  <div class="mcq"><p class="q">7. return_sequences=True is required when:</p>
-    <button class="mcq-opt" data-correct="true">The next layer needs an output at every timestep</button>
-    <button class="mcq-opt" data-correct="false">You want to disable backpropagation</button>
-    <button class="mcq-opt" data-correct="false">You are training a pure MLP</button></div>
+  <div class="mcq"><p class="q">7. return_sequences=True makes an LSTM output:</p>
+    <button class="mcq-opt" data-correct="true">A hidden state for every time step</button>
+    <button class="mcq-opt" data-correct="false">Only the first time step</button>
+    <button class="mcq-opt" data-correct="false">A single scalar loss</button></div>
 
-  <div class="mcq"><p class="q">8. A Bidirectional LSTM reads the sequence:</p>
-    <button class="mcq-opt" data-correct="true">Forward and backward, then combines the states</button>
-    <button class="mcq-opt" data-correct="false">Only from the middle outward</button>
-    <button class="mcq-opt" data-correct="false">Once, with half the units</button></div>
+  <div class="mcq"><p class="q">8. mask_zero=True is useful because:</p>
+    <button class="mcq-opt" data-correct="true">Padding tokens are ignored during recurrence</button>
+    <button class="mcq-opt" data-correct="false">It zeros all weights after training</button>
+    <button class="mcq-opt" data-correct="false">It disables the GPU</button></div>
 
-  <div class="mcq"><p class="q">9. GRU has how many primary gates?</p>
-    <button class="mcq-opt" data-correct="true">Two (update and reset)</button>
-    <button class="mcq-opt" data-correct="false">Five</button>
-    <button class="mcq-opt" data-correct="false">Zero</button></div>
+  <div class="mcq"><p class="q">9. Compared with LSTM, GRU generally has:</p>
+    <button class="mcq-opt" data-correct="true">Fewer parameters</button>
+    <button class="mcq-opt" data-correct="false">Strictly more gates</button>
+    <button class="mcq-opt" data-correct="false">No hidden state</button></div>
 
-  <div class="mcq"><p class="q">10. Compared with LSTM, GRU usually has:</p>
-    <button class="mcq-opt" data-correct="true">Fewer parameters and often similar accuracy</button>
-    <button class="mcq-opt" data-correct="false">Strictly worse accuracy on every task</button>
-    <button class="mcq-opt" data-correct="false">No recurrent path</button></div>
+  <div class="mcq"><p class="q">10. Gradient clipping is often used with RNNs to:</p>
+    <button class="mcq-opt" data-correct="true">Prevent exploding gradients</button>
+    <button class="mcq-opt" data-correct="false">Increase the vocabulary size</button>
+    <button class="mcq-opt" data-correct="false">Remove the need for an optimizer</button></div>
 
-  <div class="mcq"><p class="q">11. mask_zero=True on an Embedding layer is used to:</p>
-    <button class="mcq-opt" data-correct="true">Ignore padding timesteps in subsequent RNN layers</button>
-    <button class="mcq-opt" data-correct="false">Delete the entire vocabulary</button>
-    <button class="mcq-opt" data-correct="false">Force all embeddings to zero</button></div>
+  <div class="mcq"><p class="q">11. Many-to-one sequence models are typical for:</p>
+    <button class="mcq-opt" data-correct="true">Document sentiment classification</button>
+    <button class="mcq-opt" data-correct="false">Generating a full paragraph from a single seed only</button>
+    <button class="mcq-opt" data-correct="false">Pixel-wise image segmentation only</button></div>
 
-  <div class="mcq"><p class="q">12. Many-to-one sequence models are a natural fit for:</p>
-    <button class="mcq-opt" data-correct="true">Sentiment classification of a whole review</button>
-    <button class="mcq-opt" data-correct="false">Pixel-wise image segmentation only</button>
-    <button class="mcq-opt" data-correct="false">Sorting numbers without learning</button></div>
+  <div class="mcq"><p class="q">12. Temperature in text sampling:</p>
+    <button class="mcq-opt" data-correct="true">Controls how sharp or random the next-token distribution is</button>
+    <button class="mcq-opt" data-correct="false">Sets the learning rate</button>
+    <button class="mcq-opt" data-correct="false">Changes the number of LSTM layers</button></div>
 
-  <div class="mcq"><p class="q">13. Gradient clipping is mainly used to fight:</p>
-    <button class="mcq-opt" data-correct="true">Exploding gradients</button>
-    <button class="mcq-opt" data-correct="false">Missing data in CSV files</button>
-    <button class="mcq-opt" data-correct="false">Slow disk I/O</button></div>
+  <div class="mcq"><p class="q">13. A practical first baseline for short text classification is often:</p>
+    <button class="mcq-opt" data-correct="true">Embedding + LSTM or GRU (or even 1D CNN)</button>
+    <button class="mcq-opt" data-correct="false">A random forest on raw characters only</button>
+    <button class="mcq-opt" data-correct="false">K-means clustering of sentences</button></div>
 
-  <div class="mcq"><p class="q">14. For token-level tagging you typically need:</p>
-    <button class="mcq-opt" data-correct="true">return_sequences=True and a per-timestep output layer</button>
-    <button class="mcq-opt" data-correct="false">A single Dense with no time axis</button>
-    <button class="mcq-opt" data-correct="false">Only a MaxPool1D</button></div>
+  <div class="mcq"><p class="q">14. Stacked LSTMs mean:</p>
+    <button class="mcq-opt" data-correct="true">Multiple LSTM layers, higher ones reading outputs of lower ones</button>
+    <button class="mcq-opt" data-correct="false">Training many independent models and averaging</button>
+    <button class="mcq-opt" data-correct="false">Only using the first layer’s weights</button></div>
 
-  <div class="mcq"><p class="q">15. Temperature in text generation:</p>
-    <button class="mcq-opt" data-correct="true">Scales logits before softmax to control randomness</button>
-    <button class="mcq-opt" data-correct="false">Sets the GPU clock speed</button>
-    <button class="mcq-opt" data-correct="false">Is the same as the learning rate</button></div>
+  <div class="mcq"><p class="q">15. The reset gate in a GRU mainly decides:</p>
+    <button class="mcq-opt" data-correct="true">How much of the previous hidden state to forget when computing the candidate</button>
+    <button class="mcq-opt" data-correct="false">The batch size</button>
+    <button class="mcq-opt" data-correct="false">Whether to use softmax or sigmoid</button></div>
 
-  <div class="mcq"><p class="q">16. A reasonable default optimizer for LSTM/GRU classifiers is:</p>
-    <button class="mcq-opt" data-correct="true">Adam</button>
-    <button class="mcq-opt" data-correct="false">K-means</button>
-    <button class="mcq-opt" data-correct="false">Apriori</button></div>
+  <div class="mcq"><p class="q">16. If an RNN’s loss becomes NaN, a useful first step is:</p>
+    <button class="mcq-opt" data-correct="true">Lower the learning rate and enable gradient clipping</button>
+    <button class="mcq-opt" data-correct="false">Remove all activation functions</button>
+    <button class="mcq-opt" data-correct="false">Increase sequence length dramatically</button></div>
 
-  <div class="mcq"><p class="q">17. Stacked LSTMs require the lower LSTM to use:</p>
-    <button class="mcq-opt" data-correct="true">return_sequences=True</button>
-    <button class="mcq-opt" data-correct="false">A batch size of 1 only</button>
-    <button class="mcq-opt" data-correct="false">No activation</button></div>
+  <div class="mcq"><p class="q">17. For pure left-to-right text generation you typically use:</p>
+    <button class="mcq-opt" data-correct="true">A unidirectional LSTM or GRU</button>
+    <button class="mcq-opt" data-correct="false">A bidirectional LSTM only</button>
+    <button class="mcq-opt" data-correct="false">A random forest</button></div>
 
-  <div class="mcq"><p class="q">18. For pure image classification you should prefer:</p>
-    <button class="mcq-opt" data-correct="true">CNNs (Week 7)</button>
-    <button class="mcq-opt" data-correct="false">A unidirectional SimpleRNN on pixels as a long sequence</button>
-    <button class="mcq-opt" data-correct="false">GRU without any convolution</button></div>
+  <div class="mcq"><p class="q">18. Embedding layers map:</p>
+    <button class="mcq-opt" data-correct="true">Discrete token IDs to dense vectors</button>
+    <button class="mcq-opt" data-correct="false">Images to one-hot labels only</button>
+    <button class="mcq-opt" data-correct="false">Loss values to learning rates</button></div>
 
-  <div class="mcq"><p class="q">19. Truncated BPTT means:</p>
-    <button class="mcq-opt" data-correct="true">Backpropagating only through a limited number of recent timesteps</button>
-    <button class="mcq-opt" data-correct="false">Deleting half of the training set</button>
-    <button class="mcq-opt" data-correct="false">Using no loss function</button></div>
+  <div class="mcq"><p class="q">19. recurrent_dropout applies noise to:</p>
+    <button class="mcq-opt" data-correct="true">The recurrent connections inside the LSTM/GRU</button>
+    <button class="mcq-opt" data-correct="false">Only the final Dense layer</button>
+    <button class="mcq-opt" data-correct="false">The dataset labels</button></div>
 
-  <div class="mcq"><p class="q">20. If SimpleRNN underperforms LSTM/GRU on long reviews, the most likely reason is:</p>
-    <button class="mcq-opt" data-correct="true">Difficulty propagating gradients over many timesteps</button>
-    <button class="mcq-opt" data-correct="false">SimpleRNN cannot use embeddings</button>
-    <button class="mcq-opt" data-correct="false">Adam does not work with SimpleRNN</button></div>
+  <div class="mcq"><p class="q">20. After Week 8, the natural next topic for richer text representation is:</p>
+    <button class="mcq-opt" data-correct="true">Word embeddings and more advanced sequence models (Week 9)</button>
+    <button class="mcq-opt" data-correct="false">Only linear regression again</button>
+    <button class="mcq-opt" data-correct="false">Removing all neural layers</button></div>
 </section>
 
-<!-- ============================================================ PROJECTS -->
 <section class="day-section" id="project">
   <div class="day-head"><span class="day-num">🚀</span><h2>Week 8 Projects</h2></div>
 
   <div class="topic">
-    <h3>Project 1 — IMDB: RNN vs LSTM vs GRU</h3>
-    <p>Train three models with the same embedding size and hidden size. Compare test accuracy,
-      training time, and val curves. Write a short recommendation for a production sentiment API.</p>
+    <h3>Project 1 — IMDB Sentiment with LSTM</h3>
+    <p>Train an Embedding + LSTM classifier on the Keras IMDB dataset. Aim for solid validation
+      AUC. Experiment with bidirectional and stacked variants. Report parameter count and one
+      qualitative example the model still gets wrong.</p>
   </div>
 
   <div class="topic">
-    <h3>Project 2 — Daily Temperature or Stock Forecast</h3>
-    <p>Build windowed sequences and train an LSTM (and optionally GRU) to predict the next value.
-      Report MAE/RMSE on a held-out period. Plot predictions vs actuals.</p>
+    <h3>Project 2 — LSTM vs GRU Bake-off</h3>
+    <p>On the same dataset and roughly the same capacity, compare LSTM and GRU on accuracy,
+      training time, and number of parameters. Conclude which you would choose for a mobile
+      or edge deployment and why.</p>
   </div>
 
   <div class="topic">
-    <h3>Project 3 — Bidirectional LSTM for Longer Context</h3>
-    <p>On a document-level task, compare unidirectional LSTM vs Bidirectional LSTM at the same
-      parameter budget. Discuss when future context is legitimate (offline analysis) vs forbidden
-      (real-time streaming).</p>
+    <h3>Project 3 — Tiny Character Language Model</h3>
+    <p>Train a character-level LSTM or GRU on a public-domain text. Implement temperature
+      sampling and generate 3 samples at temperatures 0.5, 1.0, and 1.5. Discuss the trade-off
+      between coherence and diversity.</p>
   </div>
 </section>
 
@@ -581,8 +548,8 @@ dropout / recurrent_dropout</pre>
 
 <footer>
   <div class="wrap">
-    <p>Week 8 of 12 · NAVTTC AI / ML / Deep Learning · Sequence models</p>
-    <p><a href="../week7/index.html">← Week 7</a> · <a href="../index.html">All Weeks</a> · Week 9 (embeddings &amp; sequence patterns) next</p>
+    <p>Week 8 of 12 · NAVTTC AI / ML / Deep Learning · Sequence models foundation</p>
+    <p><a href="../week7/index.html">← Week 7</a> · <a href="../index.html">All Weeks</a> · Week 9 (Embeddings &amp; Sequence Models) next</p>
   </div>
 </footer>
 
