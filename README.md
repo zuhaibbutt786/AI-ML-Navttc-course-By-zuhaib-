@@ -27,7 +27,7 @@ python3 -m http.server 8000
 | 8 | Deep Learning II — RNN, LSTM, GRU | ✅ [Live](./week8/index.html) |
 | 9 | Deep Learning II — Word Embeddings & Sequence Models | ✅ [Live](./week9/index.html) |
 | 10 | Employable Project / On-the-Job Training | ✅ [Live](./week10/index.html) |
-| 11 | MS Azure AI Services — Vision | 🔜 |
+| 11 | MS Azure AI Services — Vision | ✅ [Live](./week11/index.html) |
 | 12 | MS Azure AI Services — Video & NLP | 🔜 |
 
 ## ✨ Features
