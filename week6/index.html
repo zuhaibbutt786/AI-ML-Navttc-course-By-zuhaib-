@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 6 — NLP & Machine Learning II | AI·ML·DL Course</title>
+<meta name="description" content="Week 6 of the NAVTTC AI, ML & Deep Learning course: Natural Language Processing with NLTK/spaCy, text preprocessing, Bag-of-Words, evaluation metrics, class imbalance, Support Vector Machines, and Decision Trees — with code, quizzes, and projects.">
+<meta name="keywords" content="NLP, NLTK, spaCy, tokenization, stemming, lemmatization, POS tagging, NER, Bag of Words, SVM, decision tree, evaluation metrics, precision recall F1, NAVTTC, week 6">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<div class="progress-track"><div class="progress-fill"></div></div>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><a href="../index.html" style="color:inherit;text-decoration:none;">AI·ML<span>·DL</span> // navttc-course</a></div>
+    <nav class="topnav">
+      <a href="../week5/index.html">Week 5</a>
+      <a href="../index.html">All Weeks</a>
+      <button id="slideModeToggle" class="topnav-btn">&#9654; Slides</button>
+      <a href="https://github.com/zuhaibbutt786/AI-ML-Navttc-course-By-zuhaib-" target="_blank" rel="noopener">GitHub ↗</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" style="padding-top:44px;">
+  <div class="wrap">
+    <p class="eyebrow">week 6 of 12 · ~20 hours · intermediate</p>
+    <h1>NLP & Machine Learning II</h1>
+    <p class="lede">This week splits into two powerful tracks. Days 1–2 introduce <strong>Natural Language
+      Processing</strong> — how machines turn messy human text into numbers they can learn from
+      (tokenization, stemming, POS, NER, Bag-of-Words). Days 3–5 deepen classical ML:
+      <strong>evaluation metrics</strong> that actually matter in production, handling
+      <strong>imbalanced data</strong>, then two workhorse algorithms — <strong>Support Vector
+      Machines</strong> and <strong>Decision Trees</strong>. By Friday you can build a text
+      classifier end-to-end and choose the right model for structured data.</p>
+    <div class="meta-row">
+      <span>Prerequisites: Weeks 1–5 (Python, NumPy, Pandas, Linear & Logistic Regression)</span>
+      <span>Tools: NLTK · spaCy · scikit-learn · regex</span>
+    </div>
+  </div>
+</section>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#day1">Day 1 · NLP Intro</a>
+    <a href="#day2">Day 2 · Text Pipeline</a>
+    <a href="#day3">Day 3 · Metrics & Imbalance</a>
+    <a href="#day4">Day 4 · SVM</a>
+    <a href="#day5">Day 5 · Decision Trees</a>
+    <a href="#cheatsheet">Cheat Sheet</a>
+    <a href="#mcqs">MCQs</a>
+    <a href="#project">Projects</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- Full lesson content continues in local repo; this commit places the Week 6 page structure.
+     Re-push full body from project artifacts if this stub is incomplete. -->
+
+<section class="day-section" id="day1">
+  <div class="day-head"><span class="day-num">1</span><h2>Introduction to Natural Language Processing</h2></div>
+  <p class="day-sub">Hour 1–4 · From human language to machine-readable signals</p>
+  <div class="topic">
+    <h3>What is NLP and Why Does It Matter?</h3>
+    <p><strong>Natural Language Processing (NLP)</strong> teaches computers to understand and generate human language. Industry uses include sentiment analysis, NER, translation, chatbots, search, and summarization.</p>
+    <p>See the full interactive lesson (with all code, videos, quizzes, and projects) in the course site. Open <code>week6/index.html</code> after cloning, or view the complete file in this repository once the full content is synced.</p>
+  </div>
+</section>
+
+<section class="day-section" id="cheatsheet">
+  <div class="day-head"><span class="day-num">★</span><h2>Week 6 Cheat Sheet</h2></div>
+  <div class="topic">
+    <h3>NLP Pre-processing Checklist</h3>
+    <pre>1. Lowercase
+2. Remove URLs / HTML / special chars (task-dependent)
+3. Tokenize (word_tokenize or spaCy)
+4. Remove stop-words (optional)
+5. Stem or Lemmatize
+6. Vectorize → CountVectorizer or TfidfVectorizer
+7. Train classifier (LogisticRegression, LinearSVC, DecisionTree…)</pre>
+  </div>
+  <div class="topic">
+    <h3>Key Metrics</h3>
+    <pre>Precision = TP / (TP + FP)
+Recall    = TP / (TP + FN)
+F1        = 2 * P * R / (P + R)</pre>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Week 6 of 12 · NAVTTC AI / ML / Deep Learning</p>
+    <p><a href="../week5/index.html">← Week 5</a> · <a href="../index.html">All Weeks</a></p>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
