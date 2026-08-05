@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 12 — MS Azure AI: Video, NLP &amp; Conversational AI | AI·ML·DL Course</title>
+<meta name="description" content="Week 12 of the NAVTTC AI, ML &amp; Deep Learning course: Azure video processing, Language service, Speech, Translator, CLU, question answering, knowledge mining, and conversational AI — the final module of the 12-week program.">
+<meta name="keywords" content="Azure Video Indexer, Azure Language, Speech service, Translator, CLU, question answering, knowledge mining, Bot Service, NAVTTC, week 12">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<div class="progress-track"><div class="progress-fill"></div></div>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><a href="../index.html" style="color:inherit;text-decoration:none;">AI·ML<span>·DL</span> // navttc-course</a></div>
+    <nav class="topnav">
+      <a href="../week11/index.html">Week 11</a>
+      <a href="../index.html">All Weeks</a>
+      <button id="slideModeToggle" class="topnav-btn">&#9654; Slides</button>
+      <a href="https://github.com/zuhaibbutt786/AI-ML-Navttc-course-By-zuhaib-" target="_blank" rel="noopener">GitHub ↗</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" style="padding-top:44px;">
+  <div class="wrap">
+    <p class="eyebrow">week 12 of 12 · ~20 hours · cloud AI · course finale</p>
+    <h1>MS Azure AI — Video, NLP &amp; Conversational AI</h1>
+    <p class="lede">The final week completes the Azure track. You will process <strong>video</strong>
+      (insights, transcripts, faces/topics where licensed), implement <strong>NLP solutions</strong>
+      (text analytics, speech, translation), build <strong>language understanding</strong> and
+      <strong>question answering</strong>, explore <strong>knowledge mining</strong>, and outline
+      <strong>conversational AI</strong> bots. By the end you can combine Weeks 1–11 skills with
+      managed Azure APIs into employable demos — and close the NAVTTC course with a clear
+      portfolio story.</p>
+    <div class="meta-row">
+      <span>Prerequisites: Week 11 (Azure portal, keys, Responsible AI) + Weeks 6–9 NLP/DL</span>
+      <span>Tools: Azure AI Video Indexer · Language · Speech · Translator · Bot patterns</span>
+    </div>
+  </div>
+</section>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#day1">Day 1 · Video</a>
+    <a href="#day2">Day 2 · Text, Speech, Translate</a>
+    <a href="#day3">Day 3 · CLU &amp; QA</a>
+    <a href="#day4">Day 4 · Knowledge Mining</a>
+    <a href="#day5">Day 5 · Conversational AI</a>
+    <a href="#cheatsheet">Cheat Sheet</a>
+    <a href="#mcqs">MCQs</a>
+    <a href="#project">Finale Labs</a>
+    <a href="#certificate">Course Close</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ============================================================ DAY 1 -->
+<section class="day-section" id="day1">
+  <div class="day-head"><span class="day-num">1</span><h2>Process Videos on Azure</h2></div>
+  <p class="day-sub">Hour 2–4 · Insights from media without training a video net from scratch</p>
+
+  <div class="topic">
+    <h3>Why Video APIs? <span class="hr">Hour 2</span></h3>
+    <p>Custom video models (action recognition, dense captioning) need heavy data and GPUs.
+      <strong>Azure AI Video Indexer</strong> (and related media services) extract practical
+      insights from uploaded or URL-based media:</p>
+    <ul>
+      <li>Speech-to-text transcripts and captions</li>
+      <li>Keyword / topic extraction</li>
+      <li>Scene and shot boundaries</li>
+      <li>OCR on frames</li>
+      <li>Face/celebrity/object insights where enabled and allowed by policy</li>
+      <li>Sentiment over time on spoken content</li>
+    </ul>
+  </div>
+
+  <div class="topic">
+    <h3>Typical Workflow <span class="hr">Hour 2–3</span></h3>
+    <pre>1. Create Video Indexer account / ARM account linked to Azure subscription
+2. Upload video or provide URL
+3. Index (choose language, privacy mode)
+4. Retrieve insights JSON via portal or API
+5. Surface captions, keywords, or search in your app</pre>
+    <pre><span class="c"># Conceptual: call insights after indexing completes</span>
+<span class="c"># GET https://api.videoindexer.ai/{location}/Accounts/{accountId}/Videos/{videoId}/Index</span>
+<span class="c"># Headers: Ocp-Apim-Subscription-Key or OAuth token</span>
+<span class="c"># Parse: videos[0].insights.transcript, keywords, sentiments, ...</span></pre>
+  </div>
+
+  <div class="topic">
+    <h3>Design Notes <span class="hr">Hour 3–4</span></h3>
+    <ul>
+      <li>Match indexing language to spoken audio for better transcripts</li>
+      <li>Privacy: restrict face identification when not required</li>
+      <li>Cost scales with hours processed — trim long archives before indexing</li>
+      <li>Combine with Week 11 vision for key-frame still analysis when needed</li>
+    </ul>
+    <div class="callout">
+      <span class="tag">Product idea</span>
+      Training-video search: index internal lectures, then let staff search by spoken keyword
+      and jump to the timestamp — a strong employable demo for education and enterprise.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">Azure Video Indexer is primarily used to:</p>
+      <button class="mcq-opt" data-correct="true">Extract transcripts, topics, and other insights from video/audio media</button>
+      <button class="mcq-opt" data-correct="false">Train ResNet from scratch on ImageNet only</button>
+      <button class="mcq-opt" data-correct="false">Replace Azure billing accounts</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 2 -->
+<section class="day-section" id="day2">
+  <div class="day-head"><span class="day-num">2</span><h2>Azure NLP — Text, Speech, Translation</h2></div>
+  <p class="day-sub">Hour 1–4 · Language service, Speech service, Translator</p>
+
+  <div class="topic">
+    <h3>Analyze Text (Language Service) <span class="hr">Hour 1–2</span></h3>
+    <p>Azure AI Language covers the classic text analytics suite:</p>
+    <ul>
+      <li>Sentiment analysis (document and sentence level)</li>
+      <li>Key phrase extraction</li>
+      <li>Named entity recognition (NER) and PII detection</li>
+      <li>Language detection</li>
+      <li>Summarization (extractive / abstractive where available)</li>
+    </ul>
+    <pre><span class="c"># pip install azure-ai-textanalytics</span>
+from azure.ai.textanalytics import TextAnalyticsClient
+from azure.core.credentials import AzureKeyCredential
+
+client = TextAnalyticsClient(endpoint, AzureKeyCredential(key))
+docs = [
+    "Azure makes it easier to ship NLP features in production.",
+    "The delivery was late and support was unhelpful."
+]
+result = client.analyze_sentiment(docs, show_opinion_mining=True)
+for doc in result:
+    print(doc.sentiment, doc.confidence_scores)</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Process Speech <span class="hr">Hour 2–3</span></h3>
+    <pre><span class="c"># pip install azure-cognitiveservices-speech</span>
+import azure.cognitiveservices.speech as speechsdk
+
+speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=region)
+speech_config.speech_recognition_language = "en-US"
+
+<span class="c"># From microphone</span>
+audio_config = speechsdk.audio.AudioConfig(use_default_microphone=True)
+recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config, audio_config=audio_config)
+result = recognizer.recognize_once()
+print(result.text)
+
+<span class="c"># Text-to-speech</span>
+speech_config.speech_synthesis_voice_name = "en-US-JennyNeural"
+synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config)
+synthesizer.speak_text_async("Course complete. Well done.").get()</pre>
+    <p>Also explore continuous recognition, speech translation, and pronunciation assessment
+      for education apps.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Translate Language <span class="hr">Hour 3–4</span></h3>
+    <pre><span class="c"># Translator REST / SDK — detect + translate</span>
+import requests
+
+path = "/translate"
+params = {"api-version": "3.0", "from": "en", "to": ["ur", "ar"]}
+headers = {
+    "Ocp-Apim-Subscription-Key": translator_key,
+    "Ocp-Apim-Subscription-Region": region,
+    "Content-Type": "application/json"
+}
+body = [{"text": "Submit your project documentation by Friday."}]
+r = requests.post(endpoint + path, params=params, headers=headers, json=body)
+print(r.json())</pre>
+    <div class="callout">
+      <span class="tag">Local relevance</span>
+      English ↔ Urdu (and regional languages where supported) is a high-value skill for
+      Pakistani product teams — chat support, public-sector forms, and e-learning.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">PII detection in Azure Language is used to:</p>
+      <button class="mcq-opt" data-correct="true">Find and optionally redact personal data in text</button>
+      <button class="mcq-opt" data-correct="false">Train CNNs on ImageNet</button>
+      <button class="mcq-opt" data-correct="false">Provision GPU VMs only</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 3 -->
+<section class="day-section" id="day3">
+  <div class="day-head"><span class="day-num">3</span><h2>Language Understanding &amp; Question Answering</h2></div>
+  <p class="day-sub">Hour 1–4 · Intents, entities, and grounded answers from your content</p>
+
+  <div class="topic">
+    <h3>Conversational Language Understanding (CLU) <span class="hr">Hour 1–2</span></h3>
+    <p>CLU (evolution of LUIS patterns) maps user utterances to <strong>intents</strong> and
+      <strong>entities</strong>:</p>
+    <pre>User: "Book a lab room tomorrow at 3pm"
+Intent: ScheduleLab
+Entities: datetime → tomorrow 15:00, location_type → lab</pre>
+    <ol>
+      <li>Create a Language resource + CLU project in Language Studio</li>
+      <li>Define intents (ScheduleLab, CancelBooking, GetHours, None)</li>
+      <li>Add example utterances and label entities</li>
+      <li>Train, evaluate precision/recall, deploy an endpoint</li>
+      <li>Call from your bot or backend</li>
+    </ol>
+  </div>
+
+  <div class="topic">
+    <h3>Question Answering <span class="hr">Hour 2–4</span></h3>
+    <p>Custom question answering (successor concepts to QnA Maker) builds a knowledge base
+      from FAQs, product docs, or URLs and returns answers with confidence scores.</p>
+    <pre>1. Create QA project in Language Studio
+2. Add chit-chat + custom sources (files/URLs)
+3. Review question–answer pairs; add alternate questions
+4. Deploy
+5. Query: client.get_answers(question="How do I reset my password?", ...)</pre>
+    <div class="callout warn">
+      <span class="tag">Grounding</span>
+      Always show the source and confidence. Low-confidence answers should fall back to a
+      human agent or a safe default — especially for medical, legal, or financial content.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 4 -->
+<section class="day-section" id="day4">
+  <div class="day-head"><span class="day-num">4</span><h2>Knowledge Mining Solutions</h2></div>
+  <p class="day-sub">Hour 2–4 · Unlock insights from large unstructured document sets</p>
+
+  <div class="topic">
+    <h3>What Knowledge Mining Is <span class="hr">Hour 2</span></h3>
+    <p>Enterprises sit on PDFs, scans, emails, and shares full of locked knowledge.
+      <strong>Knowledge mining</strong> on Azure typically combines:</p>
+    <ul>
+      <li><strong>Azure AI Search</strong> (formerly Cognitive Search) with skillsets</li>
+      <li>OCR, language detection, key phrases, entity extraction skills</li>
+      <li>Custom skills (Azure Functions) for domain logic</li>
+      <li>An index your applications query</li>
+    </ul>
+  </div>
+
+  <div class="topic">
+    <h3>Pipeline Sketch <span class="hr">Hour 2–4</span></h3>
+    <pre>Blob Storage (documents)
+  → Indexer
+  → Skillset (OCR → Language → KeyPhrases → Entities → custom skill)
+  → Search Index
+  → Your app / bot / dashboard queries the index</pre>
+    <p>This is how you build internal “search anything we own” experiences — a frequent
+      enterprise project type and a strong portfolio story when scoped to one department’s docs.</p>
+    <div class="callout">
+      <span class="tag">Tie-in</span>
+      Week 6–9 NLP skills help you understand what the skills are doing; Azure runs them at scale
+      with scheduling, incremental indexing, and security trimmings.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 5 -->
+<section class="day-section" id="day5">
+  <div class="day-head"><span class="day-num">5</span><h2>Conversational AI Solutions</h2></div>
+  <p class="day-sub">Hour 1–4 · Bots that combine CLU, QA, and speech</p>
+
+  <div class="topic">
+    <h3>Bot Architecture Pattern <span class="hr">Hour 1–2</span></h3>
+    <pre>Channels (Teams, Web Chat, WhatsApp via adapter)
+  → Bot Service / bot code (SDK)
+      → CLU  (intent routing)
+      → Question Answering  (FAQ answers)
+      → Speech  (optional voice)
+      → Your APIs  (bookings, CRM)
+  → Response + logging + handoff to human</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Implementation Path for Students <span class="hr">Hour 2–3</span></h3>
+    <ol>
+      <li>Compose a CLU model for 4–6 intents</li>
+      <li>Add a small QA knowledge base from a course FAQ</li>
+      <li>Build a simple bot (Bot Framework SDK or Composer / Studio path)</li>
+      <li>Test in Web Chat; log utterances that fall to None intent</li>
+      <li>Iterate examples; document limitations honestly</li>
+    </ol>
+  </div>
+
+  <div class="topic">
+    <h3>Production Concerns <span class="hr">Hour 3–4</span></h3>
+    <ul>
+      <li>Authentication on channels; never trust client-side identity alone</li>
+      <li>PII in logs — redact before storage</li>
+      <li>Human handoff when confidence is low</li>
+      <li>Telemetry: intent distribution, fallback rate, user satisfaction</li>
+      <li>Responsible AI: blocked topics, abuse handling, clear bot identity</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ CHEAT SHEET -->
+<section class="day-section" id="cheatsheet">
+  <div class="day-head"><span class="day-num">★</span><h2>Week 12 Cheat Sheet</h2></div>
+
+  <div class="topic">
+    <h3>Service map</h3>
+    <pre>Video insights     → Video Indexer
+Sentiment / NER    → Azure AI Language
+Speech STT / TTS   → Speech service
+Translation        → Translator
+Intents / entities → CLU (Language Studio)
+FAQ answers        → Question answering
+Doc corpus search  → AI Search + skillsets
+Chat interface     → Bot Service + channels</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Bot routing heuristic</h3>
+    <pre>if CLU intent in business_intents: call domain API
+elif QA confidence high: return answer + source
+else: fallback / human agent</pre>
+  </div>
+</section>
+
+<!-- ============================================================ MCQs -->
+<section class="day-section" id="mcqs">
+  <div class="day-head"><span class="day-num">?</span><h2>Self-Check MCQs (18 questions)</h2></div>
+
+  <div class="mcq"><p class="q">1. Video Indexer helps you:</p>
+    <button class="mcq-opt" data-correct="true">Generate transcripts and other insights from video content</button>
+    <button class="mcq-opt" data-correct="false">Compile C++ kernels only</button>
+    <button class="mcq-opt" data-correct="false">Disable HTTPS on storage</button></div>
+
+  <div class="mcq"><p class="q">2. Azure AI Language sentiment analysis returns:</p>
+    <button class="mcq-opt" data-correct="true">Labels such as positive/neutral/negative with confidence scores</button>
+    <button class="mcq-opt" data-correct="false">Only raw audio waveforms</button>
+    <button class="mcq-opt" data-correct="false">GPU temperature</button></div>
+
+  <div class="mcq"><p class="q">3. Speech-to-text is used to:</p>
+    <button class="mcq-opt" data-correct="true">Convert spoken audio into written text</button>
+    <button class="mcq-opt" data-correct="false">Train Word2Vec on images</button>
+    <button class="mcq-opt" data-correct="false">Create virtual networks</button></div>
+
+  <div class="mcq"><p class="q">4. Neural TTS voices are part of:</p>
+    <button class="mcq-opt" data-correct="true">Azure Speech text-to-speech</button>
+    <button class="mcq-opt" data-correct="false">Custom Vision training only</button>
+    <button class="mcq-opt" data-correct="false">Blob soft delete</button></div>
+
+  <div class="mcq"><p class="q">5. Translator API is appropriate when:</p>
+    <button class="mcq-opt" data-correct="true">You need automated translation between supported languages</button>
+    <button class="mcq-opt" data-correct="false">You only need to sort numbers</button>
+    <button class="mcq-opt" data-correct="false">You must avoid all cloud services by policy without review</button></div>
+
+  <div class="mcq"><p class="q">6. In CLU, an intent represents:</p>
+    <button class="mcq-opt" data-correct="true">The user’s goal (what they want the system to do)</button>
+    <button class="mcq-opt" data-correct="false">The GPU SKU</button>
+    <button class="mcq-opt" data-correct="false">A random embedding dimension</button></div>
+
+  <div class="mcq"><p class="q">7. Entities in language understanding are:</p>
+    <button class="mcq-opt" data-correct="true">Spans of text with typed meaning (date, product, location, …)</button>
+    <button class="mcq-opt" data-correct="false">Azure subscription IDs only</button>
+    <button class="mcq-opt" data-correct="false">Loss functions</button></div>
+
+  <div class="mcq"><p class="q">8. Question answering systems should:</p>
+    <button class="mcq-opt" data-correct="true">Expose confidence and sources; fall back when unsure</button>
+    <button class="mcq-opt" data-correct="false">Always invent answers with no grounding</button>
+    <button class="mcq-opt" data-correct="false">Hide all uncertainty from users and operators</button></div>
+
+  <div class="mcq"><p class="q">9. Knowledge mining with AI Search is ideal for:</p>
+    <button class="mcq-opt" data-correct="true">Making large document collections searchable with AI enrichment</button>
+    <button class="mcq-opt" data-correct="false">Training AlphaGo</button>
+    <button class="mcq-opt" data-correct="false">Replacing DNS</button></div>
+
+  <div class="mcq"><p class="q">10. A skillset in Azure AI Search:</p>
+    <button class="mcq-opt" data-correct="true">Applies enrichment steps (OCR, language skills, custom functions) during indexing</button>
+    <button class="mcq-opt" data-correct="false">Deletes the index nightly by default</button>
+    <button class="mcq-opt" data-correct="false">Is only used for billing</button></div>
+
+  <div class="mcq"><p class="q">11. A typical bot uses CLU to:</p>
+    <button class="mcq-opt" data-correct="true">Route the user message to the correct dialog or API</button>
+    <button class="mcq-opt" data-correct="false">Resize virtual machines</button>
+    <button class="mcq-opt" data-correct="false">Compile CUDA kernels</button></div>
+
+  <div class="mcq"><p class="q">12. Human handoff is important when:</p>
+    <button class="mcq-opt" data-correct="true">Model confidence is low or the topic is high-stakes</button>
+    <button class="mcq-opt" data-correct="false">Every greeting message arrives</button>
+    <button class="mcq-opt" data-correct="false">Logs are empty</button></div>
+
+  <div class="mcq"><p class="q">13. PII in bot logs should be:</p>
+    <button class="mcq-opt" data-correct="true">Minimized and redacted according to policy</button>
+    <button class="mcq-opt" data-correct="false">Posted publicly for marketing</button>
+    <button class="mcq-opt" data-correct="false">Ignored entirely without review</button></div>
+
+  <div class="mcq"><p class="q">14. Continuous speech recognition differs from recognize_once by:</p>
+    <button class="mcq-opt" data-correct="true">Handling longer, ongoing audio streams</button>
+    <button class="mcq-opt" data-correct="false">Only working offline without credentials</button>
+    <button class="mcq-opt" data-correct="false">Removing the need for a region</button></div>
+
+  <div class="mcq"><p class="q">15. Combining Translator with a support bot enables:</p>
+    <button class="mcq-opt" data-correct="true">Multilingual customer interactions on top of one intent model</button>
+    <button class="mcq-opt" data-correct="false">Automatic GPU upgrades</button>
+    <button class="mcq-opt" data-correct="false">Deletion of all indexes</button></div>
+
+  <div class="mcq"><p class="q">16. Fallback / None intent examples help:</p>
+    <button class="mcq-opt" data-correct="true">Teach the model what is out of scope</button>
+    <button class="mcq-opt" data-correct="false">Increase the learning rate of CNNs</button>
+    <button class="mcq-opt" data-correct="false">Disable authentication</button></div>
+
+  <div class="mcq"><p class="q">17. Extractive summarization:</p>
+    <button class="mcq-opt" data-correct="true">Selects important sentences from the source text</button>
+    <button class="mcq-opt" data-correct="false">Always generates poetry unrelated to the source</button>
+    <button class="mcq-opt" data-correct="false">Trains a GAN on faces</button></div>
+
+  <div class="mcq"><p class="q">18. A production conversational solution should include:</p>
+    <button class="mcq-opt" data-correct="true">Telemetry, auth, safe fallbacks, and clear bot identity</button>
+    <button class="mcq-opt" data-correct="false">Hardcoded keys in the mobile app binary only</button>
+    <button class="mcq-opt" data-correct="false">No evaluation of user outcomes</button></div>
+</section>
+
+<!-- ============================================================ FINALE LABS -->
+<section class="day-section" id="project">
+  <div class="day-head"><span class="day-num">🚀</span><h2>Week 12 Finale Labs</h2></div>
+
+  <div class="topic">
+    <h3>Lab A — Video Insights Demo</h3>
+    <p>Index a short public or self-recorded video. Export transcript + keywords. Build a
+      simple page or notebook that searches keywords and prints matching timestamps.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Lab B — Multilingual Text Pipeline</h3>
+    <p>Chain Language detection → sentiment → translation to Urdu (or another supported
+      language). Run on 10 sample support messages; discuss errors.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Lab C — Mini FAQ Bot</h3>
+    <p>Create a QA project from this course’s FAQ (setup, weeks, grading). Optional: add CLU
+      intents for “next class”, “submit project”. Test in Web Chat and document fallback cases.</p>
+  </div>
+</section>
+
+<!-- ============================================================ COURSE CLOSE -->
+<section class="day-section" id="certificate">
+  <div class="day-head"><span class="day-num">🎓</span><h2>Course Close — What You Can Claim</h2></div>
+
+  <div class="topic">
+    <h3>Skills Map (Weeks 1–12)</h3>
+    <ul>
+      <li><strong>Foundations:</strong> Linux, Python, OOP, statistics, NumPy, Pandas, EDA</li>
+      <li><strong>Classical ML:</strong> regression, classification, SVM, trees, boosting, metrics, imbalance</li>
+      <li><strong>NLP core:</strong> preprocessing, BoW/TF-IDF, embeddings, sequence models</li>
+      <li><strong>Deep learning:</strong> MLP, CNN, RNN/LSTM/GRU, attention, BiLSTM</li>
+      <li><strong>Cloud AI:</strong> Azure vision, video, language, speech, translation, CLU, QA, search, bots</li>
+      <li><strong>Delivery:</strong> project planning, baselines, demos, Responsible AI awareness</li>
+    </ul>
+  </div>
+
+  <div class="topic">
+    <h3>Portfolio Checklist Before Viva / Interviews</h3>
+    <ol>
+      <li>One classical ML project with baseline vs final metrics</li>
+      <li>One DL or NLP project (BiLSTM/attention or Custom Vision)</li>
+      <li>One Azure-backed demo (vision or language) with secrets handled correctly</li>
+      <li>README + short screen recording for each</li>
+      <li>Honest limitations slide</li>
+    </ol>
+  </div>
+
+  <div class="topic">
+    <h3>Certificate &amp; Next Steps</h3>
+    <p>Complete your NAVTTC assessments and project viva as required by your training center.
+      For continuous growth: contribute to open datasets, practice system design for ML, and
+      follow Azure AI release notes — service names evolve, principles stay.</p>
+    <div class="callout">
+      <span class="tag">You made it</span>
+      Twelve weeks from shell basics to cloud conversational AI is a serious arc. Ship the
+      project, tell the story clearly, and keep building.
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Week 12 of 12 · NAVTTC AI / ML / Deep Learning · Course complete</p>
+    <p><a href="../week11/index.html">← Week 11</a> · <a href="../index.html">All Weeks</a> · End of curriculum track</p>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
