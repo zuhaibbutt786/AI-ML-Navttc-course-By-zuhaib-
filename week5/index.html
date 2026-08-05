@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 5 — Machine Learning I: Regression &amp; Classification | AI·ML·DL Course</title>
+<meta name="description" content="Week 5 of the NAVTTC AI, ML &amp; Deep Learning course: Multivariate Linear Regression, Polynomial Regression, and Logistic Regression for binary and multiclass classification — with videos, worked math, and from-scratch code.">
+<meta name="keywords" content="multivariate linear regression, polynomial regression, logistic regression, binary classification, multiclass classification, softmax, NAVTTC, week 5">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<div class="progress-track"><div class="progress-fill"></div></div>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><a href="../index.html" style="color:inherit;text-decoration:none;">AI·ML<span>·DL</span> // navttc-course</a></div>
+    <nav class="topnav">
+      <a href="../week4/index.html">Week 4</a>
+      <a href="../index.html">All Weeks</a>
+      <button id="slideModeToggle" class="topnav-btn">&#9654; Slides</button>
+      <a href="https://github.com/zuhaibbutt786/AI-ML-Navttc-course-By-zuhaib-" target="_blank" rel="noopener">GitHub ↗</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" style="padding-top:44px;">
+  <div class="wrap">
+    <p class="eyebrow">week 5 of 12 · ~20 hours · intermediate</p>
+    <h1>Machine Learning I — Regression &amp; Classification</h1>
+    <p class="lede">Last week you built Simple Linear Regression from scratch. This week extends
+      that same core idea in three directions: using many input features at once, fitting curved
+      (not just straight-line) relationships, and — a genuine turning point — moving from
+      predicting numbers to predicting categories with Logistic Regression. Tip: this week is
+      video-heavy — press <strong>▶ Slides</strong> in the top bar any time to switch this page
+      into a distraction-free, one-topic-at-a-time presentation you can step through with the
+      arrow keys.</p>
+  </div>
+</section>
+
+<nav class="daynav">
+  <div class="wrap" style="display:flex;gap:8px;flex-wrap:wrap;">
+    <a href="#day1">Day 1 · Multivariate Linear Regression</a>
+    <a href="#day2">Day 2 · Polynomial Regression</a>
+    <a href="#day3">Day 3 · Logistic Regression (Binary)</a>
+    <a href="#day4">Day 4 · Logistic Regression (Multiclass)</a>
+    <a href="#day5">Day 5 · Code Practice</a>
+    <a href="#cheatsheet">Cheat Sheet</a>
+    <a href="#mcqs">MCQs</a>
+    <a href="#project">Projects</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ============================================================ DAY 1 -->
+<section class="day-section" id="day1">
+  <div class="day-head"><span class="day-num">1</span><h2>Multivariate Linear Regression</h2></div>
+  <p class="day-sub">Hour 2–4 · From one input feature to many</p>
+
+  <div class="topic">
+    <h3>From One Feature to Many <span class="hr">Hour 2</span></h3>
+    <p><strong>Where we left off.</strong> Last week's model predicted an exam score from a
+      single input: hours studied. But almost nothing real depends on just one factor — a house's
+      price depends on its size <em>and</em> number of bedrooms <em>and</em> location <em>and</em>
+      age. <strong>Multivariate (or "multiple") Linear Regression</strong> simply extends the same
+      straight-line idea to handle several input features at once, each with its own weight.</p>
+    <pre>y = w1*x1 + w2*x2 + w3*x3 + ... + b
+<span class="c"># y = predicted output (e.g. house price)
+# x1, x2, x3... = input features (size, bedrooms, age...)
+# w1, w2, w3... = weights — how much each feature matters
+# b = the intercept/bias, same role as before</span></pre>
+    <p>Training still means the exact same loop from last week — guess, measure error with the
+      cost function, adjust with the optimizer, repeat — just now adjusting several weights
+      instead of just one <code>m</code>.</p>
+  </div>
+
+  <div class="video-embed">
+    <iframe src="https://www.youtube.com/embed/EkAQAi3a4js" title="Multiple Regression, Clearly Explained — StatQuest" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="video-caption">Video: "Multiple Regression, Clearly Explained!!!" — StatQuest with Josh Starmer</p>
+
+  <div class="topic">
+    <h3>Why This Needs Vectorization — the Feature Matrix <span class="hr">Hour 3</span></h3>
+    <p>With many features and many training examples, writing out
+      <code>w1*x1 + w2*x2 + ...</code> by hand for every row gets unwieldy fast. Instead, we
+      organize all the features into a matrix (a 2D NumPy array from Week 3 — every row is one
+      training example, every column is one feature) and all the weights into a vector, so the
+      entire prediction step becomes a single matrix multiplication:</p>
+    <pre>import numpy as np
+
+<span class="c"># each row = one house; columns = [size_sqft, bedrooms, age_years]</span>
+X = np.array([
+    [1200, 3, 10],
+    [1500, 4, 5],
+    [800,  2, 20]
+])
+weights = np.array([50, 10000, -200])   <span class="c"># one weight per feature</span>
+bias = 30000
+
+predictions = X @ weights + bias   <span class="c"># @ is matrix multiplication — all 3 predictions computed at once!</span>
+print(predictions)</pre>
+    <div class="callout">
+      <span class="tag">Connecting back to Week 3–4</span>
+      <code>X @ weights</code> is the vectorized version of exactly what last week's
+      unvectorized loop did with <code>for i in range(n):</code> — just extended to handle
+      multiple features per example. This is the same "loops vs. vectorization" upgrade you
+      practiced last week, now shown in its full, general form.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Feature Scaling — A Practical Necessity <span class="hr">Hour 4</span></h3>
+    <p><strong>A new problem that appears with multiple features.</strong> Imagine one feature is
+      "house size" (values in the thousands, like 1500) and another is "number of bedrooms"
+      (values like 3). Gradient Descent's step size interacts badly with this mismatch — a
+      learning rate that works for bedrooms will be far too small or too large for size, making
+      training slow or unstable. <strong>Feature scaling</strong> (also called normalization or
+      standardization) rescales every feature to a similar range before training, fixing this.</p>
+    <pre><span class="c"># standardization: subtract the mean, divide by the standard deviation (Week 2!)</span>
+X_mean = X.mean(axis=0)
+X_std = X.std(axis=0)
+X_scaled = (X - X_mean) / X_std   <span class="c"># broadcasting from Week 3, applied here</span>
+print(X_scaled)</pre>
+    <div class="callout warn">
+      <span class="tag">Common mistake</span>
+      Forgetting feature scaling is one of the most common reasons a from-scratch Gradient
+      Descent implementation seems to "not work" — it isn't broken, it's just struggling with
+      wildly different feature scales pulling the learning rate in different directions.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">In Multivariate Linear Regression, what does <code>X @ weights</code> compute?</p>
+      <button class="mcq-opt" data-correct="true">All predictions for every training example at once</button>
+      <button class="mcq-opt" data-correct="false">The cost function's value</button>
+      <button class="mcq-opt" data-correct="false">The correlation between two features</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 2 -->
+<section class="day-section" id="day2">
+  <div class="day-head"><span class="day-num">2</span><h2>Polynomial Regression</h2></div>
+  <p class="day-sub">Hour 1–4 · Fitting curves, not just straight lines</p>
+
+  <div class="topic">
+    <h3>When a Straight Line Isn't Enough <span class="hr">Hour 1–2</span></h3>
+    <p><strong>The limitation Linear Regression can't escape.</strong> No matter how you tune
+      <code>m</code> and <code>b</code>, a straight line can only ever be... straight. But plenty
+      of real relationships genuinely curve — a car's stopping distance grows faster than
+      proportionally with speed; plant growth often follows a curved, not straight, pattern over
+      time. Forcing a straight line onto obviously curved data leaves the model "underfit" —
+      systematically wrong in a predictable, curved pattern.</p>
+    <p><strong>The trick Polynomial Regression uses.</strong> Instead of inventing a whole new
+      algorithm, we simply add new, transformed features — <code>x²</code>, <code>x³</code>, and
+      so on — as extra columns fed into the exact same Linear Regression machinery you already
+      know. The model is still "linear" in its weights (each weight still just multiplies one
+      feature and adds up); it's the relationship to the <em>original</em> x that becomes curved.</p>
+    <pre>y = w1*x + w2*x² + w3*x³ + b
+<span class="c"># still just weights multiplied by features and summed —
+# only difference from Day 1: some of the "features" are powers of the same original x</span></pre>
+  </div>
+
+  <div class="video-embed">
+    <iframe src="https://www.youtube.com/embed/j6V40n2rSmU" title="Polynomial Regression Explained — Machine Learning for Beginners" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="video-caption">Video: "Polynomial Regression Explained | Machine Learning for Beginners"</p>
+
+  <div class="topic">
+    <h3>Implementing It <span class="hr">Hour 2–3</span></h3>
+    <pre>import numpy as np
+
+x = np.array([1, 2, 3, 4, 5])
+y = np.array([2, 8, 18, 32, 50])   <span class="c"># clearly curved, not a straight line</span>
+
+<span class="c"># manually build polynomial features up to degree 2</span>
+X_poly = np.column_stack([x, x**2])   <span class="c"># now we have TWO features: x and x²</span>
+print(X_poly)
+
+<span class="c"># from here, training is IDENTICAL to Day 1's multivariate regression —
+# same cost function, same gradient descent, just with these engineered features</span></pre>
+    <p>In practice, you'll usually use a helper rather than building these columns by hand:</p>
+    <pre>from sklearn.preprocessing import PolynomialFeatures
+
+poly = PolynomialFeatures(degree=2)
+X_poly = poly.fit_transform(x.reshape(-1, 1))
+print(X_poly)   <span class="c"># columns: [1, x, x²] — includes the bias column automatically</span></pre>
+  </div>
+
+  <div class="topic">
+    <h3>Choosing the Right Degree — Underfitting vs. Overfitting <span class="hr">Hour 4</span></h3>
+    <p><strong>The central tension of this topic.</strong> A degree-1 polynomial is just the
+      straight line from before — too simple for curved data (<strong>underfitting</strong>: the
+      model is too rigid to capture the real pattern). But cranking the degree very high (say,
+      degree 15) lets the curve wiggle through literally every training point perfectly — which
+      sounds great, but actually means the model has memorized noise specific to this exact
+      training data rather than learning the true underlying pattern
+      (<strong>overfitting</strong>). An overfit model performs beautifully on data it's already
+      seen and poorly on new, unseen data — the opposite of what you actually want.</p>
+    <div class="callout warn">
+      <span class="tag">The rule of thumb to remember</span>
+      Higher polynomial degree = more flexible, but more prone to overfitting. The right degree is
+      usually the simplest one that captures the real shape of the data — you'll learn formal
+      ways to choose this (train/test splits, cross-validation) explicitly in Week 6's Testing
+      &amp; Evaluation material.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">A model that fits the training data almost perfectly but performs poorly on new data is:</p>
+      <button class="mcq-opt" data-correct="false">Underfit</button>
+      <button class="mcq-opt" data-correct="true">Overfit</button>
+      <button class="mcq-opt" data-correct="false">Correctly fit</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 3 -->
+<section class="day-section" id="day3">
+  <div class="day-head"><span class="day-num">3</span><h2>Logistic Regression — Binary Classification</h2></div>
+  <p class="day-sub">Hour 1–4 · From predicting numbers to predicting categories</p>
+
+  <div class="topic">
+    <h3>Why Linear Regression Fails for Classification <span class="hr">Hour 1</span></h3>
+    <p><strong>The genuine turning point of this week.</strong> Suppose you want to predict
+      "will this student pass (1) or fail (0)?" from hours studied. You could try feeding
+      pass/fail (0 or 1) into last week's Linear Regression — but a straight line can shoot off to
+      3.7 or −2.1, which makes no sense as a probability. We need an output that's always
+      squeezed between 0 and 1, no matter how extreme the input is. <strong>Logistic
+      Regression</strong> is Linear Regression's answer to exactly this problem, despite the
+      slightly confusing name — it's actually a <em>classification</em> algorithm.</p>
+  </div>
+
+  <div class="video-embed">
+    <iframe src="https://www.youtube.com/embed/yIYKR4sgzI8" title="StatQuest: Logistic Regression" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="video-caption">Video: "StatQuest: Logistic Regression" — StatQuest with Josh Starmer</p>
+
+  <div class="topic">
+    <h3>The Sigmoid Function — Squeezing Any Number Into 0–1 <span class="hr">Hour 2</span></h3>
+    <p>The fix is a single, elegant mathematical function called the <strong>sigmoid</strong>
+      (or "logistic") function. Whatever number the linear part <code>w*x + b</code> produces —
+      no matter how large or negative — the sigmoid function squashes it into a smooth S-shaped
+      curve that always stays between 0 and 1, which we then interpret directly as a probability.</p>
+    <pre>sigmoid(z) = 1 / (1 + e^(-z))
+
+import numpy as np
+
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+
+print(sigmoid(-10))   <span class="c"># ≈ 0.00005 — very close to 0</span>
+print(sigmoid(0))       <span class="c"># exactly 0.5 — the "undecided" midpoint</span>
+print(sigmoid(10))      <span class="c"># ≈ 0.99995 — very close to 1</span></pre>
+    <p><strong>The full model:</strong> compute the familiar linear combination, then squash it
+      through sigmoid:</p>
+    <pre>z = w * x + b                  <span class="c"># same linear combination as Linear Regression</span>
+probability = sigmoid(z)        <span class="c"># now guaranteed to be between 0 and 1</span>
+
+<span class="c"># applying a decision threshold to get an actual class label</span>
+predicted_class = 1 if probability >= 0.5 else 0</pre>
+  </div>
+
+  <div class="topic">
+    <h3>A Different Cost Function — Why MSE Doesn't Work Here <span class="hr">Hour 3</span></h3>
+    <p>Using last week's Mean Squared Error cost function on a sigmoid output creates a bumpy,
+      unreliable landscape for Gradient Descent to search (mathematically, it's no longer a
+      smooth, single-valley bowl). Logistic Regression instead uses a purpose-built cost function
+      called <strong>log loss</strong> (or "binary cross-entropy"), which heavily penalizes
+      confident, wrong predictions:</p>
+    <pre>Cost = -(1/n) * Σ [ y*log(p) + (1-y)*log(1-p) ]
+<span class="c"># y = the true label (0 or 1)
+# p = the model's predicted probability
+# if the true answer is 1 but the model confidently predicted p=0.01,
+# log(p) is a huge negative number — the cost function punishes this heavily</span></pre>
+    <div class="callout">
+      <span class="tag">The intuition, without the formula</span>
+      Log loss says: "being unsure (predicting 0.5) is a small, forgivable mistake; being
+      confidently wrong (predicting 0.99 for the wrong class) is a very large, heavily punished
+      mistake." This shapes training to prefer well-calibrated, honest probabilities.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Training with Gradient Descent — Same Loop, New Pieces <span class="hr">Hour 4</span></h3>
+    <pre>x = np.array([1, 2, 3, 4, 5, 6, 7, 8])
+y = np.array([0, 0, 0, 0, 1, 1, 1, 1])   <span class="c"># pass (1) / fail (0)</span>
+
+w, b = 0.0, 0.0
+learning_rate = 0.1
+epochs = 2000
+n = len(x)
+
+for epoch in range(epochs):
+    z = w * x + b
+    p = sigmoid(z)              <span class="c"># predicted probabilities, vectorized</span>
+    error = p - y                 <span class="c"># same "prediction minus actual" pattern as Week 4</span>
+
+    w_gradient = (1/n) * np.sum(error * x)
+    b_gradient = (1/n) * np.sum(error)
+
+    w = w - learning_rate * w_gradient
+    b = b - learning_rate * b_gradient
+
+print(f"Trained model: sigmoid({w:.2f}x + {b:.2f})")
+print(sigmoid(w * 4.5 + b))   <span class="c"># predicted probability of passing at 4.5 hours studied</span></pre>
+    <div class="callout">
+      <span class="tag">The pattern to notice</span>
+      This is <em>structurally identical</em> to last week's vectorized Gradient Descent loop —
+      guess, compute error, compute gradient, step downhill, repeat. Only the hypothesis function
+      (sigmoid instead of a raw line) and the cost function (log loss instead of MSE) changed.
+      This reuse of the exact same training loop is the single most important pattern in classical
+      ML — you'll see it again and again.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">What does the sigmoid function guarantee about its output?</p>
+      <button class="mcq-opt" data-correct="true">It's always between 0 and 1, regardless of the input</button>
+      <button class="mcq-opt" data-correct="false">It's always exactly 0 or 1</button>
+      <button class="mcq-opt" data-correct="false">It can be any real number</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 4 -->
+<section class="day-section" id="day4">
+  <div class="day-head"><span class="day-num">4</span><h2>Logistic Regression — Multiclass Classification</h2></div>
+  <p class="day-sub">Hour 1–4 · From 2 classes to many, with Softmax</p>
+
+  <div class="topic">
+    <h3>The Problem With Just Two Classes <span class="hr">Hour 1</span></h3>
+    <p><strong>What if there are more than 2 possible answers?</strong> Binary classification
+      answers yes/no questions, but many real problems have several possible categories: which of
+      5 flower species is this? Which of 10 handwritten digits is this? Sigmoid alone, giving one
+      probability between 0 and 1, isn't enough — we need one probability <em>per class</em>, and
+      critically, all of those probabilities need to add up to exactly 1 (100%) across all classes.</p>
+  </div>
+
+  <div class="video-embed">
+    <iframe src="https://www.youtube.com/embed/wY3PJGZEyY4" title="Multiclass logistic/softmax regression from scratch" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="video-caption">Video: "Multiclass logistic/softmax regression from scratch"</p>
+
+  <div class="topic">
+    <h3>The Softmax Function <span class="hr">Hour 2</span></h3>
+    <p><strong>Softmax generalizes sigmoid to many classes at once.</strong> Instead of computing
+      one linear combination and squashing it with sigmoid, the model computes one linear
+      combination <em>per class</em>, then the softmax function converts that whole set of numbers
+      into a proper probability distribution — every value between 0 and 1, and the whole set
+      summing to exactly 1.</p>
+    <pre>softmax(z_i) = e^(z_i) / Σ e^(z_j)   <span class="c"># for every class j</span>
+
+import numpy as np
+
+def softmax(z):
+    exp_z = np.exp(z - np.max(z))   <span class="c"># subtracting max first for numerical stability</span>
+    return exp_z / np.sum(exp_z)
+
+class_scores = np.array([2.0, 1.0, 0.1])   <span class="c"># raw linear output, one number per class</span>
+probabilities = softmax(class_scores)
+print(probabilities)   <span class="c"># e.g. [0.66 0.24 0.10] — sums to 1.0</span>
+print(np.argmax(probabilities))   <span class="c"># the predicted class — the one with highest probability</span></pre>
+    <div class="callout">
+      <span class="tag">Connecting back to Week 3</span>
+      Notice <code>np.argmax</code> reappearing from Week 3's NumPy work — exactly the same
+      "give me the position of the largest value" idea, now used to pick the model's final
+      predicted class from a list of probabilities.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>One-Hot Encoding the Labels <span class="hr">Hour 3</span></h3>
+    <p>To compare the model's predicted probabilities against the true class during training, the
+      true label also needs to be represented as a probability-shaped vector — this is called
+      <strong>one-hot encoding</strong>: a vector of all zeros except a single 1 in the position of
+      the correct class.</p>
+    <pre><span class="c"># 3 classes: 0=setosa, 1=versicolor, 2=virginica
+# a flower that is actually class 1 (versicolor) becomes:</span>
+one_hot = np.array([0, 1, 0])
+
+<span class="c"># the model's cost function (categorical cross-entropy — the multiclass
+# generalization of Day 3's log loss) compares this to the predicted [0.24, 0.66, 0.10]</span></pre>
+    <div class="callout warn">
+      <span class="tag">Common beginner confusion</span>
+      One-hot encoding is a labeling <em>trick</em> for training, not something you'd do to a
+      truly ordinal category — remember Week 2's nominal vs. ordinal distinction: one-hot
+      encoding is exactly the safe way to represent nominal categories (with no natural order)
+      numerically, avoiding the false-order trap discussed back in Week 2, Day 4.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Putting It Together — Using scikit-learn <span class="hr">Hour 4</span></h3>
+    <p>Now that you understand exactly what's happening inside, here's the same multiclass
+      Logistic Regression using scikit-learn, the library you'll rely on heavily going forward:</p>
+    <pre>from sklearn.linear_model import LogisticRegression
+from sklearn.datasets import load_iris
+
+data = load_iris()
+X, y = data.data, data.target   <span class="c"># 3 flower species, 4 features each</span>
+
+model = LogisticRegression(max_iter=200)
+model.fit(X, y)                  <span class="c"># internally: softmax + gradient-based training, just like above</span>
+
+print(model.predict(X[:5]))       <span class="c"># predicted class for the first 5 flowers</span>
+print(model.predict_proba(X[:5])) <span class="c"># the full softmax probability distribution for each</span></pre>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">What does the softmax function guarantee about a set of class probabilities?</p>
+      <button class="mcq-opt" data-correct="true">They are all between 0 and 1 and sum to exactly 1</button>
+      <button class="mcq-opt" data-correct="false">They are all exactly equal</button>
+      <button class="mcq-opt" data-correct="false">Only the highest one is kept, others become 0</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 5 -->
+<section class="day-section" id="day5">
+  <div class="day-head"><span class="day-num">5</span><h2>Code Practice — Consolidating the Week</h2></div>
+  <p class="day-sub">Hour 1–4 · Hands-on practice across all four algorithms, using scikit-learn</p>
+
+  <div class="topic">
+    <h3>Why a Whole Day of Just Practice? <span class="hr">Hour 1–4</span></h3>
+    <p>You've now met four closely related algorithms in four days — Multivariate Linear
+      Regression, Polynomial Regression, Binary Logistic Regression, and Multiclass Logistic
+      Regression. Today has no new theory; the goal is pure repetition and comparison, using
+      scikit-learn's consistent interface, so the pattern common to all of them becomes second
+      nature: <strong>every scikit-learn model follows the same <code>.fit()</code> /
+      <code>.predict()</code> shape</strong>, no matter which specific algorithm is underneath.</p>
+    <pre>from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.preprocessing import PolynomialFeatures, StandardScaler
+from sklearn.model_selection import train_test_split
+import numpy as np
+
+<span class="c"># --- 1. Multivariate Linear Regression ---</span>
+X_house = np.array([[1200,3,10],[1500,4,5],[800,2,20],[2000,5,2]])
+y_price = np.array([250000, 320000, 180000, 410000])
+
+scaler = StandardScaler()               <span class="c"># feature scaling from Day 1</span>
+X_scaled = scaler.fit_transform(X_house)
+
+lin_model = LinearRegression()
+lin_model.fit(X_scaled, y_price)
+print("Linear:", lin_model.predict(X_scaled))
+
+<span class="c"># --- 2. Polynomial Regression ---</span>
+x = np.array([1,2,3,4,5]).reshape(-1,1)
+y_curved = np.array([2,8,18,32,50])
+
+poly = PolynomialFeatures(degree=2)
+X_poly = poly.fit_transform(x)
+poly_model = LinearRegression()
+poly_model.fit(X_poly, y_curved)
+print("Polynomial:", poly_model.predict(X_poly))
+
+<span class="c"># --- 3. Binary Logistic Regression ---</span>
+x_study = np.array([1,2,3,4,5,6,7,8]).reshape(-1,1)
+y_pass = np.array([0,0,0,0,1,1,1,1])
+
+log_model = LogisticRegression()
+log_model.fit(x_study, y_pass)
+print("Binary probability:", log_model.predict_proba([[4.5]]))
+
+<span class="c"># --- 4. Multiclass Logistic Regression ---</span>
+from sklearn.datasets import load_iris
+iris = load_iris()
+X_iris, y_iris = iris.data, iris.target
+X_train, X_test, y_train, y_test = train_test_split(X_iris, y_iris, test_size=0.2, random_state=42)
+
+multi_model = LogisticRegression(max_iter=200)
+multi_model.fit(X_train, y_train)
+print("Multiclass accuracy:", multi_model.score(X_test, y_test))</pre>
+    <div class="callout">
+      <span class="tag">The single biggest takeaway from this week</span>
+      Every algorithm above shares the same four components from Week 4, Day 4: labeled data, a
+      hypothesis, a cost function, and an optimizer. What changes between them is only the shape
+      of the hypothesis (straight line → curve → sigmoid → softmax) and the matching cost function
+      — the training loop's underlying logic barely changes at all. Once this pattern clicks,
+      learning new algorithms for the rest of the course gets significantly faster.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>The <code>train_test_split</code> You Just Saw <span class="hr">Hour 1–4</span></h3>
+    <p>Notice the multiclass example split the data into <code>X_train</code>/<code>X_test</code>
+      before training — a small preview of Week 6's Testing &amp; Evaluation material. The idea:
+      never judge a model using the same data it learned from (that's like grading a student's
+      exam using the exact questions they memorized answers to) — always hold out a portion of
+      data the model has never seen, and evaluate on that instead.</p>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">Why do all four algorithms this week share the same <code>.fit()</code>/<code>.predict()</code> pattern in scikit-learn?</p>
+      <button class="mcq-opt" data-correct="true">They're all built from the same core components — labeled data, hypothesis, cost function, optimizer — just with different hypothesis shapes</button>
+      <button class="mcq-opt" data-correct="false">They are secretly the exact same algorithm with no differences</button>
+      <button class="mcq-opt" data-correct="false">scikit-learn only supports one algorithm total</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ CHEAT SHEET -->
+<section class="day-section" id="cheatsheet">
+  <h2>Week 5 Cheat Sheet</h2>
+  <div class="cheat">
+    <table>
+      <tr><td>Multivariate LR</td><td>y = w1x1 + w2x2 + ... + b — many weighted features, one line</td></tr>
+      <tr><td>Feature scaling</td><td>(x − mean) / std — needed when features have very different scales</td></tr>
+      <tr><td>Polynomial Regression</td><td>add x², x³... as extra features to fit curves with the same linear machinery</td></tr>
+      <tr><td>Underfitting</td><td>model too simple — misses the real pattern (degree too low)</td></tr>
+      <tr><td>Overfitting</td><td>model too complex — memorizes noise (degree too high)</td></tr>
+      <tr><td>Sigmoid</td><td>1 / (1 + e^−z) — squashes any number into (0, 1) for binary classification</td></tr>
+      <tr><td>Log loss</td><td>cost function for Logistic Regression — heavily punishes confident wrong answers</td></tr>
+      <tr><td>Softmax</td><td>generalizes sigmoid to many classes — outputs sum to exactly 1</td></tr>
+      <tr><td>One-hot encoding</td><td>represents a class label as a vector of 0s with a single 1</td></tr>
+      <tr><td>train_test_split</td><td>hold out unseen data to evaluate the model honestly</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ MCQS -->
+<section class="day-section" id="mcqs">
+  <h2>Week 5 MCQs — 20 Questions</h2>
+  <p>Click an option to check yourself.</p>
+
+  <div class="mcq"><p class="q">1. Multivariate Linear Regression differs from Simple Linear Regression because it:</p>
+    <button class="mcq-opt" data-correct="true">Uses multiple input features instead of just one</button>
+    <button class="mcq-opt" data-correct="false">Predicts categories instead of numbers</button>
+    <button class="mcq-opt" data-correct="false">Doesn't use a cost function</button></div>
+
+  <div class="mcq"><p class="q">2. <code>X @ weights</code> in NumPy computes:</p>
+    <button class="mcq-opt" data-correct="true">A matrix multiplication producing all predictions at once</button>
+    <button class="mcq-opt" data-correct="false">The correlation between features</button>
+    <button class="mcq-opt" data-correct="false">A boolean mask</button></div>
+
+  <div class="mcq"><p class="q">3. Feature scaling is important mainly because:</p>
+    <button class="mcq-opt" data-correct="true">Wildly different feature scales can make Gradient Descent slow or unstable</button>
+    <button class="mcq-opt" data-correct="false">It changes the type of ML problem being solved</button>
+    <button class="mcq-opt" data-correct="false">It's required to load a CSV file</button></div>
+
+  <div class="mcq"><p class="q">4. Polynomial Regression fits curves by:</p>
+    <button class="mcq-opt" data-correct="true">Adding powers of x (x², x³...) as extra features into the same linear framework</button>
+    <button class="mcq-opt" data-correct="false">Replacing Gradient Descent with a totally different optimizer</button>
+    <button class="mcq-opt" data-correct="false">Removing the cost function entirely</button></div>
+
+  <div class="mcq"><p class="q">5. A model too simple to capture the real pattern in the data is:</p>
+    <button class="mcq-opt" data-correct="true">Underfit</button>
+    <button class="mcq-opt" data-correct="false">Overfit</button>
+    <button class="mcq-opt" data-correct="false">Vectorized</button></div>
+
+  <div class="mcq"><p class="q">6. A very high-degree polynomial is most at risk of:</p>
+    <button class="mcq-opt" data-correct="true">Overfitting the training data</button>
+    <button class="mcq-opt" data-correct="false">Underfitting the training data</button>
+    <button class="mcq-opt" data-correct="false">Having no cost function</button></div>
+
+  <div class="mcq"><p class="q">7. Logistic Regression is used for:</p>
+    <button class="mcq-opt" data-correct="false">Predicting continuous numeric values</button>
+    <button class="mcq-opt" data-correct="true">Classification problems</button>
+    <button class="mcq-opt" data-correct="false">Only unsupervised learning</button></div>
+
+  <div class="mcq"><p class="q">8. The sigmoid function's output range is:</p>
+    <button class="mcq-opt" data-correct="true">Always between 0 and 1</button>
+    <button class="mcq-opt" data-correct="false">Between −1 and 1</button>
+    <button class="mcq-opt" data-correct="false">Any real number</button></div>
+
+  <div class="mcq"><p class="q">9. Why doesn't Logistic Regression use Mean Squared Error as its cost function?</p>
+    <button class="mcq-opt" data-correct="true">MSE with a sigmoid creates a bumpy landscape unsuitable for Gradient Descent</button>
+    <button class="mcq-opt" data-correct="false">MSE can only be used for classification</button>
+    <button class="mcq-opt" data-correct="false">MSE always equals zero for sigmoid outputs</button></div>
+
+  <div class="mcq"><p class="q">10. Log loss (binary cross-entropy) specifically penalizes:</p>
+    <button class="mcq-opt" data-correct="true">Confident, wrong predictions the most heavily</button>
+    <button class="mcq-opt" data-correct="false">Correct predictions</button>
+    <button class="mcq-opt" data-correct="false">Only predictions of exactly 0.5</button></div>
+
+  <div class="mcq"><p class="q">11. The default decision threshold for binary Logistic Regression is usually:</p>
+    <button class="mcq-opt" data-correct="true">0.5</button>
+    <button class="mcq-opt" data-correct="false">1.0</button>
+    <button class="mcq-opt" data-correct="false">0.0</button></div>
+
+  <div class="mcq"><p class="q">12. Softmax generalizes sigmoid to handle:</p>
+    <button class="mcq-opt" data-correct="true">More than two classes at once</button>
+    <button class="mcq-opt" data-correct="false">Continuous numeric regression</button>
+    <button class="mcq-opt" data-correct="false">Missing data</button></div>
+
+  <div class="mcq"><p class="q">13. A key property of softmax output probabilities is that they:</p>
+    <button class="mcq-opt" data-correct="true">Sum to exactly 1 across all classes</button>
+    <button class="mcq-opt" data-correct="false">Are always equal to each other</button>
+    <button class="mcq-opt" data-correct="false">Can be negative</button></div>
+
+  <div class="mcq"><p class="q">14. One-hot encoding represents a class label as:</p>
+    <button class="mcq-opt" data-correct="true">A vector of zeros with a single 1 at the correct class's position</button>
+    <button class="mcq-opt" data-correct="false">A single decimal number between 0 and 1</button>
+    <button class="mcq-opt" data-correct="false">A string of text</button></div>
+
+  <div class="mcq"><p class="q">15. <code>np.argmax(probabilities)</code> in a softmax context returns:</p>
+    <button class="mcq-opt" data-correct="true">The index of the predicted class with highest probability</button>
+    <button class="mcq-opt" data-correct="false">The sum of all probabilities</button>
+    <button class="mcq-opt" data-correct="false">The lowest probability value</button></div>
+
+  <div class="mcq"><p class="q">16. In scikit-learn, which two methods does almost every model share?</p>
+    <button class="mcq-opt" data-correct="true">.fit() and .predict()</button>
+    <button class="mcq-opt" data-correct="false">.save() and .load()</button>
+    <button class="mcq-opt" data-correct="false">.sort() and .filter()</button></div>
+
+  <div class="mcq"><p class="q">17. <code>train_test_split</code> is used to:</p>
+    <button class="mcq-opt" data-correct="true">Hold out data the model hasn't seen, for honest evaluation</button>
+    <button class="mcq-opt" data-correct="false">Increase the size of the training dataset</button>
+    <button class="mcq-opt" data-correct="false">Remove missing values</button></div>
+
+  <div class="mcq"><p class="q">18. The four core components shared by Linear and Logistic Regression are:</p>
+    <button class="mcq-opt" data-correct="true">Labeled data, hypothesis, cost function, optimizer</button>
+    <button class="mcq-opt" data-correct="false">Mean, median, mode, and variance</button>
+    <button class="mcq-opt" data-correct="false">Rows, columns, index, and dtype</button></div>
+
+  <div class="mcq"><p class="q">19. Predicting a flower's species from among 3 possible species is:</p>
+    <button class="mcq-opt" data-correct="true">Multiclass classification</button>
+    <button class="mcq-opt" data-correct="false">Binary classification</button>
+    <button class="mcq-opt" data-correct="false">Regression</button></div>
+
+  <div class="mcq"><p class="q">20. What changes between Linear Regression, Polynomial Regression, and Logistic Regression, according to this week's material?</p>
+    <button class="mcq-opt" data-correct="true">Mainly the shape of the hypothesis function and its matching cost function</button>
+    <button class="mcq-opt" data-correct="false">Nothing at all — they are identical</button>
+    <button class="mcq-opt" data-correct="false">Only the programming language used</button></div>
+</section>
+
+<!-- ============================================================ EXERCISES -->
+<section class="day-section" id="exercises">
+  <h2>Practical Exercises</h2>
+  <div class="ex-grid">
+    <div class="ex-card"><span class="lvl easy">Easy</span><p>Using scikit-learn, fit a Multivariate Linear Regression model on a small dataset of house size, bedrooms, and price. Print the learned weights and interpret what each one means.</p></div>
+    <div class="ex-card"><span class="lvl medium">Medium</span><p>Generate synthetic curved data (e.g. y = 2x² + 3x + noise), fit Polynomial Regression models of degree 1, 2, and 6, and plot all three curves against the data to visually compare underfitting, a good fit, and overfitting.</p></div>
+    <div class="ex-card"><span class="lvl hard">Hard</span><p>Implement Binary Logistic Regression with Gradient Descent completely from scratch (no scikit-learn) on a small pass/fail dataset, and print the training cost every 200 epochs to confirm it's decreasing.</p></div>
+    <div class="ex-card"><span class="lvl expert">Expert</span><p>Load the Iris dataset, split it with <code>train_test_split</code>, train a multiclass Logistic Regression model, and print both the accuracy and the full softmax probability distribution for 5 test flowers, explaining any low-confidence predictions.</p></div>
+  </div>
+</section>
+
+<!-- ============================================================ PROJECTS -->
+<section class="day-section" id="project" style="border-bottom:none;">
+  <h2>Mini Project</h2>
+  <p><strong>House Price Predictor.</strong> Using a small dataset of house size, bedrooms, age,
+    and price, apply feature scaling, train a Multivariate Linear Regression model with
+    scikit-learn, and write a function that takes a new house's features and returns a predicted
+    price.</p>
+
+  <h2 style="margin-top:40px;">Industry Project</h2>
+  <p><strong>Customer Churn Classifier.</strong> Using a small labeled dataset of customers
+    (features like monthly spend, support tickets, tenure) and a churned/not-churned label, train
+    a Binary Logistic Regression model, evaluate its accuracy on a held-out test set, and print the
+    predicted churn probability for 5 example customers — the exact category of model real
+    subscription businesses use to flag at-risk customers.</p>
+
+  <h2 style="margin-top:40px;">Homework</h2>
+  <p>In your own words, explain to a non-technical friend why "Logistic Regression" is actually
+    used for classification, not regression, despite its name — and describe, without using any
+    formulas, what the sigmoid function is doing conceptually.</p>
+</section>
+
+<!-- ============================================================ RESOURCES -->
+<section class="day-section" id="resources" style="border-bottom:none;">
+  <h2>Additional Resources</h2>
+  <ul>
+    <li><a href="https://scikit-learn.org/stable/modules/linear_model.html" target="_blank" rel="noopener">Official scikit-learn Docs — Linear Models</a></li>
+    <li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html" target="_blank" rel="noopener">Official scikit-learn Docs — LogisticRegression</a></li>
+    <li><a href="https://www.youtube.com/watch?v=EkAQAi3a4js" target="_blank" rel="noopener">Video — Multiple Regression, Clearly Explained (StatQuest)</a></li>
+    <li><a href="https://www.youtube.com/watch?v=yIYKR4sgzI8" target="_blank" rel="noopener">Video — StatQuest: Logistic Regression</a></li>
+    <li><a href="https://www.youtube.com/watch?v=j6V40n2rSmU" target="_blank" rel="noopener">Video — Polynomial Regression Explained</a></li>
+    <li><a href="https://www.youtube.com/watch?v=wY3PJGZEyY4" target="_blank" rel="noopener">Video — Multiclass Softmax Regression from Scratch</a></li>
+    <li><a href="https://www.data-to-viz.com/" target="_blank" rel="noopener">data-to-viz.com — choosing the right chart</a></li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    Week 5 of 12 · NAVTTC AI/ML/DL Course · <a href="../week4/index.html">← Week 4</a> · <a href="../index.html">All weeks</a>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

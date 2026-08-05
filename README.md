@@ -21,7 +21,7 @@ python3 -m http.server 8000
 | 2 | Python Fundamentals — OOP & Descriptive Statistics | ✅ [Live](./week2/index.html) |
 | 3 | Descriptive Statistics & Probability, NumPy | ✅ [Live](./week3/index.html) |
 | 4 | Exploratory Data Analysis — Pandas & Seaborn | ✅ [Live](./week4/index.html) |
-| 5 | Machine Learning I — Regression | 🔜 |
+| 5 | Machine Learning I — Regression | ✅ [Live](./week5/index.html) |
 | 6 | Machine Learning II & Natural Language Processing | 🔜 |
 | 7 | Deep Learning I — Neural Networks | 🔜 |
 | 8 | Deep Learning II — RNN, LSTM, GRU | 🔜 |
@@ -29,6 +29,15 @@ python3 -m http.server 8000
 | 10 | Employable Project / On-the-Job Training | 🔜 |
 | 11 | MS Azure AI Services — Vision | 🔜 |
 | 12 | MS Azure AI Services — Video & NLP | 🔜 |
+
+## ✨ Features
+
+- **Slide Mode** — every lesson week has a **▶ Slides** button in the top bar that turns the page
+  into a full-screen, one-section-at-a-time presentation, navigable with the on-screen buttons or
+  the ← / → arrow keys (Esc to exit).
+- **Embedded videos** — key topics link out to short, well-regarded explainer videos (e.g.
+  StatQuest) right at the point they're introduced.
+- **Self-checking MCQs** — click any answer option to instantly see if it's correct.
 
 ## 🗂 Structure
 
