@@ -86,6 +86,37 @@
   <div class="day-head"><span class="day-num">1</span><h2>Multivariate Linear Regression</h2></div>
   <p class="day-sub">Hour 2–4 · From one input feature to many</p>
 
+  <!-- WORKED-LINREG -->
+
+  <div class="topic" id="worked-linreg">
+    <h3>Worked example — tiny linear regression (by hand)</h3>
+    <p><strong>Dataset (3 students):</strong> predict exam score from hours studied.</p>
+    <pre>Hours x | Score y
+   1     |   2
+   2     |   4
+   3     |   5</pre>
+    <p><strong>Model:</strong> ŷ = w·x + b. Start with a guess w = 1, b = 0.</p>
+    <pre>Step 1 — Predictions
+  x=1 → ŷ=1·1+0 = 1    error = 2−1 = 1
+  x=2 → ŷ=2            error = 4−2 = 2
+  x=3 → ŷ=3            error = 5−3 = 2
+
+Step 2 — Mean Squared Error (MSE)
+  MSE = (1² + 2² + 2²) / 3 = (1+4+4)/3 = 3
+
+Step 3 — One gradient step (learning rate η = 0.1)
+  Rough idea: increase w a bit because errors are positive when x grows.
+  After a few updates (or the normal equation) you get close to
+  w ≈ 1.5, b ≈ 0.67  →  ŷ ≈ 1.5x + 0.67
+  Check x=2: ŷ ≈ 3.67 (true y=4) — much better than 2.</pre>
+    <p><strong>Formula reminder:</strong> MSE = (1/n) Σ (yᵢ − ŷᵢ)² &nbsp;·&nbsp; ŷ = w·x + b</p>
+    <div class="callout"><span class="tag">Beginner tip</span>
+      Always compute predictions and errors on paper for 2–3 rows before writing a training loop.
+    </div>
+  </div>
+
+
+
   <div class="topic">
     <h3>From One Feature to Many <span class="hr">Hour 2</span></h3>
     <p><strong>Where we left off.</strong> Last week's model predicted an exam score from a
@@ -251,6 +282,34 @@ print(X_poly)   <span class="c"># columns: [1, x, x²] — includes the bias col
   <div class="day-head"><span class="day-num">3</span><h2>Logistic Regression — Binary Classification</h2></div>
   <p class="day-sub">Hour 1–4 · From predicting numbers to predicting categories</p>
 
+  <!-- WORKED-LOGISTIC -->
+
+  <div class="topic" id="worked-logistic">
+    <h3>Worked example — sigmoid &amp; one logistic step</h3>
+    <p><strong>Tiny dataset:</strong> pass (1) or fail (0) from hours studied.</p>
+    <pre>x (hours) | y (pass?)
+    1       |  0
+    2       |  0
+    4       |  1
+    5       |  1</pre>
+    <p><strong>Sigmoid:</strong> σ(z) = 1 / (1 + e<sup>−z</sup>) turns any number into a probability between 0 and 1.</p>
+    <pre>Guess: w = 1, b = −3   →  z = 1·x − 3
+
+x=1 → z=−2 → σ(−2) ≈ 0.12   (model says ~12% pass)
+x=2 → z=−1 → σ(−1) ≈ 0.27
+x=4 → z= 1 → σ( 1) ≈ 0.73
+x=5 → z= 2 → σ( 2) ≈ 0.88
+
+Binary cross-entropy for one row (y=1, ŷ=0.73):
+  loss = −[ y·log(ŷ) + (1−y)·log(1−ŷ) ]
+       = −log(0.73) ≈ 0.31
+
+If y=0 and ŷ=0.12: loss = −log(1−0.12) ≈ 0.13</pre>
+    <p>Training adjusts w and b so pass students get high ŷ and fail students get low ŷ.</p>
+  </div>
+
+
+
   <div class="topic">
     <h3>Why Linear Regression Fails for Classification <span class="hr">Hour 1</span></h3>
     <p><strong>The genuine turning point of this week.</strong> Suppose you want to predict
@@ -359,6 +418,28 @@ print(sigmoid(w * 4.5 + b))   <span class="c"># predicted probability of passing
 <section class="day-section" id="day4">
   <div class="day-head"><span class="day-num">4</span><h2>Logistic Regression — Multiclass Classification</h2></div>
   <p class="day-sub">Hour 1–4 · From 2 classes to many, with Softmax</p>
+
+  <!-- WORKED-SOFTMAX -->
+
+  <div class="topic" id="worked-softmax">
+    <h3>Worked example — softmax (3 classes)</h3>
+    <p>Raw scores (logits) from the model for one student: Class A=2.0, B=1.0, C=0.1</p>
+    <pre>σ_i = e^{z_i} / (e^{z_A} + e^{z_B} + e^{z_C})
+
+e^2.0 ≈ 7.39
+e^1.0 ≈ 2.72
+e^0.1 ≈ 1.11
+Sum   ≈ 11.22
+
+P(A) ≈ 7.39/11.22 ≈ 0.66
+P(B) ≈ 2.72/11.22 ≈ 0.24
+P(C) ≈ 1.11/11.22 ≈ 0.10
+
+Prediction = argmax = Class A
+Check: 0.66+0.24+0.10 = 1.00 ✓</pre>
+  </div>
+
+
 
   <div class="topic">
     <h3>The Problem With Just Two Classes <span class="hr">Hour 1</span></h3>
