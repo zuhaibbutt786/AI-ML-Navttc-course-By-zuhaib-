@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 10 — BiLSTM, Attention &amp; Employable Project | AI·ML·DL Course</title>
+<meta name="description" content="Week 10 of the NAVTTC AI, ML &amp; Deep Learning course: Bidirectional LSTM/RNN, attention mechanisms, and a full employable project / OJT playbook — architecture, milestones, portfolio, and viva prep.">
+<meta name="keywords" content="bidirectional LSTM, attention mechanism, seq2seq attention, employable project, FYP, NAVTTC, week 10, on-the-job training">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<div class="progress-track"><div class="progress-fill"></div></div>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><a href="../index.html" style="color:inherit;text-decoration:none;">AI·ML<span>·DL</span> // navttc-course</a></div>
+    <nav class="topnav">
+      <a href="../week9/index.html">Week 9</a>
+      <a href="../index.html">All Weeks</a>
+      <button id="slideModeToggle" class="topnav-btn">&#9654; Slides</button>
+      <a href="https://github.com/zuhaibbutt786/AI-ML-Navttc-course-By-zuhaib-" target="_blank" rel="noopener">GitHub ↗</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" style="padding-top:44px;">
+  <div class="wrap">
+    <p class="eyebrow">week 10 of 12 · ~20 hours · advanced + project kickoff</p>
+    <h1>BiLSTM, Attention &amp; Employable Project</h1>
+    <p class="lede">Days 1–3 close the deep sequence track: <strong>Bidirectional LSTM/RNN</strong>
+      for full-context encoding, then the <strong>attention mechanism</strong> that removed the
+      fixed-context bottleneck from encoder–decoder models. Days 4–5 shift to the
+      <strong>employable project / OJT</strong> track — choosing a market-relevant idea,
+      designing architecture, planning milestones, and preparing for viva and skills competition.
+      This week is both the last major DL theory block and the start of your portfolio piece.</p>
+    <div class="meta-row">
+      <span>Prerequisites: Weeks 7–9 (LSTM/GRU, embeddings, seq2seq patterns)</span>
+      <span>Tools: Keras · (optional) PyTorch · Git · project planning</span>
+    </div>
+  </div>
+</section>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#day1">Day 1 · BiLSTM</a>
+    <a href="#day2">Day 2 · Attention</a>
+    <a href="#day3">Day 3 · Attention Practice</a>
+    <a href="#day4">Day 4 · Project Selection</a>
+    <a href="#day5">Day 5 · Architecture &amp; Plan</a>
+    <a href="#cheatsheet">Cheat Sheet</a>
+    <a href="#mcqs">MCQs</a>
+    <a href="#project">Project Lab</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ============================================================ DAY 1 -->
+<section class="day-section" id="day1">
+  <div class="day-head"><span class="day-num">1</span><h2>Bidirectional LSTM / RNN in Sequence Models</h2></div>
+  <p class="day-sub">Hour 2–4 · Full left–right context (Task 65)</p>
+
+  <div class="topic">
+    <h3>Why Bidirectional? <span class="hr">Hour 2</span></h3>
+    <p>A standard LSTM only sees the <em>past</em>. For offline tasks — document classification,
+      NER, speech transcription of a full utterance — the <em>future</em> tokens are available
+      and informative. A <strong>Bidirectional RNN</strong> runs one recurrent net forward and
+      one backward, then concatenates (or adds) the hidden states at each step:</p>
+    <pre>h⃗_t = RNN_forward(x_t, h⃗_{t-1})
+h⃖_t = RNN_backward(x_t, h⃖_{t+1})
+h_t  = [h⃗_t ; h⃖_t]     <span class="c"># concatenation is the common choice</span></pre>
+    <p>The model can use “the bank of the river” vs “the bank approved the loan” with both
+      sides of context — critical for disambiguation.</p>
+  </div>
+
+  <div class="video-embed">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/daIU_0ZQDcE" title="Bidirectional RNN" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="video-caption">Video: Bidirectional RNNs — when future context is allowed</p>
+
+  <div class="topic">
+    <h3>Keras Bidirectional Patterns <span class="hr">Hour 2–3</span></h3>
+    <pre>from tensorflow.keras import layers, models
+
+<span class="c"># Many → 1 document classifier</span>
+clf = models.Sequential([
+    layers.Embedding(10000, 64, mask_zero=True),
+    layers.Bidirectional(layers.LSTM(64)),
+    layers.Dense(1, activation='sigmoid')
+])
+
+<span class="c"># Many → many token tagger</span>
+tagger = models.Sequential([
+    layers.Embedding(10000, 64, mask_zero=True),
+    layers.Bidirectional(layers.LSTM(64, return_sequences=True)),
+    layers.TimeDistributed(layers.Dense(n_tags, activation='softmax'))
+])
+
+<span class="c"># Stacked bidirectional</span>
+deep = models.Sequential([
+    layers.Embedding(10000, 64, mask_zero=True),
+    layers.Bidirectional(layers.LSTM(64, return_sequences=True)),
+    layers.Bidirectional(layers.LSTM(32)),
+    layers.Dense(1, activation='sigmoid')
+])</pre>
+  </div>
+
+  <div class="topic">
+    <h3>When Bidirectional Is Wrong <span class="hr">Hour 3–4</span></h3>
+    <ul>
+      <li><strong>Real-time / streaming</strong> — future tokens are not available (live speech, online chat scoring)</li>
+      <li><strong>Causal language modeling</strong> — predicting the next token must not peek ahead</li>
+      <li><strong>Some production latency budgets</strong> — two directions ≈ 2× compute</li>
+    </ul>
+    <div class="callout warn">
+      <span class="tag">Integrity</span>
+      Using Bidirectional on a task that will later be deployed as streaming is a common
+      train/serve skew. Design the architecture for the real deployment constraint from day one.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">Bidirectional LSTM is inappropriate when:</p>
+      <button class="mcq-opt" data-correct="true">The system must score tokens in real time without future context</button>
+      <button class="mcq-opt" data-correct="false">You are doing offline document classification</button>
+      <button class="mcq-opt" data-correct="false">You have a GPU available</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 2 -->
+<section class="day-section" id="day2">
+  <div class="day-head"><span class="day-num">2</span><h2>Attention Mechanism in Models</h2></div>
+  <p class="day-sub">Hour 1–4 · Soft alignment between decoder queries and encoder states</p>
+
+  <div class="topic">
+    <h3>The Bottleneck Problem <span class="hr">Hour 1</span></h3>
+    <p>Basic seq2seq (Week 9) compresses an entire source sequence into one fixed vector.
+      Long sentences lose detail. <strong>Attention</strong> lets the decoder, at each output step,
+      look at <em>all</em> encoder hidden states and form a weighted summary focused on the
+      relevant positions.</p>
+  </div>
+
+  <div class="video-embed">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/fjJOgb-E41w" title="Attention" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="video-caption">Video: Attention in neural networks — intuition</p>
+
+  <div class="topic">
+    <h3>Bahdanau-Style Attention (Additive) <span class="hr">Hour 2</span></h3>
+    <pre>For decoder step t, with query s_t (decoder state) and encoder states h_1…h_T:
+
+score_i = vᵀ tanh(W_s s_t + W_h h_i)     <span class="c"># how well h_i matches query</span>
+α_i     = softmax(score)_i                 <span class="c"># attention weights</span>
+c_t     = Σ_i α_i h_i                      <span class="c"># context vector</span>
+<span class="c"># decoder then uses [s_t ; c_t] to predict y_t</span></pre>
+    <p>The α weights are a soft alignment — you can plot them and often see the model
+      “looking at” the right source words while generating each target word.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Luong-Style Attention (Dot / General / Concat) <span class="hr">Hour 2–3</span></h3>
+    <pre>score_i = s_tᵀ h_i              <span class="c"># dot</span>
+score_i = s_tᵀ W h_i            <span class="c"># general</span>
+<span class="c"># then same softmax → context c_t</span></pre>
+    <p>Dot-product attention is simple and fast when dimensions match. Scaled dot-product
+      (divide by √d) is the building block of Transformers.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Self-Attention Preview <span class="hr">Hour 3–4</span></h3>
+    <p>In Transformers, every position attends to every other position in the same sequence
+      (self-attention). Queries, keys, and values are linear projections of the same inputs.
+      You do not need a separate RNN. For this curriculum week, master encoder–decoder
+      attention first; treat self-attention as the natural next idea.</p>
+    <div class="callout">
+      <span class="tag">Industry note</span>
+      Attention maps are useful for debugging and for light explainability (“the model focused
+      on these tokens”). They are not a full legal explanation, but they beat a pure black box.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">Attention mainly solves which seq2seq problem?</p>
+      <button class="mcq-opt" data-correct="true">The fixed-size context vector bottleneck on long inputs</button>
+      <button class="mcq-opt" data-correct="false">The need for GPUs</button>
+      <button class="mcq-opt" data-correct="false">Collecting training labels</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 3 -->
+<section class="day-section" id="day3">
+  <div class="day-head"><span class="day-num">3</span><h2>Attention — Implementation Practice</h2></div>
+  <p class="day-sub">Hour 1–4 · Keras building blocks and a minimal attentive decoder</p>
+
+  <div class="topic">
+    <h3>Keras Attention Layer <span class="hr">Hour 1–2</span></h3>
+    <pre>from tensorflow.keras import layers, models
+
+<span class="c"># Encoder</span>
+enc_in = layers.Input(shape=(None,))
+enc_emb = layers.Embedding(src_vocab, 64, mask_zero=True)(enc_in)
+enc_out = layers.Bidirectional(layers.LSTM(64, return_sequences=True))(enc_emb)
+
+<span class="c"># Decoder query (simplified: last decoder state repeated — real models step through time)</span>
+dec_in = layers.Input(shape=(None,))
+dec_emb = layers.Embedding(tgt_vocab, 64, mask_zero=True)(dec_in)
+dec_lstm_out = layers.LSTM(128, return_sequences=True)(dec_emb)
+
+<span class="c"># Attention: query=decoder, value/key=encoder outputs</span>
+ctx = layers.Attention()([dec_lstm_out, enc_out])
+concat = layers.Concatenate()([dec_lstm_out, ctx])
+out = layers.TimeDistributed(layers.Dense(tgt_vocab, activation='softmax'))(concat)
+
+model = models.Model([enc_in, dec_in], out)
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy')</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Attention for Classification (Many → 1) <span class="hr">Hour 2–3</span></h3>
+    <p>You can also attend over a single sequence to form a weighted document vector
+      instead of using only the last LSTM state:</p>
+    <pre>inputs = layers.Input(shape=(None,))
+x = layers.Embedding(10000, 64, mask_zero=True)(inputs)
+h = layers.Bidirectional(layers.LSTM(64, return_sequences=True))(x)
+<span class="c"># Learnable query via a Dense scoring each timestep</span>
+score = layers.Dense(1)(h)                    <span class="c"># (batch, T, 1)</span>
+weights = layers.Softmax(axis=1)(score)
+context = layers.Dot(axes=1)([weights, h])    <span class="c"># (batch, 1, 2*64)</span>
+context = layers.Flatten()(context)
+out = layers.Dense(1, activation='sigmoid')(context)
+attn_clf = models.Model(inputs, out)</pre>
+  </div>
+
+  <div class="topic">
+    <h3>What to Inspect <span class="hr">Hour 3–4</span></h3>
+    <ul>
+      <li>Plot α over source tokens for a few examples — does it look sensible?</li>
+      <li>Compare val loss with vs without attention on the same data budget</li>
+      <li>Watch for attention collapse (always focusing on the same position)</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 4 -->
+<section class="day-section" id="day4">
+  <div class="day-head"><span class="day-num">4</span><h2>Employable Project — Selection</h2></div>
+  <p class="day-sub">Hour 1–4 · Choosing a market-relevant, finishable scope</p>
+
+  <div class="topic">
+    <h3>NAVTTC Project Goals <span class="hr">Hour 1</span></h3>
+    <p>The curriculum frames the final project as a path to employment or entrepreneurship:</p>
+    <ul>
+      <li>Based on your aptitude and skills from Weeks 1–9</li>
+      <li>Aligned with local and global market trends</li>
+      <li>May be entrepreneurial (product idea, not only academic demo)</li>
+      <li>Presented in skills competition; strong ideas can enter incubation</li>
+      <li>Assessed via viva / final presentation</li>
+    </ul>
+    <p>Alternative path: <strong>2 weeks on-the-job training</strong> with an industry host when
+      equipment-heavy projects are impractical.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Idea Sources &amp; Filters <span class="hr">Hour 2</span></h3>
+    <p>Inspiration links from the curriculum and practice:</p>
+    <ul>
+      <li><a href="https://1000projects.org/" target="_blank" rel="noopener">1000projects.org</a></li>
+      <li><a href="https://nevonprojects.com/" target="_blank" rel="noopener">nevonprojects.com</a></li>
+      <li><a href="https://www.freestudentprojects.com/" target="_blank" rel="noopener">freestudentprojects.com</a></li>
+      <li>Local problems: Urdu/Roman-Urdu NLP, agriculture yield, campus services, SME invoices</li>
+    </ul>
+    <p><strong>Filter every idea</strong> with:</p>
+    <ol>
+      <li>Can I demo a vertical slice in 2 weeks?</li>
+      <li>Do I have (or can I get) data?</li>
+      <li>Does it use skills from this course (ML/DL/NLP/vision)?</li>
+      <li>Would a hiring manager understand the value in 60 seconds?</li>
+    </ol>
+  </div>
+
+  <div class="topic">
+    <h3>Strong Starter Project Themes <span class="hr">Hour 3–4</span></h3>
+    <table>
+      <thead>
+        <tr><th>Theme</th><th>Example deliverable</th><th>Core tech</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>NLP product</td><td>Urdu/English sentiment or ticket classifier + simple UI</td><td>Embeddings, BiLSTM/attention, FastAPI</td></tr>
+        <tr><td>Vision</td><td>Defect / crop / document image classifier</td><td>CNN (Week 7), transfer learning</td></tr>
+        <tr><td>Forecasting</td><td>Demand or energy short-horizon forecast dashboard</td><td>LSTM/GRU time series</td></tr>
+        <tr><td>Hybrid</td><td>Invoice OCR + field extraction + validation rules</td><td>CNN + NLP rules / model</td></tr>
+        <tr><td>Tabular</td><td>Credit / churn model with explainability report</td><td>XGBoost + SHAP</td></tr>
+      </tbody>
+    </table>
+    <div class="callout">
+      <span class="tag">Scope rule</span>
+      Prefer a thin, polished vertical slice over a half-finished “platform”. One reliable
+      demo path + clean README beats five broken menus.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 5 -->
+<section class="day-section" id="day5">
+  <div class="day-head"><span class="day-num">5</span><h2>Architecture Discussion &amp; Project Plan</h2></div>
+  <p class="day-sub">Hour 1–4 · Design, milestones, repo, viva</p>
+
+  <div class="topic">
+    <h3>Architecture Template <span class="hr">Hour 1–2</span></h3>
+    <pre>1. Problem statement (user + pain + success metric)
+2. Data (source, size, labels, license, train/val/test split)
+3. Baseline (TF-IDF + LinearSVC, or logistic regression, or majority class)
+4. Main model (e.g. BiLSTM + attention / CNN / XGBoost)
+5. Evaluation (metrics that match the business goal)
+6. Delivery (notebook + script + optional API or Streamlit UI)
+7. Risks (data quality, class imbalance, compute, timeline)</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Two-Week Milestone Plan <span class="hr">Hour 2–3</span></h3>
+    <table>
+      <thead>
+        <tr><th>Days</th><th>Focus</th><th>Exit criteria</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1–2</td><td>Data locked + baseline metrics</td><td>Reproducible split, baseline F1/MAE written down</td></tr>
+        <tr><td>3–5</td><td>Main model beating baseline</td><td>Val metric improved; errors inspected</td></tr>
+        <tr><td>6–7</td><td>Hardening + simple UI or API</td><td>One-click or one-command demo</td></tr>
+        <tr><td>8–9</td><td>README, plots, failure analysis</td><td>Stranger can run from README</td></tr>
+        <tr><td>10</td><td>Viva deck + rehearsal</td><td>5-minute story + 5-minute live demo</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="topic">
+    <h3>Repository &amp; Portfolio Hygiene <span class="hr">Hour 3</span></h3>
+    <pre>project/
+  README.md          <span class="c"># problem, setup, results, demo GIF</span>
+  requirements.txt
+  data/              <span class="c"># or scripts to download; no huge binaries in git</span>
+  notebooks/
+  src/
+  models/            <span class="c"># small weights or download script</span>
+  reports/           <span class="c"># metrics tables, confusion matrix</span></pre>
+    <ul>
+      <li>Fixed random seeds where practical</li>
+      <li>Never commit secrets or private customer data</li>
+      <li>One clear “best” metric and the baseline next to it</li>
+    </ul>
+  </div>
+
+  <div class="topic">
+    <h3>Viva / Skills Competition Checklist <span class="hr">Hour 4</span></h3>
+    <ul>
+      <li>Problem in one sentence; who benefits?</li>
+      <li>Why this model vs the baseline?</li>
+      <li>Live demo path that cannot fail (cached predictions backup)</li>
+      <li>Honest limitations and next steps</li>
+      <li>What you personally implemented (vs libraries)</li>
+    </ul>
+    <div class="callout">
+      <span class="tag">OJT alternative</span>
+      If you take on-the-job training instead: keep a daily log, list tools used, request a
+      short supervisor note, and still prepare a 5-minute talk on what you learned — assessors
+      look for reflection, not only code.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ CHEAT SHEET -->
+<section class="day-section" id="cheatsheet">
+  <div class="day-head"><span class="day-num">★</span><h2>Week 10 Cheat Sheet</h2></div>
+
+  <div class="topic">
+    <h3>BiLSTM</h3>
+    <pre>Bidirectional(LSTM(units, return_sequences=?))
+Use when full sequence is available offline
+Avoid for strict real-time / causal generation</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Attention</h3>
+    <pre>scores = score(query, keys)
+α = softmax(scores)
+context = Σ α_i · values_i
+Keras: layers.Attention()([query_seq, value_seq])
+Fixes fixed-context bottleneck in seq2seq</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Project one-pager</h3>
+    <pre>Problem → Data → Baseline → Model → Metric → Demo → Risks
+2-week plan: baseline → beat baseline → demo → polish → viva</pre>
+  </div>
+</section>
+
+<!-- ============================================================ MCQs -->
+<section class="day-section" id="mcqs">
+  <div class="day-head"><span class="day-num">?</span><h2>Self-Check MCQs (18 questions)</h2></div>
+
+  <div class="mcq"><p class="q">1. A Bidirectional LSTM processes the sequence:</p>
+    <button class="mcq-opt" data-correct="true">Forward and backward, combining both hidden states</button>
+    <button class="mcq-opt" data-correct="false">Only from the middle of the sequence</button>
+    <button class="mcq-opt" data-correct="false">Without any recurrent connections</button></div>
+
+  <div class="mcq"><p class="q">2. Bidirectional models are a poor fit for:</p>
+    <button class="mcq-opt" data-correct="true">Strictly causal next-token prediction in real time</button>
+    <button class="mcq-opt" data-correct="false">Offline NER on complete sentences</button>
+    <button class="mcq-opt" data-correct="false">Document classification after the full text is known</button></div>
+
+  <div class="mcq"><p class="q">3. Attention weights α_i are typically obtained by:</p>
+    <button class="mcq-opt" data-correct="true">Softmax over compatibility scores between query and keys</button>
+    <button class="mcq-opt" data-correct="false">Random sampling only</button>
+    <button class="mcq-opt" data-correct="false">Sorting TF-IDF values</button></div>
+
+  <div class="mcq"><p class="q">4. The context vector in attention is:</p>
+    <button class="mcq-opt" data-correct="true">A weighted sum of values (often encoder states)</button>
+    <button class="mcq-opt" data-correct="false">Always the first encoder state only</button>
+    <button class="mcq-opt" data-correct="false">The learning rate</button></div>
+
+  <div class="mcq"><p class="q">5. Attention primarily addresses:</p>
+    <button class="mcq-opt" data-correct="true">Information loss from compressing long inputs into one fixed vector</button>
+    <button class="mcq-opt" data-correct="false">GPU driver installation</button>
+    <button class="mcq-opt" data-correct="false">CSV parsing errors</button></div>
+
+  <div class="mcq"><p class="q">6. Scaled dot-product attention divides scores by √d to:</p>
+    <button class="mcq-opt" data-correct="true">Keep softmax gradients healthier for large dimensions</button>
+    <button class="mcq-opt" data-correct="false">Increase vocabulary size</button>
+    <button class="mcq-opt" data-correct="false">Remove the need for embeddings</button></div>
+
+  <div class="mcq"><p class="q">7. Keras layers.Attention() expects:</p>
+    <button class="mcq-opt" data-correct="true">Query sequence and value sequence (and optional key)</button>
+    <button class="mcq-opt" data-correct="false">Only a scalar learning rate</button>
+    <button class="mcq-opt" data-correct="false">A decision tree</button></div>
+
+  <div class="mcq"><p class="q">8. A good first filter for project ideas is:</p>
+    <button class="mcq-opt" data-correct="true">Can I demo a vertical slice in about two weeks with available data?</button>
+    <button class="mcq-opt" data-correct="false">Does it require a national data center?</button>
+    <button class="mcq-opt" data-correct="false">Is it impossible to evaluate?</button></div>
+
+  <div class="mcq"><p class="q">9. Why keep a strong baseline in the project?</p>
+    <button class="mcq-opt" data-correct="true">To prove the main model adds real value, not just complexity</button>
+    <button class="mcq-opt" data-correct="false">Baselines are forbidden in industry</button>
+    <button class="mcq-opt" data-correct="false">To avoid writing a README</button></div>
+
+  <div class="mcq"><p class="q">10. Train/serve skew with BiLSTM often happens when:</p>
+    <button class="mcq-opt" data-correct="true">Training uses future context but deployment is streaming</button>
+    <button class="mcq-opt" data-correct="false">You use Adam instead of SGD</button>
+    <button class="mcq-opt" data-correct="false">You log metrics</button></div>
+
+  <div class="mcq"><p class="q">11. For viva, a reliable demo path should:</p>
+    <button class="mcq-opt" data-correct="true">Work even if the network or live model fails (e.g. cached outputs)</button>
+    <button class="mcq-opt" data-correct="false">Depend on untested last-minute code only</button>
+    <button class="mcq-opt" data-correct="false">Hide all metrics</button></div>
+
+  <div class="mcq"><p class="q">12. Attention collapse refers to:</p>
+    <button class="mcq-opt" data-correct="true">Weights concentrating on the same position regardless of input</button>
+    <button class="mcq-opt" data-correct="false">GPU memory increasing</button>
+    <button class="mcq-opt" data-correct="false">Vocabulary shrinking</button></div>
+
+  <div class="mcq"><p class="q">13. OJT as an alternative to the project is meant to:</p>
+    <button class="mcq-opt" data-correct="true">Provide industrial exposure when a lab-style project is less suitable</button>
+    <button class="mcq-opt" data-correct="false">Replace all assessment forever</button>
+    <button class="mcq-opt" data-correct="false">Avoid any learning goals</button></div>
+
+  <div class="mcq"><p class="q">14. A project README should at minimum include:</p>
+    <button class="mcq-opt" data-correct="true">Problem, setup steps, results vs baseline, and how to run the demo</button>
+    <button class="mcq-opt" data-correct="false">Only the author’s name</button>
+    <button class="mcq-opt" data-correct="false">Raw GPU driver logs</button></div>
+
+  <div class="mcq"><p class="q">15. Self-attention differs from classic encoder–decoder attention by:</p>
+    <button class="mcq-opt" data-correct="true">Letting positions in the same sequence attend to each other</button>
+    <button class="mcq-opt" data-correct="false">Removing all matrices</button>
+    <button class="mcq-opt" data-correct="false">Working only on images</button></div>
+
+  <div class="mcq"><p class="q">16. Success metrics for a classifier project should:</p>
+    <button class="mcq-opt" data-correct="true">Match the business cost of errors (e.g. F1, recall on the critical class)</button>
+    <button class="mcq-opt" data-correct="false">Always be training loss alone</button>
+    <button class="mcq-opt" data-correct="false">Ignore the validation set</button></div>
+
+  <div class="mcq"><p class="q">17. Stacked Bidirectional LSTMs require intermediate layers to use:</p>
+    <button class="mcq-opt" data-correct="true">return_sequences=True</button>
+    <button class="mcq-opt" data-correct="false">A batch size of 1 only</button>
+    <button class="mcq-opt" data-correct="false">No embedding layer</button></div>
+
+  <div class="mcq"><p class="q">18. Commercialization / incubation interest is more likely when the project:</p>
+    <button class="mcq-opt" data-correct="true">Solves a clear user pain with a demoable prototype and realistic next steps</button>
+    <button class="mcq-opt" data-correct="false">Has the most layers regardless of usefulness</button>
+    <button class="mcq-opt" data-correct="false">Avoids any evaluation</button></div>
+</section>
+
+<!-- ============================================================ PROJECT LAB -->
+<section class="day-section" id="project">
+  <div class="day-head"><span class="day-num">🚀</span><h2>Week 10 Lab Deliverables</h2></div>
+
+  <div class="topic">
+    <h3>Lab A — BiLSTM vs Unidirectional</h3>
+    <p>On a document or NER task, compare unidirectional LSTM vs Bidirectional LSTM at a
+      similar parameter count. Report metrics and one qualitative example where bidirectional
+      context clearly helps.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Lab B — Attention Visualization</h3>
+    <p>Train a small attentive classifier or seq2seq model. For 5 examples, visualize attention
+      weights. Write 5–10 lines on whether the focus looks meaningful.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Lab C — Project One-Pager</h3>
+    <p>Fill the architecture template for your employable project (or OJT plan). Include
+      baseline, metric, two-week milestones, and risks. This document is the start of your
+      viva packet.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Week 10 of 12 · NAVTTC AI / ML / Deep Learning · Attention + employable project kickoff</p>
+    <p><a href="../week9/index.html">← Week 9</a> · <a href="../index.html">All Weeks</a> · Weeks 11–12 (Azure AI) next</p>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
