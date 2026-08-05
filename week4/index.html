@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 4 — Pandas, Seaborn &amp; Intro to Machine Learning | AI·ML·DL Course</title>
+<meta name="description" content="Week 4 of the NAVTTC AI, ML &amp; Deep Learning course: advanced Pandas (merging, GroupBy, binning, plotting), Seaborn visualization, an introduction to Machine Learning, and your first algorithm — Linear Regression with Gradient Descent.">
+<meta name="keywords" content="Pandas GroupBy, Pandas merge join, Seaborn plots, machine learning introduction, linear regression, gradient descent, NAVTTC, week 4">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<div class="progress-track"><div class="progress-fill"></div></div>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><a href="../index.html" style="color:inherit;text-decoration:none;">AI·ML<span>·DL</span> // navttc-course</a></div>
+    <nav class="topnav">
+      <a href="../week3/index.html">Week 3</a>
+      <a href="../index.html">All Weeks</a>
+      <a href="https://github.com/zuhaibbutt786/AI-ML-Navttc-course-By-zuhaib-" target="_blank" rel="noopener">GitHub ↗</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" style="padding-top:44px;">
+  <div class="wrap">
+    <p class="eyebrow">week 4 of 12 · ~20 hours · beginner → intermediate</p>
+    <h1>Pandas, Seaborn &amp; Intro to Machine Learning</h1>
+    <p class="lede">This week finishes your data-wrangling toolkit — combining, grouping, and
+      charting data with Pandas and Seaborn — and then, on Thursday and Friday, you write your
+      very first machine learning algorithm from scratch: Linear Regression trained with Gradient
+      Descent. Everything is still built from first principles: if you've never combined two
+      tables, grouped rows, or heard the phrase "gradient descent" before, this is written for you.</p>
+  </div>
+</section>
+
+<nav class="daynav">
+  <div class="wrap" style="display:flex;gap:8px;flex-wrap:wrap;">
+    <a href="#day1">Day 1 · Merging, GroupBy &amp; Pandas Plots</a>
+    <a href="#day2">Day 2 · Seaborn Visualization</a>
+    <a href="#day3">Day 3 · Intro to Machine Learning</a>
+    <a href="#day4">Day 4 · Supervised Learning</a>
+    <a href="#day5">Day 5 · Linear Regression &amp; Gradient Descent</a>
+    <a href="#cheatsheet">Cheat Sheet</a>
+    <a href="#mcqs">MCQs</a>
+    <a href="#project">Projects</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ============================================================ DAY 1 -->
+<section class="day-section" id="day1">
+  <div class="day-head"><span class="day-num">1</span><h2>Combining, Grouping &amp; Plotting with Pandas</h2></div>
+  <p class="day-sub">Hour 1–4 · Merge/join/concatenation · GroupBy · Discretization &amp; binning · DataFrame operations · Pandas plotting</p>
+
+  <div class="topic">
+    <h3>Merging, Joining &amp; Concatenation <span class="hr">Hour 2</span></h3>
+    <p><strong>The everyday problem this solves.</strong> Real data almost never lives in one
+      table. A company might have one table of "Students" (id, name) and a separate table of
+      "Grades" (student_id, score) — and you need to combine them into one table to actually
+      analyze anything. Pandas gives you three related tools for this, and the difference between
+      them matters.</p>
+    <p><strong>Concatenation</strong> — the simplest case: stacking tables on top of each other
+      (or side by side), when they already share the same structure, like combining January's and
+      February's sales records into one long table.</p>
+    <pre>import pandas as pd
+
+jan_sales = pd.DataFrame({"product": ["A", "B"], "sales": [100, 150]})
+feb_sales = pd.DataFrame({"product": ["A", "B"], "sales": [120, 130]})
+
+combined = pd.concat([jan_sales, feb_sales], ignore_index=True)
+print(combined)   <span class="c"># 4 rows, stacked one after another</span></pre>
+    <p><strong>Merging / joining</strong> — combining two tables <em>sideways</em>, matching rows
+      based on a shared key column (like <code>student_id</code>), the exact same concept as a SQL
+      JOIN if you've ever used a database. The "type" of join controls what happens to rows that
+      don't have a match on both sides:</p>
+    <pre>students = pd.DataFrame({"id": [1, 2, 3], "name": ["Ayesha", "Bilal", "Sara"]})
+grades   = pd.DataFrame({"id": [1, 2, 4], "score": [85, 90, 70]})
+
+<span class="c"># inner join — keep ONLY ids present in BOTH tables (id 1, 2)</span>
+inner = pd.merge(students, grades, on="id", how="inner")
+
+<span class="c"># left join — keep ALL rows from the left table (students),
+# filling in NaN where there's no match in grades (id 3 has no grade)</span>
+left = pd.merge(students, grades, on="id", how="left")
+
+<span class="c"># right join — the mirror opposite: keep ALL rows from the right table (grades)</span>
+right = pd.merge(students, grades, on="id", how="right")
+
+<span class="c"># outer join — keep EVERY row from BOTH tables, filling NaN wherever there's no match</span>
+outer = pd.merge(students, grades, on="id", how="outer")</pre>
+    <div class="callout">
+      <span class="tag">A simple way to remember the four join types</span>
+      Picture two overlapping circles (a Venn diagram). <strong>Inner</strong> = only the overlap.
+      <strong>Left</strong> = everything in the left circle, overlap included. <strong>Right</strong>
+      = everything in the right circle, overlap included. <strong>Outer</strong> = both circles
+      entirely, overlap included once.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>GroupBy <span class="hr">Hour 3–4</span></h3>
+    <p><strong>The plain-language question GroupBy answers:</strong> "break this data into
+      buckets by some category, then summarize each bucket separately." Imagine sorting a pile of
+      receipts into separate envelopes by store name, then adding up the total for each envelope —
+      that's exactly what GroupBy automates.</p>
+    <pre>sales = pd.DataFrame({
+    "region": ["North", "South", "North", "South", "North"],
+    "amount": [100, 200, 150, 250, 130]
+})
+
+grouped = sales.groupby("region")["amount"].sum()
+print(grouped)
+<span class="c"># North    380
+# South    450</span>
+
+<span class="c"># multiple summaries at once</span>
+summary = sales.groupby("region")["amount"].agg(["mean", "sum", "count"])
+print(summary)</pre>
+    <div class="callout">
+      <span class="tag">Why this matters constantly</span>
+      "Average sales per region," "count of customers per city," "total revenue per month" — an
+      enormous fraction of real business analytics questions are answered with one GroupBy call.
+      It is arguably the single most important Pandas method to feel fully comfortable with.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Discretization and Binning <span class="hr">Hour 3–4</span></h3>
+    <p><strong>The idea.</strong> Sometimes a continuous number (Week 2's vocabulary) is more
+      useful summarized into a small number of categories — turning an exact age like 34 into the
+      bucket "30–39," for instance. This process is called <strong>binning</strong> or
+      <strong>discretization</strong>, and it's often used to simplify a chart or a model.</p>
+    <pre>ages = pd.Series([5, 17, 25, 40, 62, 80])
+
+bins = [0, 18, 35, 60, 100]
+labels = ["Child", "Young Adult", "Adult", "Senior"]
+
+age_groups = pd.cut(ages, bins=bins, labels=labels)
+print(age_groups)
+<span class="c"># 0          Child
+# 1    Young Adult
+# 2    Young Adult
+# 3          Adult
+# 4         Senior
+# 5         Senior</span></pre>
+  </div>
+
+  <div class="topic">
+    <h3>Further Operations on DataFrames &amp; Data Output/Saving <span class="hr">Hour 3–4</span></h3>
+    <pre><span class="c"># saving your cleaned/combined DataFrame back to a file</span>
+combined.to_csv("combined_sales.csv", index=False)
+combined.to_excel("combined_sales.xlsx", index=False)
+
+<span class="c"># a few more everyday operations</span>
+sales["amount_doubled"] = sales["amount"] * 2       <span class="c"># create a new column</span>
+print(sales.describe())                              <span class="c"># quick stats summary of every numeric column</span>
+print(sales.info())                                    <span class="c"># column types and non-null counts at a glance</span></pre>
+  </div>
+
+  <div class="topic">
+    <h3>Pandas for Plotting <span class="hr">Hour 3–4</span></h3>
+    <p>Pandas includes basic, quick charting built directly into every DataFrame and Series — a
+      fast way to eyeball your data before reaching for a more powerful library like Seaborn
+      tomorrow. All of these are one-liners: <code>.plot(kind="...")</code>.</p>
+    <pre>import matplotlib.pyplot as plt
+
+sales.plot(kind="bar", x="region", y="amount")     <span class="c"># bar chart</span>
+sales["amount"].plot(kind="hist")                    <span class="c"># histogram</span>
+sales["amount"].plot(kind="line")                     <span class="c"># line chart</span>
+sales.plot(kind="scatter", x="region".__len__(), y="amount")  <span class="c"># (scatter needs 2 numeric columns)</span>
+sales["amount"].plot(kind="density")                  <span class="c"># smoothed distribution curve</span>
+sales["amount"].plot(kind="box")                       <span class="c"># box plot — quartiles &amp; outliers from Week 2</span>
+sales["amount"].plot(kind="kde")                       <span class="c"># kernel density estimate — a smoother histogram</span>
+sales.groupby("region")["amount"].sum().plot(kind="pie")  <span class="c"># pie chart of grouped totals</span>
+sales.plot(kind="barh", x="region", y="amount")        <span class="c"># horizontal bar chart</span>
+sales["amount"].plot(kind="hexbin", x="amount", y="amount", gridsize=10)  <span class="c"># density in hex bins (2 numeric cols)</span>
+plt.show()</pre>
+    <div class="callout warn">
+      <span class="tag">Note</span>
+      <code>scatter</code> and <code>hexbin</code> both require two genuinely separate numeric
+      columns to be meaningful — the line above showing <code>x="region".__len__()</code> is
+      illustrative only; in practice you'd plot two real numeric columns like
+      <code>sales.plot(kind="scatter", x="units_sold", y="amount")</code>.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">Which join type keeps only rows with a match in both tables?</p>
+      <button class="mcq-opt" data-correct="false">Left join</button>
+      <button class="mcq-opt" data-correct="true">Inner join</button>
+      <button class="mcq-opt" data-correct="false">Outer join</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 2 -->
+<section class="day-section" id="day2">
+  <div class="day-head"><span class="day-num">2</span><h2>Seaborn — Statistical Visualization</h2></div>
+  <p class="day-sub">Hour 1–4 · Intro to Seaborn · Distribution plots · Categorical data plots · Matrix plots</p>
+
+  <div class="topic">
+    <h3>Introduction to Seaborn <span class="hr">Hour 1</span></h3>
+    <p><strong>Why not just use Pandas plotting from yesterday?</strong> Pandas' built-in
+      <code>.plot()</code> is great for a fast peek, but it's basic. <strong>Seaborn</strong> is
+      a charting library built on top of matplotlib, specifically designed for
+      <em>statistical</em> graphics — it understands DataFrames natively, adds attractive default
+      styling, and makes genuinely hard chart types (like a correlation heatmap or a violin plot)
+      a single line of code.</p>
+    <pre>import seaborn as sns
+import matplotlib.pyplot as plt
+
+sns.set_theme()   <span class="c"># apply Seaborn's nicer default visual style</span></pre>
+  </div>
+
+  <div class="topic">
+    <h3>Distribution Plots <span class="hr">Hour 2</span></h3>
+    <p><strong>These answer:</strong> "what does the shape of this one column's values look
+      like?" — the visual companion to Week 2's mean/median/mode and Week 3's normal distribution.</p>
+    <pre>tips = sns.load_dataset("tips")   <span class="c"># a built-in sample dataset of restaurant bills</span>
+
+<span class="c"># distplot / histplot — histogram + smoothed curve of one column's distribution</span>
+sns.histplot(tips["total_bill"], kde=True)
+plt.show()
+
+<span class="c"># kdeplot — JUST the smoothed curve, no bars — good for comparing shapes cleanly</span>
+sns.kdeplot(tips["total_bill"])
+plt.show()
+
+<span class="c"># rugplot — tiny tick marks along the axis showing exactly where each data point sits</span>
+sns.rugplot(tips["total_bill"])
+plt.show()
+
+<span class="c"># jointplot — combines a bivariate scatter plot with each variable's own distribution on the sides</span>
+sns.jointplot(data=tips, x="total_bill", y="tip", kind="scatter")
+plt.show()
+
+<span class="c"># pairplot — every pair of numeric columns plotted against every other, all at once</span>
+sns.pairplot(tips)
+plt.show()</pre>
+    <div class="callout">
+      <span class="tag">Beginner tip</span>
+      A <code>pairplot</code> is a fantastic first move on any new dataset — one line instantly
+      shows you the relationship (and correlation, from Week 3) between every pair of numeric
+      columns at once, saving you from writing a dozen individual scatter plots by hand.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Categorical Data Plots <span class="hr">Hour 3</span></h3>
+    <p>These are designed specifically for comparing a numeric value <em>across categories</em> —
+      connecting directly back to Week 2's nominal/ordinal categorical data types.</p>
+    <pre><span class="c"># boxplot — shows median, quartiles, and outliers (Week 2's Measures of Position) per category</span>
+sns.boxplot(data=tips, x="day", y="total_bill")
+plt.show()
+
+<span class="c"># violinplot — like a box plot, but also shows the full shape of the distribution</span>
+sns.violinplot(data=tips, x="day", y="total_bill")
+plt.show()
+
+<span class="c"># stripplot — every individual data point plotted, slightly jittered so points don't overlap</span>
+sns.stripplot(data=tips, x="day", y="total_bill")
+plt.show()
+
+<span class="c"># swarmplot — like stripplot, but arranges points so none overlap at all</span>
+sns.swarmplot(data=tips, x="day", y="total_bill")
+plt.show()
+
+<span class="c"># barplot — shows the mean of a numeric column per category, with a confidence interval</span>
+sns.barplot(data=tips, x="day", y="total_bill")
+plt.show()
+
+<span class="c"># countplot — simply counts how many rows fall into each category (no numeric column needed)</span>
+sns.countplot(data=tips, x="day")
+plt.show()
+
+<span class="c"># factorplot / catplot — a flexible, general-purpose wrapper for ALL of the plots above,
+# selected via the kind= argument</span>
+sns.catplot(data=tips, x="day", y="total_bill", kind="box")
+plt.show()</pre>
+    <div class="callout">
+      <span class="tag">Choosing between them</span>
+      Use <strong>countplot</strong> when you just want frequencies. Use <strong>barplot</strong>
+      when you want a mean comparison. Use <strong>boxplot</strong> or <strong>violinplot</strong>
+      when the full spread and outliers matter, not just the average.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Matrix Plots — Heatmap <span class="hr">Hour 4</span></h3>
+    <p>A <strong>heatmap</strong> displays a 2D grid of numbers as colors — darker or brighter
+      shading representing higher or lower values — making patterns across a large table
+      instantly visible without reading a single number. Its single most common use in data
+      science: visualizing a <strong>correlation matrix</strong>, extending Week 3's single
+      correlation coefficient to every pair of columns at once.</p>
+    <pre>numeric_cols = tips[["total_bill", "tip", "size"]]
+correlation_matrix = numeric_cols.corr()
+
+sns.heatmap(correlation_matrix, annot=True, cmap="coolwarm")
+plt.show()</pre>
+    <div class="callout">
+      <span class="tag">Reading a correlation heatmap</span>
+      <code>annot=True</code> prints the actual correlation number inside each cell. Look for
+      cells close to +1 (strong positive, often shown in one color) or −1 (strong negative,
+      shown in the opposite color) — those are the variable pairs most worth investigating
+      further, exactly the multivariate analysis previewed back in Week 3, Day 1.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">Which chart is best for quickly comparing the mean of a numeric column across several categories?</p>
+      <button class="mcq-opt" data-correct="false">countplot</button>
+      <button class="mcq-opt" data-correct="true">barplot</button>
+      <button class="mcq-opt" data-correct="false">heatmap</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 3 -->
+<section class="day-section" id="day3">
+  <div class="day-head"><span class="day-num">3</span><h2>Introduction to Machine Learning</h2></div>
+  <p class="day-sub">Hour 1–4 · What ML is &amp; its types · The classical machine learning pipeline</p>
+
+  <div class="topic">
+    <h3>What Is Machine Learning, Really? <span class="hr">Hour 1</span></h3>
+    <p><strong>The plain-language definition.</strong> Traditional programming is: a human writes
+      explicit rules ("if temperature &gt; 30, say 'hot'"), and the computer follows them exactly.
+      <strong>Machine Learning flips this around</strong>: instead of a human writing the rules,
+      you show the computer many examples of inputs and correct answers, and the computer figures
+      out the rule (or pattern) itself. You don't tell it "spam emails usually contain the word
+      'free'" — you show it 10,000 emails already labeled spam/not-spam, and it learns which
+      patterns matter on its own.</p>
+    <p><strong>Why this shift matters.</strong> Some problems are simply too complex for a human to
+      write exhaustive rules for — recognizing a face in a photo, translating a sentence,
+      predicting which customers will cancel a subscription. These problems have patterns, but the
+      patterns are too subtle, high-dimensional, or numerous for a person to hand-code. ML lets the
+      computer discover those patterns directly from data.</p>
+  </div>
+
+  <div class="topic">
+    <h3>The Three Main Types of Machine Learning <span class="hr">Hour 1</span></h3>
+    <ul>
+      <li><strong>Supervised Learning</strong> — you have labeled examples (input + correct
+        answer already known), and the model learns to predict the answer for new, unseen inputs.
+        Analogy: a student learning from a textbook with an answer key. This is the category
+        you'll focus on for the next several weeks.</li>
+      <li><strong>Unsupervised Learning</strong> — you have data with <em>no</em> labeled correct
+        answers, and the model finds hidden structure or groupings on its own (e.g. automatically
+        clustering customers into similar segments). Analogy: sorting a box of mixed items into
+        natural groups without being told the categories in advance.</li>
+      <li><strong>Reinforcement Learning</strong> — an agent learns by trial and error, taking
+        actions in an environment and receiving rewards or penalties, gradually learning a strategy
+        that maximizes reward over time. Analogy: training a dog with treats — no one tells the dog
+        the exact rule, but it learns which behaviors get rewarded.</li>
+    </ul>
+    <div class="callout">
+      <span class="tag">Where this course focuses</span>
+      Weeks 5–6 dive deep into Supervised Learning; Week 6 also touches Unsupervised methods.
+      Deep Learning (Weeks 7–9) mostly builds supervised and sequence-based models on top of
+      neural networks. Reinforcement Learning is mentioned for completeness but isn't a major
+      focus of this curriculum.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>The Classical Machine Learning Pipeline <span class="hr">Hour 2–4</span></h3>
+    <p>Building an ML system is never just "run one algorithm" — it's a sequence of stages, and
+      real-world projects typically spend far more time on the early stages than on the model
+      itself. This exact sequence will structure how you approach every project for the rest of
+      the course:</p>
+    <ol style="padding-left:22px; margin: 12px 0;">
+      <li style="margin-bottom:10px;"><strong>Data collection</strong> — gathering the raw data
+        you'll learn from: surveys, sensors, databases, scraped web pages, public datasets. The
+        quality and relevance of this stage caps how good everything downstream can possibly be
+        ("garbage in, garbage out").</li>
+      <li style="margin-bottom:10px;"><strong>Preprocessing</strong> — cleaning the raw data:
+        handling missing values (Week 3, Day 5!), removing duplicates, fixing inconsistent
+        formatting, and encoding categorical variables (Week 2's nominal/ordinal data) into a form
+        a model can use.</li>
+      <li style="margin-bottom:10px;"><strong>Feature crafting (feature engineering)</strong> —
+        deciding which columns ("features") the model should actually look at, and sometimes
+        creating brand-new, more useful columns from the raw ones (e.g. turning a birthdate into
+        "age," which is usually far more predictive on its own).</li>
+      <li style="margin-bottom:10px;"><strong>Modeling</strong> — choosing and training an
+        algorithm (like the Linear Regression you'll build by hand later this week) on the
+        prepared data, so it learns the underlying pattern.</li>
+      <li style="margin-bottom:10px;"><strong>Testing and evaluation</strong> — checking how well
+        the trained model performs on data it has <em>never seen before</em>, using metrics
+        appropriate to the problem, so you know whether to trust it.</li>
+      <li><strong>Deployment</strong> — putting the finished, evaluated model into a real
+        application where it makes live predictions for real users, and then monitoring it over
+        time as real-world data changes.</li>
+    </ol>
+    <div class="callout warn">
+      <span class="tag">Common mistake beginners make</span>
+      Jumping straight to "modeling" and skipping careful preprocessing and evaluation. A
+      sophisticated model trained on messy, unvalidated data will confidently produce wrong
+      answers — the pipeline's earlier and later stages matter just as much as the algorithm
+      itself.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">Learning from data that has NO labeled correct answers is:</p>
+      <button class="mcq-opt" data-correct="false">Supervised learning</button>
+      <button class="mcq-opt" data-correct="true">Unsupervised learning</button>
+      <button class="mcq-opt" data-correct="false">Reinforcement learning</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 4 -->
+<section class="day-section" id="day4">
+  <div class="day-head"><span class="day-num">4</span><h2>Supervised Machine Learning</h2></div>
+  <p class="day-sub">Hour 1–4 · Regression vs. classification · Components of supervised learning · Intro to Linear Regression</p>
+
+  <div class="topic">
+    <h3>Regression vs. Classification Problems <span class="hr">Hour 1–2</span></h3>
+    <p>Supervised learning splits into two problem types, distinguished by one simple question:
+      <strong>"is the answer a number, or a category?"</strong></p>
+    <ul>
+      <li><strong>Regression</strong> — predicting a continuous numeric value (Week 2's
+        vocabulary again!): house price, temperature tomorrow, a student's exam score. The
+        possible outputs form a smooth range.</li>
+      <li><strong>Classification</strong> — predicting a category from a fixed, discrete set of
+        options: spam or not-spam (binary), which of five species a flower belongs to (multi-class).
+        The output is always one label from a known list.</li>
+    </ul>
+    <div class="callout">
+      <span class="tag">Quick test you can apply yourself</span>
+      Ask: "could the answer sensibly be any number, including a decimal?" If yes → regression
+      (house price: $342,150.75 makes sense). If the answer must be one of a fixed set of labels →
+      classification (species: "setosa," never "setosa.3").
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Components of Supervised Machine Learning <span class="hr">Hour 1–2</span></h3>
+    <p>Every supervised learning system, no matter how complex, is built from the same four core
+      pieces. Understanding these four terms deeply is worth more than memorizing any specific
+      algorithm — they reappear, renamed slightly, in every model for the rest of this course.</p>
+    <ul>
+      <li><strong>Labeled data</strong> — your training examples, each one a pair of (input
+        features, correct answer). E.g. (house size, number of bedrooms) → actual sale price.</li>
+      <li><strong>Hypothesis</strong> — the model's current "best guess" function for mapping
+        inputs to outputs; literally the mathematical formula the model is trying to tune to fit
+        the data.</li>
+      <li><strong>Cost function (loss function)</strong> — a single number measuring "how wrong is
+        the hypothesis right now, across all the training examples?" Training a model means
+        searching for the hypothesis that makes this number as small as possible.</li>
+      <li><strong>Optimizer</strong> — the algorithm that actually adjusts the hypothesis, step by
+        step, to reduce the cost function. Gradient Descent, which you'll implement by hand today
+        and tomorrow, is the classic example.</li>
+    </ul>
+    <div class="callout">
+      <span class="tag">A single mental model to hold onto</span>
+      Training = "start with a random guess (hypothesis), measure how wrong it is (cost
+      function), then nudge it in the direction that makes it less wrong (optimizer), and
+      repeat thousands of times." This exact loop — guess, measure error, adjust, repeat — is the
+      heartbeat of essentially every ML and Deep Learning algorithm you'll meet in this course.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Univariate Linear Regression — First Look <span class="hr">Hour 3–4</span></h3>
+    <p><strong>The simplest possible regression model.</strong> "Univariate" means one input
+      variable. Linear Regression assumes the relationship between that one input (x) and the
+      output (y) can be approximated by a straight line — literally the equation of a line you
+      learned in school:</p>
+    <pre>y = m * x + b
+<span class="c"># y = predicted output   x = input feature
+# m = slope (how much y changes per unit of x)
+# b = intercept (the predicted y when x = 0)</span></pre>
+    <p>Training this model means finding the specific <strong>m</strong> and <strong>b</strong>
+      that make this line fit the training data as closely as possible — exactly the "hypothesis"
+      from above, with only two numbers to tune. Tomorrow, you'll implement the full training loop
+      by hand, without any ML library, so you truly understand what's happening before you ever
+      call <code>model.fit()</code> in scikit-learn.</p>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">Predicting whether an email is spam or not-spam is an example of:</p>
+      <button class="mcq-opt" data-correct="false">Regression</button>
+      <button class="mcq-opt" data-correct="true">Classification</button>
+      <button class="mcq-opt" data-correct="false">Neither — this isn't a supervised learning problem</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 5 -->
+<section class="day-section" id="day5">
+  <div class="day-head"><span class="day-num">5</span><h2>Linear Regression with Gradient Descent</h2></div>
+  <p class="day-sub">Hour 1–4 · Gradient Descent without vectorization · Gradient Descent with vectorization</p>
+
+  <div class="topic">
+    <h3>Gradient Descent — The Everyday Intuition <span class="hr">Hour 1–2</span></h3>
+    <p><strong>Before any math: an analogy.</strong> Imagine standing on a foggy hillside at
+      night, trying to reach the lowest point in a valley, but you can only see the ground right
+      under your feet. A sensible strategy: feel which direction slopes downward, take a small
+      step that way, and repeat. Eventually, step by step, you reach the bottom.
+      <strong>Gradient Descent</strong> is exactly this strategy, applied to the cost function
+      from yesterday: the "hillside" is a graph of "how wrong is this m and b," and the "bottom
+      of the valley" is the combination of m and b that makes the model as accurate as possible.</p>
+    <p><strong>The cost function for Linear Regression</strong> — Mean Squared Error (MSE) —
+      measures how wrong the current line is, on average, across every training point:</p>
+    <pre>Cost(m, b) = (1/n) * Σ (predicted_y - actual_y)²
+<span class="c"># for each point: how far off was the prediction, squared (so errors can't cancel out —
+# the exact same reasoning you learned for Variance back in Week 2), then averaged over all n points</span></pre>
+    <p><strong>The "gradient"</strong> is just the slope of that cost function with respect to m
+      and b — it tells you exactly which direction to nudge each one to reduce the error. The
+      "descent" is repeatedly stepping in that downhill direction, controlled by a
+      <strong>learning rate</strong> (how big each step is — too large and you overshoot the
+      bottom; too small and training takes forever).</p>
+  </div>
+
+  <div class="topic">
+    <h3>Implementing Gradient Descent Without Vectorization <span class="hr">Hour 1–2</span></h3>
+    <p>Let's build it from scratch, using plain Python loops (Week 1 skills) so every single step
+      is visible — no shortcuts, no libraries hiding the mechanics:</p>
+    <pre># training data: hours studied -> exam score
+x = [1, 2, 3, 4, 5]
+y = [52, 58, 65, 70, 78]
+
+m = 0.0     <span class="c"># start with a random/zero guess for slope</span>
+b = 0.0     <span class="c"># start with a random/zero guess for intercept</span>
+learning_rate = 0.01
+epochs = 1000     <span class="c"># number of times we'll repeat the "step downhill" process</span>
+n = len(x)
+
+for epoch in range(epochs):
+    m_gradient = 0.0
+    b_gradient = 0.0
+
+    <span class="c"># loop over every single training point, one at a time — no vectorization</span>
+    for i in range(n):
+        prediction = m * x[i] + b
+        error = prediction - y[i]
+        m_gradient += (2/n) * error * x[i]     <span class="c"># how much this point pulls the slope</span>
+        b_gradient += (2/n) * error              <span class="c"># how much this point pulls the intercept</span>
+
+    <span class="c"># take a small step downhill for BOTH m and b</span>
+    m = m - learning_rate * m_gradient
+    b = b - learning_rate * b_gradient
+
+    if epoch % 200 == 0:
+        print(f"Epoch {epoch}: m={m:.3f}, b={b:.3f}")
+
+print(f"Final model: y = {m:.2f}x + {b:.2f}")</pre>
+    <div class="callout warn">
+      <span class="tag">Why this version is slow</span>
+      Notice the inner <code>for i in range(n):</code> loop — for every single one of the 1,000
+      epochs, we loop through every training point one at a time in pure Python. With 5 points
+      this is instant; with 5 million points (a realistic dataset size), this becomes painfully
+      slow, because Python loops are far slower than NumPy's vectorized operations from Week 3.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Implementing Gradient Descent With Vectorization <span class="hr">Hour 3–4</span></h3>
+    <p><strong>The upgrade.</strong> "Vectorization" means replacing that inner Python loop with
+      NumPy array operations that process every training point at once — exactly the
+      broadcasting and element-wise arithmetic you practiced in Week 3. Same algorithm, same math,
+      dramatically faster execution:</p>
+    <pre>import numpy as np
+
+x = np.array([1, 2, 3, 4, 5])
+y = np.array([52, 58, 65, 70, 78])
+
+m, b = 0.0, 0.0
+learning_rate = 0.01
+epochs = 1000
+n = len(x)
+
+for epoch in range(epochs):
+    predictions = m * x + b              <span class="c"># ALL predictions at once — no inner loop</span>
+    errors = predictions - y              <span class="c"># ALL errors at once</span>
+
+    m_gradient = (2/n) * np.sum(errors * x)   <span class="c"># one vectorized sum instead of a manual loop</span>
+    b_gradient = (2/n) * np.sum(errors)
+
+    m = m - learning_rate * m_gradient
+    b = b - learning_rate * b_gradient
+
+    if epoch % 200 == 0:
+        cost = np.mean(errors ** 2)
+        print(f"Epoch {epoch}: m={m:.3f}, b={b:.3f}, cost={cost:.3f}")
+
+print(f"Final model: y = {m:.2f}x + {b:.2f}")
+
+<span class="c"># making a prediction with the trained model</span>
+def predict(hours_studied):
+    return m * hours_studied + b
+
+print(predict(6))   <span class="c"># estimated exam score for 6 hours of studying</span></pre>
+    <div class="callout">
+      <span class="tag">The key insight to take away</span>
+      Both versions above compute the <em>exact same mathematics</em> and reach the exact same
+      final <code>m</code> and <code>b</code> — vectorization is purely a performance
+      optimization, not a different algorithm. This is precisely why Week 3's NumPy skills exist:
+      every real ML and Deep Learning library (scikit-learn, TensorFlow, PyTorch) is vectorized
+      under the hood for exactly this reason.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">What does "vectorization" mean in the context of Gradient Descent?</p>
+      <button class="mcq-opt" data-correct="true">Replacing manual Python loops with fast, whole-array NumPy operations</button>
+      <button class="mcq-opt" data-correct="false">Using a completely different training algorithm</button>
+      <button class="mcq-opt" data-correct="false">Converting the data into images</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ CHEAT SHEET -->
+<section class="day-section" id="cheatsheet">
+  <h2>Week 4 Cheat Sheet</h2>
+  <div class="cheat">
+    <h3>Pandas — Combining &amp; Grouping</h3>
+    <table>
+      <tr><td>pd.concat([df1, df2])</td><td>stack tables together</td></tr>
+      <tr><td>pd.merge(a, b, on="id", how="inner")</td><td>join two tables on a shared key</td></tr>
+      <tr><td>how = inner/left/right/outer</td><td>which unmatched rows to keep</td></tr>
+      <tr><td>.groupby("col")["x"].sum()</td><td>bucket rows by category, then summarize</td></tr>
+      <tr><td>pd.cut(series, bins, labels)</td><td>binning / discretization</td></tr>
+      <tr><td>.to_csv() / .to_excel()</td><td>save a DataFrame to disk</td></tr>
+      <tr><td>.plot(kind="bar"/"hist"/"box"/...)</td><td>quick built-in Pandas charting</td></tr>
+    </table>
+    <h3 style="margin-top:20px;">Seaborn</h3>
+    <table>
+      <tr><td>histplot / kdeplot / rugplot</td><td>distribution of one variable</td></tr>
+      <tr><td>jointplot / pairplot</td><td>relationships between 2 / all numeric variables</td></tr>
+      <tr><td>boxplot / violinplot</td><td>spread + outliers per category</td></tr>
+      <tr><td>stripplot / swarmplot</td><td>individual points per category</td></tr>
+      <tr><td>barplot / countplot</td><td>mean per category / frequency per category</td></tr>
+      <tr><td>heatmap(df.corr(), annot=True)</td><td>correlation matrix as a color grid</td></tr>
+    </table>
+    <h3 style="margin-top:20px;">Machine Learning</h3>
+    <table>
+      <tr><td>Supervised / Unsupervised / Reinforcement</td><td>the 3 main ML types</td></tr>
+      <tr><td>Data → Preprocess → Features → Model → Evaluate → Deploy</td><td>the classical ML pipeline</td></tr>
+      <tr><td>Regression / Classification</td><td>predicting a number / predicting a category</td></tr>
+      <tr><td>Hypothesis</td><td>the model's current guess function</td></tr>
+      <tr><td>Cost function (MSE)</td><td>a number measuring how wrong the model is</td></tr>
+      <tr><td>Gradient Descent</td><td>step-by-step downhill search to minimize cost</td></tr>
+      <tr><td>Learning rate</td><td>how big each downhill step is</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ MCQS -->
+<section class="day-section" id="mcqs">
+  <h2>Week 4 MCQs — 20 Questions</h2>
+  <p>Click an option to check yourself.</p>
+
+  <div class="mcq"><p class="q">1. Stacking two DataFrames with identical columns on top of each other uses:</p>
+    <button class="mcq-opt" data-correct="true">pd.concat()</button>
+    <button class="mcq-opt" data-correct="false">pd.merge()</button>
+    <button class="mcq-opt" data-correct="false">pd.groupby()</button></div>
+
+  <div class="mcq"><p class="q">2. Which join keeps ALL rows from both tables, filling gaps with NaN?</p>
+    <button class="mcq-opt" data-correct="false">Inner join</button>
+    <button class="mcq-opt" data-correct="true">Outer join</button>
+    <button class="mcq-opt" data-correct="false">Left join</button></div>
+
+  <div class="mcq"><p class="q">3. <code>df.groupby("region")["amount"].sum()</code> does what?</p>
+    <button class="mcq-opt" data-correct="true">Sums the amount column separately for each region</button>
+    <button class="mcq-opt" data-correct="false">Deletes the region column</button>
+    <button class="mcq-opt" data-correct="false">Sorts rows alphabetically by region</button></div>
+
+  <div class="mcq"><p class="q">4. Converting exact ages into buckets like "Child," "Adult," "Senior" is called:</p>
+    <button class="mcq-opt" data-correct="true">Binning / discretization</button>
+    <button class="mcq-opt" data-correct="false">Merging</button>
+    <button class="mcq-opt" data-correct="false">Vectorization</button></div>
+
+  <div class="mcq"><p class="q">5. Which library is specifically designed for statistical visualization, built on matplotlib?</p>
+    <button class="mcq-opt" data-correct="false">NumPy</button>
+    <button class="mcq-opt" data-correct="true">Seaborn</button>
+    <button class="mcq-opt" data-correct="false">Pandas</button></div>
+
+  <div class="mcq"><p class="q">6. Which Seaborn plot shows every pair of numeric columns at once?</p>
+    <button class="mcq-opt" data-correct="false">countplot</button>
+    <button class="mcq-opt" data-correct="true">pairplot</button>
+    <button class="mcq-opt" data-correct="false">rugplot</button></div>
+
+  <div class="mcq"><p class="q">7. A heatmap of a correlation matrix visually represents:</p>
+    <button class="mcq-opt" data-correct="true">The strength and direction of relationships between every pair of columns</button>
+    <button class="mcq-opt" data-correct="false">Only the missing values in a dataset</button>
+    <button class="mcq-opt" data-correct="false">The number of rows in each category</button></div>
+
+  <div class="mcq"><p class="q">8. Machine Learning, at its core, means:</p>
+    <button class="mcq-opt" data-correct="true">A computer learning patterns from data instead of following hand-written rules</button>
+    <button class="mcq-opt" data-correct="false">Writing extremely detailed if/else rules by hand</button>
+    <button class="mcq-opt" data-correct="false">Only working with images</button></div>
+
+  <div class="mcq"><p class="q">9. Learning by trial and error via rewards and penalties describes:</p>
+    <button class="mcq-opt" data-correct="false">Supervised learning</button>
+    <button class="mcq-opt" data-correct="false">Unsupervised learning</button>
+    <button class="mcq-opt" data-correct="true">Reinforcement learning</button></div>
+
+  <div class="mcq"><p class="q">10. Which pipeline stage involves handling missing values and inconsistent formatting?</p>
+    <button class="mcq-opt" data-correct="false">Deployment</button>
+    <button class="mcq-opt" data-correct="true">Preprocessing</button>
+    <button class="mcq-opt" data-correct="false">Modeling</button></div>
+
+  <div class="mcq"><p class="q">11. Predicting a house's price in dollars is an example of:</p>
+    <button class="mcq-opt" data-correct="true">Regression</button>
+    <button class="mcq-opt" data-correct="false">Classification</button>
+    <button class="mcq-opt" data-correct="false">Clustering</button></div>
+
+  <div class="mcq"><p class="q">12. In supervised learning, "labeled data" refers to:</p>
+    <button class="mcq-opt" data-correct="true">Training examples that already include the correct answer</button>
+    <button class="mcq-opt" data-correct="false">Data with column names removed</button>
+    <button class="mcq-opt" data-correct="false">Data stored only as images</button></div>
+
+  <div class="mcq"><p class="q">13. The cost function in Linear Regression measures:</p>
+    <button class="mcq-opt" data-correct="true">How wrong the model's current predictions are, on average</button>
+    <button class="mcq-opt" data-correct="false">The number of training examples</button>
+    <button class="mcq-opt" data-correct="false">The learning rate value</button></div>
+
+  <div class="mcq"><p class="q">14. Gradient Descent works by:</p>
+    <button class="mcq-opt" data-correct="true">Repeatedly stepping in the direction that reduces the cost function</button>
+    <button class="mcq-opt" data-correct="false">Randomly guessing new parameters every time with no direction</button>
+    <button class="mcq-opt" data-correct="false">Sorting the training data</button></div>
+
+  <div class="mcq"><p class="q">15. If the learning rate is set far too large, training is likely to:</p>
+    <button class="mcq-opt" data-correct="true">Overshoot the minimum and fail to converge properly</button>
+    <button class="mcq-opt" data-correct="false">Run infinitely fast with no downside</button>
+    <button class="mcq-opt" data-correct="false">Have no effect on training at all</button></div>
+
+  <div class="mcq"><p class="q">16. In <code>y = m*x + b</code>, what does <code>m</code> represent?</p>
+    <button class="mcq-opt" data-correct="true">The slope — how much y changes per unit of x</button>
+    <button class="mcq-opt" data-correct="false">The number of training examples</button>
+    <button class="mcq-opt" data-correct="false">The cost function's value</button></div>
+
+  <div class="mcq"><p class="q">17. The non-vectorized Gradient Descent implementation is slower mainly because:</p>
+    <button class="mcq-opt" data-correct="true">It loops through training points one at a time in pure Python</button>
+    <button class="mcq-opt" data-correct="false">It uses a different, less accurate formula</button>
+    <button class="mcq-opt" data-correct="false">It doesn't use a learning rate</button></div>
+
+  <div class="mcq"><p class="q">18. Vectorizing the Gradient Descent loop with NumPy changes:</p>
+    <button class="mcq-opt" data-correct="true">Only the speed of computation, not the underlying math</button>
+    <button class="mcq-opt" data-correct="false">The final trained values of m and b</button>
+    <button class="mcq-opt" data-correct="false">The type of machine learning problem being solved</button></div>
+
+  <div class="mcq"><p class="q">19. "Univariate" Linear Regression means:</p>
+    <button class="mcq-opt" data-correct="true">There is exactly one input feature</button>
+    <button class="mcq-opt" data-correct="false">There are no training examples</button>
+    <button class="mcq-opt" data-correct="false">The model has no cost function</button></div>
+
+  <div class="mcq"><p class="q">20. Why do real ML libraries like scikit-learn and TensorFlow rely heavily on vectorization?</p>
+    <button class="mcq-opt" data-correct="true">It makes training on large datasets dramatically faster</button>
+    <button class="mcq-opt" data-correct="false">It's required by Python's syntax rules</button>
+    <button class="mcq-opt" data-correct="false">It removes the need for a cost function</button></div>
+</section>
+
+<!-- ============================================================ EXERCISES -->
+<section class="day-section" id="exercises">
+  <h2>Practical Exercises</h2>
+  <div class="ex-grid">
+    <div class="ex-card"><span class="lvl easy">Easy</span><p>Given two small DataFrames — "Employees" (id, name) and "Salaries" (id, salary) — perform an inner join and a left join, and explain in one sentence how the results differ.</p></div>
+    <div class="ex-card"><span class="lvl medium">Medium</span><p>Using Seaborn's built-in "tips" dataset, create a boxplot of total_bill by day and a heatmap of the correlation between total_bill, tip, and size. Write one observation from each chart.</p></div>
+    <div class="ex-card"><span class="lvl hard">Hard</span><p>Use <code>groupby</code> and <code>pd.cut</code> together: bin customers into age groups, then group by that new column to find the average spending per age group.</p></div>
+    <div class="ex-card"><span class="lvl expert">Expert</span><p>Implement Univariate Linear Regression with Gradient Descent (vectorized) on a dataset of house sizes vs. prices, plot the cost function's value over epochs to confirm it's decreasing, and use the trained model to predict the price of a new house size.</p></div>
+  </div>
+</section>
+
+<!-- ============================================================ PROJECTS -->
+<section class="day-section" id="project" style="border-bottom:none;">
+  <h2>Mini Project</h2>
+  <p><strong>Restaurant Tips Explorer.</strong> Using Seaborn's built-in "tips" dataset, produce a
+    complete exploratory data analysis notebook: a pairplot of all numeric columns, a boxplot of
+    tip amount by day, a barplot of average tip by gender, and a correlation heatmap — then write
+    a short summary of the three most interesting patterns you found.</p>
+
+  <h2 style="margin-top:40px;">Industry Project</h2>
+  <p><strong>Study-Hours-to-Score Predictor.</strong> Build a complete, small end-to-end ML
+    pipeline: collect (or simulate) a dataset of study hours and exam scores, clean it, implement
+    vectorized Gradient Descent Linear Regression from scratch (no scikit-learn), evaluate the
+    final model by computing its Mean Squared Error on a held-out set of points, and write a
+    function that takes a new number of study hours and returns a predicted score — the same
+    end-to-end shape as a real production ML project, just at a small scale.</p>
+
+  <h2 style="margin-top:40px;">Homework</h2>
+  <p>In your own words, explain the "foggy hillside" analogy for Gradient Descent to someone with
+    no technical background, and describe what would go wrong if the learning rate (step size)
+    were set far too large or far too small.</p>
+</section>
+
+<!-- ============================================================ RESOURCES -->
+<section class="day-section" id="resources" style="border-bottom:none;">
+  <h2>Additional Resources</h2>
+  <ul>
+    <li><a href="https://pandas.pydata.org/docs/user_guide/merging.html" target="_blank" rel="noopener">Official Pandas Docs — Merge, Join &amp; Concatenate</a></li>
+    <li><a href="https://pandas.pydata.org/docs/user_guide/groupby.html" target="_blank" rel="noopener">Official Pandas Docs — GroupBy</a></li>
+    <li><a href="https://seaborn.pydata.org/tutorial.html" target="_blank" rel="noopener">Official Seaborn Tutorial</a></li>
+    <li><a href="https://www.data-to-viz.com/" target="_blank" rel="noopener">data-to-viz.com — choosing the right chart</a></li>
+    <li><a href="https://scikit-learn.org/stable/tutorial/basic/tutorial.html" target="_blank" rel="noopener">Scikit-learn — An Introduction to Machine Learning</a></li>
+    <li><a href="https://www.youtube.com/results?search_query=gradient+descent+explained" target="_blank" rel="noopener">Video search — Gradient Descent explained visually</a></li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    Week 4 of 12 · NAVTTC AI/ML/DL Course · <a href="../week3/index.html">← Week 3</a> · <a href="../index.html">All weeks</a>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
