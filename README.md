@@ -22,13 +22,13 @@ python3 -m http.server 8000
 | 3 | Descriptive Statistics & Probability, NumPy | ✅ [Live](./week3/index.html) |
 | 4 | Exploratory Data Analysis — Pandas & Seaborn | ✅ [Live](./week4/index.html) |
 | 5 | Machine Learning I — Regression | ✅ [Live](./week5/index.html) |
-| 6 | Machine Learning II & Natural Language Processing | 🔜 |
-| 7 | Deep Learning I — Neural Networks | 🔜 |
-| 8 | Deep Learning II — RNN, LSTM, GRU | 🔜 |
-| 9 | Deep Learning II — Word Embeddings & Sequence Models | 🔜 |
-| 10 | Employable Project / On-the-Job Training | 🔜 |
-| 11 | MS Azure AI Services — Vision | 🔜 |
-| 12 | MS Azure AI Services — Video & NLP | 🔜 |
+| 6 | Machine Learning II & Natural Language Processing | ✅ [Live](./week6/index.html) |
+| 7 | Deep Learning I — Neural Networks | 🕛 |
+| 8 | Deep Learning II — RNN, LSTM, GRU | 🕛 |
+| 9 | Deep Learning II — Word Embeddings & Sequence Models | 🕛 |
+| 10 | Employable Project / On-the-Job Training | 🕛 |
+| 11 | MS Azure AI Services — Vision | 🕛 |
+| 12 | MS Azure AI Services — Video & NLP | 🕛 |
 
 ## ✨ Features
 
