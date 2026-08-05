@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 11 — MS Azure AI Services (Vision &amp; Platform) | AI·ML·DL Course</title>
+<meta name="description" content="Week 11 of the NAVTTC AI, ML &amp; Deep Learning course: Microsoft Azure AI services landscape, security, resource management, deployment, and vision solutions — Computer Vision, Custom Vision, OCR — with Python SDK examples.">
+<meta name="keywords" content="Azure AI, Cognitive Services, Computer Vision, Custom Vision, OCR, Responsible AI, Azure security, NAVTTC, week 11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<div class="progress-track"><div class="progress-fill"></div></div>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><a href="../index.html" style="color:inherit;text-decoration:none;">AI·ML<span>·DL</span> // navttc-course</a></div>
+    <nav class="topnav">
+      <a href="../week10/index.html">Week 10</a>
+      <a href="../index.html">All Weeks</a>
+      <button id="slideModeToggle" class="topnav-btn">&#9654; Slides</button>
+      <a href="https://github.com/zuhaibbutt786/AI-ML-Navttc-course-By-zuhaib-" target="_blank" rel="noopener">GitHub ↗</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" style="padding-top:44px;">
+  <div class="wrap">
+    <p class="eyebrow">week 11 of 12 · ~20 hours · cloud AI / intermediate</p>
+    <h1>MS Azure AI Services — Platform &amp; Vision</h1>
+    <p class="lede">You have trained models on your own machine. This week moves to
+      <strong>managed AI services on Microsoft Azure</strong>: when to call a prebuilt API instead
+      of training from scratch, how to pick the right service for vision / language / speech /
+      decision, how to secure keys and networks, and how to create, monitor, and deploy resources.
+      The hands-on focus is <strong>vision</strong> — image analysis, OCR, and Custom Vision —
+      so you can ship a working cloud demo without owning a GPU farm.</p>
+    <div class="meta-row">
+      <span>Prerequisites: Weeks 1–10 (Python, ML/DL basics, project mindset)</span>
+      <span>Tools: Azure portal · Azure AI / Cognitive Services · Python SDK</span>
+    </div>
+  </div>
+</section>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#day1">Day 1 · Service Selection</a>
+    <a href="#day2">Day 2 · Security &amp; Responsible AI</a>
+    <a href="#day3">Day 3 · Create &amp; Manage</a>
+    <a href="#day4">Day 4 · Deploy</a>
+    <a href="#day5">Day 5 · Vision Solutions</a>
+    <a href="#cheatsheet">Cheat Sheet</a>
+    <a href="#mcqs">MCQs</a>
+    <a href="#project">Labs</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ============================================================ DAY 1 -->
+<section class="day-section" id="day1">
+  <div class="day-head"><span class="day-num">1</span><h2>Selecting Azure AI Services</h2></div>
+  <p class="day-sub">Hour 2–4 · Match the problem to the right managed API</p>
+
+  <div class="topic">
+    <h3>Build vs Buy (API) <span class="hr">Hour 2</span></h3>
+    <p>Training a custom CNN or BiLSTM is powerful — and expensive in time, data, and compute.
+      Azure AI (formerly Cognitive Services and related Applied AI) offers <strong>prebuilt models
+      behind REST / SDK APIs</strong>. Use them when:</p>
+    <ul>
+      <li>The task is standard (OCR, generic image tags, translation, sentiment)</li>
+      <li>You need a production endpoint quickly</li>
+      <li>You lack labeled data for a full custom model</li>
+    </ul>
+    <p>Train your own model (Weeks 5–10 skills) when the domain is specialized, latency/cost
+      at scale favors a compact local model, or compliance requires on-prem weights.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Vision Solutions — What to Pick <span class="hr">Hour 2–3</span></h3>
+    <table>
+      <thead>
+        <tr><th>Need</th><th>Typical Azure service</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Tags, objects, brands, celebrities, adult content flags</td><td><strong>Computer Vision</strong> / Vision Image Analysis</td></tr>
+        <tr><td>Read printed or handwritten text in images</td><td><strong>OCR / Read API</strong> (Vision)</td></tr>
+        <tr><td>Your own image classes (defects, products, crops)</td><td><strong>Custom Vision</strong></td></tr>
+        <tr><td>Faces, verification, attributes (with policy limits)</td><td><strong>Face</strong> (restricted scenarios)</td></tr>
+        <tr><td>Document fields (invoices, receipts, IDs)</td><td><strong>Document Intelligence</strong> (Form Recognizer)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="topic">
+    <h3>Language, Speech &amp; Decision <span class="hr">Hour 3–4</span></h3>
+    <table>
+      <thead>
+        <tr><th>Domain</th><th>Examples of services</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Language</strong></td><td>Text Analytics / Language service (sentiment, key phrases, NER, PII), Translator, CLU / LUIS-style understanding, QnA / custom question answering</td></tr>
+        <tr><td><strong>Speech</strong></td><td>Speech-to-text, text-to-speech, speech translation, speaker recognition</td></tr>
+        <tr><td><strong>Decision</strong></td><td>Anomaly Detector, Content Moderator, Personalizer (where available)</td></tr>
+        <tr><td><strong>Applied AI</strong></td><td>Higher-level solutions (e.g. document processing, metrics advisor patterns)</td></tr>
+      </tbody>
+    </table>
+    <div class="callout">
+      <span class="tag">Design habit</span>
+      Write the user story first (“extract line items from supplier PDFs”), then pick the service.
+      Do not start from a product catalog and force-fit the problem.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">You need to classify factory images into your own defect types with a few hundred labels. Best first choice:</p>
+      <button class="mcq-opt" data-correct="true">Custom Vision</button>
+      <button class="mcq-opt" data-correct="false">Generic Translator only</button>
+      <button class="mcq-opt" data-correct="false">Anomaly Detector on text logs only</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 2 -->
+<section class="day-section" id="day2">
+  <div class="day-head"><span class="day-num">2</span><h2>Security, Auth &amp; Responsible AI</h2></div>
+  <p class="day-sub">Hour 1–4 · Keys, identity, networks, and ethical constraints</p>
+
+  <div class="topic">
+    <h3>Authentication Patterns <span class="hr">Hour 1–2</span></h3>
+    <ul>
+      <li><strong>API keys</strong> — simplest for demos; rotate regularly; never commit to Git</li>
+      <li><strong>Azure AD / Microsoft Entra ID</strong> — managed identity or service principal for production</li>
+      <li><strong>Endpoint + key</strong> — every SDK client needs the resource endpoint URL and a credential</li>
+    </ul>
+    <pre><span class="c"># Environment variables — preferred over hardcoding</span>
+<span class="c"># export VISION_ENDPOINT="https://YOUR-RESOURCE.cognitiveservices.azure.com/"</span>
+<span class="c"># export VISION_KEY="your-key"</span>
+import os
+endpoint = os.environ["VISION_ENDPOINT"]
+key = os.environ["VISION_KEY"]</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Network &amp; Key Hygiene <span class="hr">Hour 2–3</span></h3>
+    <ul>
+      <li>Regenerate keys if leaked; use Key Vault for secrets in real deployments</li>
+      <li>Restrict access with <strong>Azure Virtual Network</strong> / private endpoints when data is sensitive</li>
+      <li>Separate dev and prod resources; least-privilege RBAC roles</li>
+      <li>Enable diagnostic logging for audit trails</li>
+    </ul>
+  </div>
+
+  <div class="topic">
+    <h3>Responsible AI Principles <span class="hr">Hour 3–4</span></h3>
+    <p>Microsoft’s Responsible AI guidance (and good engineering practice) emphasizes:</p>
+    <ul>
+      <li><strong>Fairness</strong> — monitor skewed error rates across groups where relevant</li>
+      <li><strong>Reliability &amp; safety</strong> — handle low-confidence outputs; human review for high stakes</li>
+      <li><strong>Privacy &amp; security</strong> — minimize data retention; respect consent</li>
+      <li><strong>Inclusiveness</strong> — test on diverse inputs (languages, lighting, accents)</li>
+      <li><strong>Transparency</strong> — document what the system does and does not do</li>
+      <li><strong>Accountability</strong> — clear ownership and escalation paths</li>
+    </ul>
+    <div class="callout warn">
+      <span class="tag">Face &amp; biometrics</span>
+      Face recognition and some biometric scenarios are tightly restricted by policy and law.
+      Always check current Azure product terms and local regulations before designing a face-based feature.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">API keys for Azure AI should be:</p>
+      <button class="mcq-opt" data-correct="true">Stored in environment variables or Key Vault, never committed to source control</button>
+      <button class="mcq-opt" data-correct="false">Pasted into public GitHub READMEs for convenience</button>
+      <button class="mcq-opt" data-correct="false">Shared in screenshots of the portal</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 3 -->
+<section class="day-section" id="day3">
+  <div class="day-head"><span class="day-num">3</span><h2>Create &amp; Manage Azure AI Resources</h2></div>
+  <p class="day-sub">Hour 1–4 · Portal workflow, logging, cost, monitoring</p>
+
+  <div class="topic">
+    <h3>Create a Resource <span class="hr">Hour 1–2</span></h3>
+    <ol>
+      <li>Azure portal → Create a resource → search <strong>Azure AI services</strong> or a specific product (e.g. Computer Vision, Azure AI Vision)</li>
+      <li>Choose subscription, resource group, region, pricing tier (F0 free tier where available for learning)</li>
+      <li>After deploy: open the resource → <strong>Keys and Endpoint</strong></li>
+      <li>Install SDK, e.g. <code>pip install azure-ai-vision-imageanalysis</code> or the current Computer Vision package for your API version</li>
+    </ol>
+    <div class="callout">
+      <span class="tag">Multi-service vs single</span>
+      A multi-service Azure AI resource can unlock several Cognitive APIs under one endpoint/key.
+      Single-service resources isolate quotas and billing. For class demos, multi-service or free tier is fine; for production, plan quotas explicitly.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Diagnostic Logging &amp; Monitoring <span class="hr">Hour 2–3</span></h3>
+    <ul>
+      <li>Enable diagnostic settings → send logs to Log Analytics, Storage, or Event Hub</li>
+      <li>Watch metrics: calls, latency, error rate, throttling (429)</li>
+      <li>Set alerts on elevated failures or spend</li>
+    </ul>
+  </div>
+
+  <div class="topic">
+    <h3>Cost Management <span class="hr">Hour 3–4</span></h3>
+    <ul>
+      <li>Prefer free / free-trial tiers for coursework; know call limits</li>
+      <li>Cache results when the same image/text is analyzed repeatedly</li>
+      <li>Use the cheapest region that meets latency and data-residency needs</li>
+      <li>Delete unused resources; set budgets and alerts on the subscription</li>
+    </ul>
+    <pre><span class="c"># Pseudocode: avoid repeat billing</span>
+cache_key = hash(image_bytes)
+if cache_key in redis:
+    return redis[cache_key]
+result = vision_client.analyze(...)
+redis[cache_key] = result
+return result</pre>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 4 -->
+<section class="day-section" id="day4">
+  <div class="day-head"><span class="day-num">4</span><h2>Deploying Azure AI Solutions</h2></div>
+  <p class="day-sub">Hour 1–4 · Endpoints, containers, CI/CD awareness</p>
+
+  <div class="topic">
+    <h3>Consumption vs Containers <span class="hr">Hour 1–2</span></h3>
+    <ul>
+      <li><strong>Cloud endpoint</strong> — default; Azure hosts the model; you call HTTPS</li>
+      <li><strong>Docker containers</strong> — run selected Cognitive Services in your own environment (connected or disconnected tiers where licensed) for data residency or low latency</li>
+    </ul>
+    <p>Plan: default endpoint for learning; evaluate containers when compliance forbids data leaving a VNet or site.</p>
+  </div>
+
+  <div class="topic">
+    <h3>CI/CD Integration <span class="hr">Hour 2–3</span></h3>
+    <pre>Build app → run unit tests →
+  inject endpoint/key from pipeline secrets →
+  integration test against staging resource →
+  deploy app (Azure App Service, Functions, AKS, VM)</pre>
+    <ul>
+      <li>Never store keys in YAML; use variable groups / Key Vault references</li>
+      <li>Smoke-test one vision and one language call after deploy</li>
+      <li>Pin SDK versions to avoid surprise breaking changes</li>
+    </ul>
+  </div>
+
+  <div class="topic">
+    <h3>Anomaly Detection &amp; Content Safety (Awareness) <span class="hr">Hour 3–4</span></h3>
+    <p>Decision-oriented services complement vision/language:</p>
+    <ul>
+      <li><strong>Anomaly Detector</strong> — univariate/multivariate time series outliers (IoT, metrics)</li>
+      <li><strong>Content Moderator / Content Safety</strong> — text and image moderation for UGC platforms</li>
+    </ul>
+    <p>Use them as building blocks inside a larger solution rather than as the whole product.</p>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 5 -->
+<section class="day-section" id="day5">
+  <div class="day-head"><span class="day-num">5</span><h2>Vision Solutions in Practice</h2></div>
+  <p class="day-sub">Hour 1–4 · Analyze images, OCR, Custom Vision workflow</p>
+
+  <div class="topic">
+    <h3>Image Analysis (Computer Vision) <span class="hr">Hour 1–2</span></h3>
+    <pre><span class="c"># Illustrative SDK usage — package names evolve; check current Azure docs</span>
+<span class="c"># pip install azure-cognitiveservices-vision-computervision</span>
+from azure.cognitiveservices.vision.computervision import ComputerVisionClient
+from msrest.authentication import CognitiveServicesCredentials
+
+client = ComputerVisionClient(endpoint, CognitiveServicesCredentials(key))
+
+with open("warehouse.jpg", "rb") as f:
+    analysis = client.analyze_image_in_stream(
+        f,
+        visual_features=["Tags", "Objects", "Description", "Adult"]
+    )
+
+print(analysis.description.captions[0].text if analysis.description.captions else "")
+print([t.name for t in analysis.tags[:10]])
+print([o.object_property for o in analysis.objects])</pre>
+  </div>
+
+  <div class="topic">
+    <h3>OCR / Read API <span class="hr">Hour 2</span></h3>
+    <pre><span class="c"># Async read pattern is common for dense documents</span>
+with open("invoice.png", "rb") as f:
+    poller = client.read_in_stream(f, raw=True)
+operation_id = poller.headers["Operation-Location"].split("/")[-1]
+
+import time
+while True:
+    result = client.get_read_result(operation_id)
+    if result.status not in ["notStarted", "running"]:
+        break
+    time.sleep(1)
+
+if result.status == "succeeded":
+    for page in result.analyze_result.read_results:
+        for line in page.lines:
+            print(line.text)</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Custom Vision — Your Classes <span class="hr">Hour 3–4</span></h3>
+    <ol>
+      <li>Create a Custom Vision training resource + prediction resource (or combined where allowed)</li>
+      <li>Create a project (classification or object detection)</li>
+      <li>Upload images, tag classes, train, review precision/recall</li>
+      <li>Publish an iteration → call the prediction endpoint from your app</li>
+    </ol>
+    <pre><span class="c"># Prediction sketch</span>
+<span class="c"># from azure.cognitiveservices.vision.customvision.prediction import CustomVisionPredictionClient</span>
+<span class="c"># predictor = CustomVisionPredictionClient(endpoint, CognitiveServicesCredentials(pred_key))</span>
+<span class="c"># with open("sample.jpg", "rb") as f:</span>
+<span class="c">#     preds = predictor.classify_image(project_id, published_name, f.read())</span>
+<span class="c"># for p in preds.predictions[:5]:</span>
+<span class="c">#     print(p.tag_name, p.probability)</span></pre>
+    <div class="callout">
+      <span class="tag">Data tips</span>
+      Balanced classes, varied lighting/angles, and a held-out test set matter as much as the
+      portal UI. Custom Vision is still supervised learning — garbage in, garbage out.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ CHEAT SHEET -->
+<section class="day-section" id="cheatsheet">
+  <div class="day-head"><span class="day-num">★</span><h2>Week 11 Cheat Sheet</h2></div>
+
+  <div class="topic">
+    <h3>Service chooser (vision)</h3>
+    <pre>Generic tags / caption     → Vision Image Analysis
+Text in images             → OCR / Read
+My own labels              → Custom Vision
+Structured documents       → Document Intelligence
+Faces                      → Face (policy-restricted)</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Ops checklist</h3>
+    <pre>Keys in env / Key Vault — never in git
+Enable diagnostics + budget alerts
+Cache identical requests
+Prefer managed identity in production
+Test Responsible AI constraints early</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Custom Vision loop</h3>
+    <pre>Tag → Train → Evaluate → Publish → Predict → Collect hard examples → Retrain</pre>
+  </div>
+</section>
+
+<!-- ============================================================ MCQs -->
+<section class="day-section" id="mcqs">
+  <div class="day-head"><span class="day-num">?</span><h2>Self-Check MCQs (18 questions)</h2></div>
+
+  <div class="mcq"><p class="q">1. Prebuilt Azure vision APIs are most appropriate when:</p>
+    <button class="mcq-opt" data-correct="true">The task is standard and you need a fast, managed endpoint</button>
+    <button class="mcq-opt" data-correct="false">You must train on secret on-prem data with no cloud option ever</button>
+    <button class="mcq-opt" data-correct="false">You only need to sort a CSV</button></div>
+
+  <div class="mcq"><p class="q">2. Custom Vision is designed for:</p>
+    <button class="mcq-opt" data-correct="true">Training classifiers/detectors on your own labeled images</button>
+    <button class="mcq-opt" data-correct="false">Translating documents only</button>
+    <button class="mcq-opt" data-correct="false">Replacing Azure billing</button></div>
+
+  <div class="mcq"><p class="q">3. OCR / Read API is used to:</p>
+    <button class="mcq-opt" data-correct="true">Extract text from images or scanned documents</button>
+    <button class="mcq-opt" data-correct="false">Train LSTMs from scratch</button>
+    <button class="mcq-opt" data-correct="false">Provision virtual networks only</button></div>
+
+  <div class="mcq"><p class="q">4. API keys should not be:</p>
+    <button class="mcq-opt" data-correct="true">Committed to public repositories</button>
+    <button class="mcq-opt" data-correct="false">Stored in Key Vault</button>
+    <button class="mcq-opt" data-correct="false">Rotated when leaked</button></div>
+
+  <div class="mcq"><p class="q">5. Managed identity is preferred in production because:</p>
+    <button class="mcq-opt" data-correct="true">It avoids embedding long-lived secrets in app configuration</button>
+    <button class="mcq-opt" data-correct="false">It disables all logging</button>
+    <button class="mcq-opt" data-correct="false">It makes models more accurate automatically</button></div>
+
+  <div class="mcq"><p class="q">6. Responsible AI includes:</p>
+    <button class="mcq-opt" data-correct="true">Fairness, privacy, transparency, and accountability among other principles</button>
+    <button class="mcq-opt" data-correct="false">Maximizing API calls regardless of need</button>
+    <button class="mcq-opt" data-correct="false">Hiding all system limitations</button></div>
+
+  <div class="mcq"><p class="q">7. Diagnostic logging helps you:</p>
+    <button class="mcq-opt" data-correct="true">Audit usage, debug failures, and investigate incidents</button>
+    <button class="mcq-opt" data-correct="false">Increase model accuracy by itself</button>
+    <button class="mcq-opt" data-correct="false">Delete the resource group</button></div>
+
+  <div class="mcq"><p class="q">8. A practical cost control is:</p>
+    <button class="mcq-opt" data-correct="true">Caching repeated analyses of the same content</button>
+    <button class="mcq-opt" data-correct="false">Calling the API in an infinite loop for testing</button>
+    <button class="mcq-opt" data-correct="false">Publishing keys to Slack</button></div>
+
+  <div class="mcq"><p class="q">9. HTTP 429 from an Azure AI endpoint usually means:</p>
+    <button class="mcq-opt" data-correct="true">Throttling / rate limit exceeded</button>
+    <button class="mcq-opt" data-correct="false">The image was classified successfully</button>
+    <button class="mcq-opt" data-correct="false">Your Python version is too new</button></div>
+
+  <div class="mcq"><p class="q">10. Containers for Cognitive Services are useful when:</p>
+    <button class="mcq-opt" data-correct="true">You need data residency or on-premises execution under supported offerings</button>
+    <button class="mcq-opt" data-correct="false">You want to avoid all authentication forever</button>
+    <button class="mcq-opt" data-correct="false">You only process CSV files</button></div>
+
+  <div class="mcq"><p class="q">11. In CI/CD, secrets should come from:</p>
+    <button class="mcq-opt" data-correct="true">Pipeline secret stores or Key Vault references</button>
+    <button class="mcq-opt" data-correct="false">Hardcoded strings in the repo</button>
+    <button class="mcq-opt" data-correct="false">Screenshots in the wiki</button></div>
+
+  <div class="mcq"><p class="q">12. Anomaly Detector is primarily for:</p>
+    <button class="mcq-opt" data-correct="true">Finding unusual patterns in time series metrics</button>
+    <button class="mcq-opt" data-correct="false">Translating speech to French</button>
+    <button class="mcq-opt" data-correct="false">Drawing bounding boxes on cats only</button></div>
+
+  <div class="mcq"><p class="q">13. Custom Vision quality depends heavily on:</p>
+    <button class="mcq-opt" data-correct="true">Labeled image quality, diversity, and class balance</button>
+    <button class="mcq-opt" data-correct="false">The color of the Azure portal theme</button>
+    <button class="mcq-opt" data-correct="false">Disabling evaluation metrics</button></div>
+
+  <div class="mcq"><p class="q">14. Publishing a Custom Vision iteration is required to:</p>
+    <button class="mcq-opt" data-correct="true">Expose a prediction endpoint for that trained model version</button>
+    <button class="mcq-opt" data-correct="false">Delete all training images</button>
+    <button class="mcq-opt" data-correct="false">Convert images to audio</button></div>
+
+  <div class="mcq"><p class="q">15. Document Intelligence (Form Recognizer) is a better fit than generic OCR when:</p>
+    <button class="mcq-opt" data-correct="true">You need structured fields from forms, invoices, or IDs</button>
+    <button class="mcq-opt" data-correct="false">You only need a random image caption</button>
+    <button class="mcq-opt" data-correct="false">You are training an LSTM on IMDB</button></div>
+
+  <div class="mcq"><p class="q">16. Free tiers are useful for learning but:</p>
+    <button class="mcq-opt" data-correct="true">Have strict quotas and are not a production capacity plan</button>
+    <button class="mcq-opt" data-correct="false">Never expire or limit calls</button>
+    <button class="mcq-opt" data-correct="false">Disable HTTPS</button></div>
+
+  <div class="mcq"><p class="q">17. Content Safety / Moderator services help:</p>
+    <button class="mcq-opt" data-correct="true">Flag potentially harmful user-generated text or images</button>
+    <button class="mcq-opt" data-correct="false">Train word2vec on Wikipedia</button>
+    <button class="mcq-opt" data-correct="false">Replace unit tests</button></div>
+
+  <div class="mcq"><p class="q">18. A multi-service Azure AI resource:</p>
+    <button class="mcq-opt" data-correct="true">Can provide access to multiple Cognitive APIs under one endpoint/key</button>
+    <button class="mcq-opt" data-correct="false">Can only host virtual machines</button>
+    <button class="mcq-opt" data-correct="false">Removes the need for any authentication</button></div>
+</section>
+
+<!-- ============================================================ LABS -->
+<section class="day-section" id="project">
+  <div class="day-head"><span class="day-num">🚀</span><h2>Week 11 Labs</h2></div>
+
+  <div class="topic">
+    <h3>Lab A — Service Selection Memo</h3>
+    <p>Write a one-page memo for three scenarios (vision defect detection, multilingual support
+      tickets, IoT metric spikes). For each, name the Azure service(s), auth approach, and one
+      Responsible AI risk.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Lab B — Vision API Demo</h3>
+    <p>Create a free-tier Vision resource. Analyze 5 images (tags + description). Run OCR on
+      2 document images. Save JSON outputs and a short reflection on errors (blur, language, layout).</p>
+  </div>
+
+  <div class="topic">
+    <h3>Lab C — Mini Custom Vision Project</h3>
+    <p>Build a 2–3 class Custom Vision classifier with ≥ 15 images per class. Publish and call
+      the prediction API from Python. Report precision/recall and two misclassified examples.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Week 11 of 12 · NAVTTC AI / ML / Deep Learning · Azure AI platform &amp; vision</p>
+    <p><a href="../week10/index.html">← Week 10</a> · <a href="../index.html">All Weeks</a> · Week 12 (Video &amp; NLP on Azure) next</p>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
