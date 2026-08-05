@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 3 — Correlation, Probability &amp; NumPy | AI·ML·DL Course</title>
+<meta name="description" content="Week 3 of the NAVTTC AI, ML &amp; Deep Learning course: correlation, univariate/bivariate/multivariate plots, probability theory (joint, marginal, conditional, Bayesian), probability distributions, NumPy arrays, and an intro to Pandas — written from first principles for complete beginners.">
+<meta name="keywords" content="correlation coefficient, probability distributions, Bayesian probability, NumPy arrays, Pandas introduction, NAVTTC, week 3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<div class="progress-track"><div class="progress-fill"></div></div>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><a href="../index.html" style="color:inherit;text-decoration:none;">AI·ML<span>·DL</span> // navttc-course</a></div>
+    <nav class="topnav">
+      <a href="../week2/index.html">Week 2</a>
+      <a href="../index.html">All Weeks</a>
+      <a href="https://github.com/zuhaibbutt786/AI-ML-Navttc-course-By-zuhaib-" target="_blank" rel="noopener">GitHub ↗</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" style="padding-top:44px;">
+  <div class="wrap">
+    <p class="eyebrow">week 3 of 12 · ~20 hours · beginner → intermediate</p>
+    <h1>Correlation, Probability &amp; NumPy</h1>
+    <p class="lede">This week finishes the statistics foundation and then hands you your first real
+      data-science tool. You'll learn how to describe the relationship <em>between</em> two
+      variables (not just one, like last week), how to reason about uncertainty and chance using
+      probability, and then how to store and manipulate large grids of numbers efficiently using
+      NumPy — the library almost every other tool in this course (Pandas, scikit-learn, TensorFlow)
+      is quietly built on top of. As always, every idea starts from plain language before any
+      formula or code — no prior math or programming background assumed.</p>
+  </div>
+</section>
+
+<nav class="daynav">
+  <div class="wrap" style="display:flex;gap:8px;flex-wrap:wrap;">
+    <a href="#day1">Day 1 · Correlation &amp; Plots</a>
+    <a href="#day2">Day 2 · Probability</a>
+    <a href="#day3">Day 3 · NumPy Arrays</a>
+    <a href="#day4">Day 4 · NumPy Indexing &amp; Math</a>
+    <a href="#day5">Day 5 · Intro to Pandas</a>
+    <a href="#cheatsheet">Cheat Sheet</a>
+    <a href="#mcqs">MCQs</a>
+    <a href="#project">Projects</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ============================================================ DAY 1 -->
+<section class="day-section" id="day1">
+  <div class="day-head"><span class="day-num">1</span><h2>Correlation, Visual Exploration &amp; Intro to Probability</h2></div>
+  <p class="day-sub">Hour 1–4 · Correlation coefficient · Univariate/bivariate/multivariate plots · Probability</p>
+
+  <div class="topic">
+    <h3>The Correlation Coefficient <span class="hr">Hour 2</span></h3>
+    <p><strong>Start from the question, not the formula.</strong> Last week you learned to
+      describe <em>one</em> column of numbers on its own (its mean, its spread). But real datasets
+      have many columns, and a huge question in data science is: "when this one goes up, what
+      happens to that one?" Do people who study more hours tend to score higher? Do houses with
+      more bedrooms tend to cost more? <strong>Correlation</strong> is a single number that answers
+      "how strongly, and in which direction, do two variables move together?"</p>
+    <p><strong>Reading the number.</strong> The correlation coefficient (usually written
+      <em>r</em>, specifically "Pearson's r") always falls between −1 and +1:</p>
+    <ul>
+      <li><strong>+1</strong> — perfect positive relationship: as one variable rises, the other
+        rises in perfect lockstep.</li>
+      <li><strong>0</strong> — no linear relationship at all: knowing one variable tells you
+        nothing about the other.</li>
+      <li><strong>−1</strong> — perfect negative relationship: as one variable rises, the other
+        falls in perfect lockstep.</li>
+    </ul>
+    <p>Real-world data is almost never a perfect +1 or −1 — you'll typically see values like 0.7
+      (fairly strong positive), −0.3 (weak negative), or 0.05 (essentially no relationship).</p>
+    <pre>import numpy as np
+
+study_hours = [1, 2, 3, 4, 5, 6]
+exam_scores = [50, 55, 65, 70, 78, 85]
+
+correlation_matrix = np.corrcoef(study_hours, exam_scores)
+print(correlation_matrix[0, 1])   <span class="c"># ≈ 0.99 — very strong positive relationship</span></pre>
+    <div class="callout warn">
+      <span class="tag">The single most important warning in all of statistics</span>
+      <strong>Correlation does not mean causation.</strong> Ice cream sales and drowning incidents
+      are strongly correlated — but ice cream doesn't cause drowning. Both simply rise in summer.
+      A third, hidden factor (heat) drives both. Always ask "could something else explain this?"
+      before assuming one variable causes the other.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Univariate, Bivariate &amp; Multivariate Plots <span class="hr">Hour 3</span></h3>
+    <p>These three words simply describe <em>how many variables</em> a chart is showing at once —
+      "uni" = one, "bi" = two, "multi" = many.</p>
+    <p><strong>Univariate</strong> (one variable) — used to understand the shape and spread of a
+      single column on its own, exactly like last week's mean/median/mode/std-dev, but visual:
+      a histogram (bars showing how many values fall in each range) or a box plot (showing median,
+      quartiles, and outliers at a glance).</p>
+    <p><strong>Bivariate</strong> (two variables) — used to explore the relationship between two
+      columns, exactly what correlation measures numerically above; a scatter plot is the classic
+      tool, with one variable on each axis, and correlation is essentially "how close to a
+      straight line does this scatter plot look."</p>
+    <p><strong>Multivariate</strong> (many variables at once) — used when two variables alone
+      don't tell the full story; a heatmap of correlations between every pair of columns, or a
+      scatter plot where color/size encode a third variable, lets you spot patterns across an
+      entire dataset simultaneously.</p>
+    <pre><span class="c"># univariate — histogram of one column</span>
+import matplotlib.pyplot as plt
+plt.hist(exam_scores)
+plt.show()
+
+<span class="c"># bivariate — scatter plot of two columns</span>
+plt.scatter(study_hours, exam_scores)
+plt.xlabel("Study hours"); plt.ylabel("Exam score")
+plt.show()
+
+<span class="c"># multivariate — correlation heatmap across many columns (using seaborn, Week 4)</span>
+<span class="c"># import seaborn as sns
+# sns.heatmap(dataframe.corr(), annot=True)</span></pre>
+    <div class="callout">
+      <span class="tag">Coming up</span>
+      Full charting practice with matplotlib and seaborn — including exactly which chart to reach
+      for on which kind of data — is a major focus starting Week 4. If you want a preview any time
+      this course mentions visualization, <a href="https://www.data-to-viz.com/" target="_blank" rel="noopener">data-to-viz.com</a>
+      is an excellent reference for choosing the right chart type.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Introduction to Probability <span class="hr">Hour 4</span></h3>
+    <p><strong>The everyday version, first.</strong> You already reason with probability
+      constantly: "there's a good chance it rains today," "it's unlikely I'll win the lottery."
+      <strong>Probability</strong> just formalizes "how likely" into a precise number between 0
+      and 1 (or equivalently, 0% to 100%): 0 means "impossible," 1 means "certain," and 0.5 means
+      "equally likely to happen or not."</p>
+    <pre>favorable_outcomes = 1     <span class="c"># rolling a 6</span>
+total_outcomes = 6          <span class="c"># faces on a die</span>
+probability = favorable_outcomes / total_outcomes
+print(probability)   <span class="c"># ≈ 0.1667, i.e. about 16.7% chance</span></pre>
+    <div class="callout">
+      <span class="tag">Why probability matters for AI/ML</span>
+      A spam filter doesn't say "this email IS spam" with total certainty — it computes
+      <em>the probability</em> this email is spam (e.g. 0.92) and only then applies a rule like
+      "if probability &gt; 0.5, label it spam." Almost every ML classification model is, under the
+      hood, a probability-estimating machine. Understanding probability now makes Machine Learning
+      in Week 5 far less mysterious.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">A correlation coefficient of −0.9 means:</p>
+      <button class="mcq-opt" data-correct="false">The two variables are unrelated</button>
+      <button class="mcq-opt" data-correct="true">A very strong relationship where one variable rises as the other falls</button>
+      <button class="mcq-opt" data-correct="false">One variable causes the other</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 2 -->
+<section class="day-section" id="day2">
+  <div class="day-head"><span class="day-num">2</span><h2>Probability — Joint, Conditional &amp; Distributions</h2></div>
+  <p class="day-sub">Hour 1–4 · Joint/marginal/conditional probability · Probability distributions · Discrete &amp; continuous · Bayesian probability</p>
+
+  <div class="topic">
+    <h3>Joint, Marginal &amp; Conditional Probability <span class="hr">Hour 1</span></h3>
+    <p><strong>Set the scene.</strong> Imagine a simple survey of 100 people recording two things:
+      whether they own a car, and whether they own a house. We can ask three different, related
+      questions about this data — and each has its own name.</p>
+    <p><strong>Joint probability</strong> — "what's the chance of BOTH things being true at once?"
+      e.g. P(owns a car AND owns a house). Written <code>P(A ∩ B)</code>.</p>
+    <p><strong>Marginal probability</strong> — "what's the chance of just ONE thing, ignoring the
+      other entirely?" e.g. P(owns a car), regardless of house ownership. It's called "marginal"
+      because historically these totals were written in the margins of a table.</p>
+    <p><strong>Conditional probability</strong> — "GIVEN that one thing is already true, what's
+      the chance of the other?" e.g. P(owns a house | owns a car) — read the vertical bar as
+      "given." This is often the most useful of the three, because it captures how knowing one
+      fact updates your belief about another.</p>
+    <pre><span class="c"># 100 people surveyed:</span>
+<span class="c">#              Owns House   No House</span>
+<span class="c"># Owns Car          30          20</span>
+<span class="c"># No Car            10          40</span>
+
+joint = 30 / 100                          <span class="c"># P(car AND house) = 0.30</span>
+marginal_car = (30 + 20) / 100             <span class="c"># P(car) = 0.50</span>
+conditional = 30 / (30 + 20)               <span class="c"># P(house | car) = 0.60</span>
+
+print(joint, marginal_car, conditional)</pre>
+    <div class="callout">
+      <span class="tag">Real world application</span>
+      Netflix asking "given that you watched this sci-fi movie, what's the probability you'll like
+      that one?" is exactly a conditional-probability question — the entire recommendation-engine
+      industry is built on conditional probability at scale.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Probability Distributions <span class="hr">Hour 2</span></h3>
+    <p><strong>The idea in one sentence.</strong> A probability distribution is a complete map of
+      "every possible outcome, and how likely each one is" — instead of one single probability
+      number, it's the <em>whole picture</em> at once. Think of it as a more detailed cousin of
+      last week's histogram, but describing an idealized, theoretical pattern rather than one
+      specific dataset.</p>
+    <p>Distributions split into the same two families you learned in Week 2's data types:</p>
+    <ul>
+      <li><strong>Discrete distributions</strong> — for countable outcomes (number of heads in 10
+        coin flips, number of defective items in a batch).</li>
+      <li><strong>Continuous distributions</strong> — for outcomes that can be any value in a range
+        (height, temperature, time until a machine fails).</li>
+    </ul>
+  </div>
+
+  <div class="topic">
+    <h3>Discrete Probability Distributions <span class="hr">Hour 3–4</span></h3>
+    <p>The most common discrete distributions you'll encounter, building from simplest to more
+      general:</p>
+    <ul>
+      <li><strong>Bernoulli distribution</strong> — the simplest possible case: a single yes/no
+        trial with only two outcomes (success/failure), like one coin flip.</li>
+      <li><strong>Binomial distribution</strong> — repeats a Bernoulli trial <em>n</em> times and
+        asks "what's the probability of exactly <em>k</em> successes?" e.g. flipping a coin 10
+        times, what's the probability of getting exactly 6 heads?</li>
+      <li><strong>Poisson distribution</strong> — models how many times a rare event happens in a
+        fixed window of time or space, e.g. how many customer support tickets arrive per hour.</li>
+    </ul>
+    <pre>from scipy.stats import binom
+
+<span class="c"># probability of exactly 6 heads in 10 fair coin flips</span>
+p = binom.pmf(k=6, n=10, p=0.5)
+print(p)   <span class="c"># ≈ 0.205</span></pre>
+  </div>
+
+  <div class="topic">
+    <h3>Continuous Probability Distributions <span class="hr">Hour 3–4</span></h3>
+    <p>The single most important continuous distribution in all of statistics and machine learning
+      is the <strong>Normal (Gaussian) distribution</strong> — the familiar symmetric "bell curve."
+      An enormous number of real-world measurements (height, exam scores, measurement errors)
+      naturally follow this shape: most values cluster near the mean, and values become
+      progressively rarer the further you move from it in either direction.</p>
+    <pre>import numpy as np
+import matplotlib.pyplot as plt
+
+data = np.random.normal(loc=70, scale=10, size=1000)   <span class="c"># mean=70, std dev=10</span>
+plt.hist(data, bins=30)
+plt.show()</pre>
+    <div class="callout">
+      <span class="tag">Connecting back to Week 2</span>
+      Remember Z-scores from last week? They only make full intuitive sense in the context of a
+      normal distribution — the "68-95-99.7 rule" says roughly 68% of values fall within 1
+      standard deviation of the mean, 95% within 2, and 99.7% within 3. This is why a Z-score
+      of 3 is considered an extreme outlier.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Bayesian Probability <span class="hr">Hour 3–4</span></h3>
+    <p><strong>The everyday intuition first.</strong> You update your beliefs constantly as new
+      evidence arrives. Before a medical test, you might think "there's a 1% chance I have this
+      condition." After testing positive, that belief should change — but by how much depends on
+      how accurate the test is. <strong>Bayes' theorem</strong> is the precise, mathematical rule
+      for exactly how much a new piece of evidence should update an existing belief.</p>
+    <pre><span class="c"># Bayes' theorem: P(A|B) = P(B|A) * P(A) / P(B)</span>
+<span class="c"># "updated belief in A, given evidence B"</span>
+
+<span class="c"># classic example: disease testing</span>
+p_disease = 0.01                 <span class="c"># 1% of population has the disease (prior belief)</span>
+p_positive_given_disease = 0.99   <span class="c"># test is 99% accurate for people who ARE sick</span>
+p_positive_given_healthy = 0.05   <span class="c"># but has a 5% false-positive rate</span>
+
+p_positive = (p_positive_given_disease * p_disease) + \
+             (p_positive_given_healthy * (1 - p_disease))
+
+p_disease_given_positive = (p_positive_given_disease * p_disease) / p_positive
+print(p_disease_given_positive)   <span class="c"># ≈ 0.166 — only ~16.6%, surprisingly low!</span></pre>
+    <div class="callout warn">
+      <span class="tag">Why this result is so counter-intuitive (and so important)</span>
+      Even with a "99% accurate" test, testing positive only means a ~16.6% real chance of having
+      a rare disease — because the disease is so rare (1%) that false positives from the much
+      larger healthy population outnumber true positives. This exact reasoning pattern —
+      "prior belief + new evidence → updated belief" — is the conceptual backbone of Naive Bayes
+      classifiers, spam filters, and much of modern machine learning.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">P(owns a house | owns a car) is an example of:</p>
+      <button class="mcq-opt" data-correct="false">Marginal probability</button>
+      <button class="mcq-opt" data-correct="false">Joint probability</button>
+      <button class="mcq-opt" data-correct="true">Conditional probability</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 3 -->
+<section class="day-section" id="day3">
+  <div class="day-head"><span class="day-num">3</span><h2>NumPy — Creating &amp; Working with Arrays</h2></div>
+  <p class="day-sub">Hour 1–4 · Intro to NumPy · Creating arrays · Array attributes &amp; methods · Operations on arrays</p>
+
+  <div class="topic">
+    <h3>Introduction to NumPy — Why Not Just Use Python Lists? <span class="hr">Hour 1</span></h3>
+    <p><strong>The problem NumPy solves.</strong> Python's built-in lists (from Week 1) are
+      flexible but slow for heavy number-crunching, because each element can be a totally
+      different type and Python has to check that every time. Real data science involves millions
+      of numbers — image pixels, sensor readings, model weights — and needs to process them fast.
+      <strong>NumPy</strong> ("Numerical Python") introduces the <strong>array</strong>: a grid of
+      numbers, all the same type, stored efficiently in memory and processed using highly optimized
+      code written in C under the hood — often 10 to 100 times faster than an equivalent Python
+      list loop.</p>
+    <pre>import numpy as np    <span class="c"># the universal convention: import numpy as np</span></pre>
+    <div class="callout">
+      <span class="tag">Why this matters for the rest of the course</span>
+      NumPy arrays are the foundation everything else sits on: Pandas DataFrames (Day 5 of this
+      week) are built from NumPy arrays under the hood, and every image, audio clip, or numeric
+      dataset fed into a machine learning or deep learning model is first converted into a NumPy
+      (or NumPy-like) array.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Creating NumPy Arrays <span class="hr">Hour 2–4</span></h3>
+    <p><strong>From a Python list</strong> — the most direct way to turn data you already have
+      into an array:</p>
+    <pre>arr = np.array([1, 2, 3, 4, 5])
+print(arr)          <span class="c"># [1 2 3 4 5]</span>
+print(type(arr))     <span class="c"># &lt;class 'numpy.ndarray'&gt;</span>
+
+<span class="c"># a 2D array (a "matrix") — a list of lists</span>
+matrix = np.array([[1, 2, 3], [4, 5, 6]])
+print(matrix)</pre>
+    <p><strong>From built-in generator methods</strong> — for when you need an array of a specific
+      shape or pattern, without typing every value by hand:</p>
+    <pre>zeros = np.zeros((3, 3))         <span class="c"># a 3x3 grid of all zeros</span>
+ones = np.ones((2, 4))            <span class="c"># a 2x4 grid of all ones</span>
+identity = np.eye(3)               <span class="c"># a 3x3 identity matrix (1s on the diagonal)</span>
+sequence = np.arange(0, 10, 2)     <span class="c"># [0 2 4 6 8] — like Python's range(), but an array</span>
+evenly_spaced = np.linspace(0, 1, 5)  <span class="c"># 5 evenly spaced numbers from 0 to 1</span></pre>
+    <p><strong>From random generation</strong> — essential for simulations, and for initializing a
+      neural network's starting weights later in the course:</p>
+    <pre>random_uniform = np.random.rand(3, 3)        <span class="c"># random values between 0 and 1</span>
+random_ints = np.random.randint(1, 100, 5)     <span class="c"># 5 random integers from 1 to 99</span>
+random_normal = np.random.randn(3, 3)          <span class="c"># random values from a normal distribution</span></pre>
+  </div>
+
+  <div class="topic">
+    <h3>Array Attributes &amp; Methods <span class="hr">Hour 2–4</span></h3>
+    <p>Once you have an array, NumPy gives you quick built-in ways to inspect and summarize it —
+      think of these as the array "introducing itself":</p>
+    <pre>arr = np.array([[1, 2, 3], [4, 5, 6]])
+
+print(arr.shape)     <span class="c"># (2, 3) — 2 rows, 3 columns</span>
+print(arr.ndim)       <span class="c"># 2 — number of dimensions</span>
+print(arr.size)       <span class="c"># 6 — total number of elements</span>
+print(arr.dtype)      <span class="c"># int64 — the data type of every element</span>
+
+print(arr.max())      <span class="c"># 6 — largest value</span>
+print(arr.min())      <span class="c"># 1 — smallest value</span>
+print(arr.argmax())   <span class="c"># 5 — the INDEX (position) of the largest value, flattened</span>
+print(arr.argmin())   <span class="c"># 0 — the index of the smallest value</span>
+
+reshaped = arr.reshape(3, 2)   <span class="c"># reorganize the SAME 6 numbers into a new 3x2 shape</span>
+print(reshaped)</pre>
+    <div class="callout warn">
+      <span class="tag">Common mistake</span>
+      <code>.max()</code> tells you the largest <em>value</em>; <code>.argmax()</code> tells you
+      <em>where</em> it is (its index). Beginners frequently reach for the wrong one — remember:
+      "arg" as in "argument," meaning "the input/position that produces this result."
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Operations on Arrays — Copying, Editing &amp; Combining <span class="hr">Hour 2–4</span></h3>
+    <pre><span class="c"># copying — IMPORTANT: arr2 = arr1 does NOT copy, it just points to the same data!</span>
+arr1 = np.array([1, 2, 3])
+arr2 = arr1.copy()          <span class="c"># a true, independent copy</span>
+arr2[0] = 99
+print(arr1)                  <span class="c"># [1 2 3] — untouched, because we used .copy()</span>
+
+<span class="c"># append and insert</span>
+arr = np.array([1, 2, 3])
+appended = np.append(arr, 4)              <span class="c"># [1 2 3 4]</span>
+inserted = np.insert(arr, 1, 99)           <span class="c"># [1 99 2 3] — insert 99 at index 1</span>
+
+<span class="c"># sorting</span>
+unsorted = np.array([3, 1, 4, 1, 5])
+print(np.sort(unsorted))    <span class="c"># [1 1 3 4 5]</span>
+
+<span class="c"># removing / deleting</span>
+removed = np.delete(arr, 0)   <span class="c"># removes the element at index 0 → [2 3]</span>
+
+<span class="c"># combining / concatenating</span>
+a = np.array([1, 2])
+b = np.array([3, 4])
+combined = np.concatenate([a, b])   <span class="c"># [1 2 3 4]</span>
+
+<span class="c"># splitting</span>
+parts = np.split(np.array([1, 2, 3, 4, 5, 6]), 3)   <span class="c"># 3 equal chunks: [1,2] [3,4] [5,6]</span></pre>
+    <div class="callout">
+      <span class="tag">Why the copy warning matters so much</span>
+      This "shared reference" trap is one of the most common real-world NumPy bugs — code that
+      silently modifies data it wasn't supposed to touch, because two variable names were secretly
+      pointing at the exact same underlying array in memory. Always use <code>.copy()</code> when
+      you need a genuinely independent version.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">What does <code>arr.argmax()</code> return?</p>
+      <button class="mcq-opt" data-correct="false">The largest value in the array</button>
+      <button class="mcq-opt" data-correct="true">The index (position) of the largest value</button>
+      <button class="mcq-opt" data-correct="false">The number of elements in the array</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 4 -->
+<section class="day-section" id="day4">
+  <div class="day-head"><span class="day-num">4</span><h2>NumPy — Indexing, Broadcasting &amp; Math Operations</h2></div>
+  <p class="day-sub">Hour 1–4 · Data loading/saving · Indexing &amp; selection · Broadcasting · Type casting · Arithmetic · Universal functions</p>
+
+  <div class="topic">
+    <h3>Data Loading &amp; Saving <span class="hr">Hour 1–2</span></h3>
+    <p>Real data doesn't start out as a hand-typed list — it lives in files. NumPy can load and
+      save arrays directly to disk, in both plain-text and NumPy's own efficient binary format:</p>
+    <pre><span class="c"># saving an array to disk</span>
+arr = np.array([1, 2, 3, 4, 5])
+np.save("my_array.npy", arr)           <span class="c"># NumPy's own fast binary format</span>
+np.savetxt("my_array.csv", arr, delimiter=",")   <span class="c"># plain text / CSV</span>
+
+<span class="c"># loading it back</span>
+loaded = np.load("my_array.npy")
+loaded_csv = np.loadtxt("my_array.csv", delimiter=",")</pre>
+  </div>
+
+  <div class="topic">
+    <h3>NumPy Indexing &amp; Selection <span class="hr">Hour 1–2</span></h3>
+    <p><strong>Indexing a 2D array.</strong> Just like a list, but now with two coordinates —
+      think of it as "row, column," exactly like reading a spreadsheet cell reference:</p>
+    <pre>grid = np.array([[10, 20, 30],
+                  [40, 50, 60],
+                  [70, 80, 90]])
+
+print(grid[0, 0])     <span class="c"># 10 — row 0, column 0</span>
+print(grid[1, 2])     <span class="c"># 60 — row 1, column 2</span>
+print(grid[0])         <span class="c"># [10 20 30] — the entire first row</span>
+print(grid[:, 1])      <span class="c"># [20 50 80] — the entire second column (: means "all rows")</span>
+print(grid[0:2, 0:2])  <span class="c"># top-left 2x2 sub-grid — slicing works in both dimensions</span></pre>
+    <p><strong>Logical (boolean) selection</strong> — instead of picking values by position, you
+      pick them by a <em>condition</em>, which is one of the most powerful and commonly used
+      NumPy features in real data work:</p>
+    <pre>scores = np.array([55, 90, 40, 78, 62, 95])
+
+<span class="c"># this comparison creates an array of True/False values, one per element</span>
+passing_mask = scores >= 60
+print(passing_mask)   <span class="c"># [False  True False  True  True  True]</span>
+
+<span class="c"># using that mask to pull out only the matching values</span>
+passing_scores = scores[passing_mask]
+print(passing_scores)   <span class="c"># [90 78 62 95]</span>
+
+<span class="c"># the same thing, in one line — the idiomatic style</span>
+print(scores[scores >= 60])</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Broadcasting <span class="hr">Hour 1–2</span></h3>
+    <p><strong>The problem it solves.</strong> What happens if you want to add a single number to
+      <em>every</em> element of an array at once, or add a small array to a bigger one? Doing this
+      with a manual loop works, but is slow and verbose. <strong>Broadcasting</strong> is NumPy's
+      rule for automatically "stretching" a smaller array to match a bigger one's shape, so the
+      operation just works, element by element, without you writing a loop.</p>
+    <pre>arr = np.array([1, 2, 3, 4])
+
+<span class="c"># broadcasting a single number across every element</span>
+print(arr + 10)      <span class="c"># [11 12 13 14] — 10 is "stretched" to match arr's shape</span>
+
+<span class="c"># broadcasting a smaller array across a bigger one</span>
+grid = np.array([[1, 2, 3],
+                  [4, 5, 6]])
+row = np.array([10, 20, 30])
+print(grid + row)     <span class="c"># row is added to EVERY row of grid automatically</span>
+<span class="c"># [[11 22 33]
+#  [14 25 36]]</span></pre>
+    <div class="callout">
+      <span class="tag">Why this matters for ML</span>
+      Broadcasting is exactly how you'd normalize an entire dataset in one line — subtracting the
+      mean and dividing by the standard deviation of every column at once, without a single
+      explicit loop. It's central to writing fast, "vectorized" data-science code.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Type Casting <span class="hr">Hour 3–4</span></h3>
+    <p>Every NumPy array has one single data type for all its elements (unlike a Python list,
+      which can mix types freely). <strong>Type casting</strong> converts an array from one type
+      to another — commonly needed when loading messy real-world data, or when a specific
+      calculation requires floats instead of integers.</p>
+    <pre>int_arr = np.array([1, 2, 3])
+float_arr = int_arr.astype(np.float64)
+print(float_arr)      <span class="c"># [1. 2. 3.]</span>
+print(float_arr.dtype) <span class="c"># float64</span></pre>
+  </div>
+
+  <div class="topic">
+    <h3>Arithmetic Operations &amp; Universal Array Functions <span class="hr">Hour 3–4</span></h3>
+    <p><strong>Element-wise arithmetic</strong> — every basic operator works directly on whole
+      arrays at once, applying to each matching pair of elements (this is broadcasting's simplest
+      form, seen already above):</p>
+    <pre>a = np.array([10, 20, 30])
+b = np.array([1, 2, 3])
+
+print(a + b)   <span class="c"># [11 22 33]</span>
+print(a - b)   <span class="c"># [9 18 27]</span>
+print(a * b)   <span class="c"># [10 40 90]</span>
+print(a / b)   <span class="c"># [10. 10. 10.]</span>
+print(a ** 2)  <span class="c"># [100 400 900]</span></pre>
+    <p><strong>Universal functions ("ufuncs")</strong> — NumPy's own fast, built-in math
+      functions, applied to an entire array at once:</p>
+    <pre>arr = np.array([1, 4, 9, 16])
+
+print(np.sqrt(arr))    <span class="c"># [1. 2. 3. 4.]</span>
+print(np.exp(arr))      <span class="c"># e raised to the power of each element</span>
+print(np.log(arr))      <span class="c"># natural log of each element</span>
+print(np.sin(arr))      <span class="c"># sine of each element</span>
+print(np.max(arr))      <span class="c"># 16</span></pre>
+    <div class="callout warn">
+      <span class="tag">Best practice</span>
+      Always prefer NumPy's vectorized operations (<code>a + b</code>, <code>np.sqrt(arr)</code>)
+      over writing a manual Python <code>for</code> loop to do the same thing element by element —
+      the vectorized version is both far shorter to write and dramatically faster to run.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q"><code>scores[scores >= 60]</code> is an example of:</p>
+      <button class="mcq-opt" data-correct="false">Type casting</button>
+      <button class="mcq-opt" data-correct="true">Logical (boolean) selection</button>
+      <button class="mcq-opt" data-correct="false">Broadcasting a scalar</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 5 -->
+<section class="day-section" id="day5">
+  <div class="day-head"><span class="day-num">5</span><h2>Introduction to Pandas</h2></div>
+  <p class="day-sub">Hour 1–4 · Series &amp; DataFrame · Selection &amp; indexing · DataFrame operations · Missing data handling</p>
+
+  <div class="topic">
+    <h3>Introduction to Pandas — From Grids of Numbers to Real Tables <span class="hr">Hour 1</span></h3>
+    <p><strong>The gap NumPy leaves open.</strong> NumPy arrays are fantastic for pure numbers,
+      but real-world data isn't just numbers — it's a spreadsheet with named columns ("Name",
+      "Age", "City"), mixed types (text and numbers together), and often missing values.
+      <strong>Pandas</strong> (built on top of NumPy) adds exactly this: labeled rows and columns,
+      and a huge toolbox of convenience methods for cleaning and exploring data — it is, without
+      exaggeration, the single most-used library in everyday data science work.</p>
+    <pre>import pandas as pd   <span class="c"># the universal convention: import pandas as pd</span></pre>
+  </div>
+
+  <div class="topic">
+    <h3>Series and DataFrame, and Loading Data <span class="hr">Hour 2</span></h3>
+    <p><strong>A Series</strong> is a single labeled column of data — think of it as one column
+      from a spreadsheet, with an index (row label) attached to every value.</p>
+    <pre>ages = pd.Series([25, 30, 35], index=["Ayesha", "Bilal", "Sara"])
+print(ages)
+<span class="c"># Ayesha    25
+# Bilal     30
+# Sara      35</span>
+print(ages["Bilal"])   <span class="c"># 30 — look up by label, not just position</span></pre>
+    <p><strong>A DataFrame</strong> is the full spreadsheet — a 2D table made of multiple Series
+      (columns) that all share the same row index. This is the object you'll work with constantly
+      for the rest of the course.</p>
+    <pre>data = {
+    "name": ["Ayesha", "Bilal", "Sara"],
+    "age": [25, 30, 35],
+    "city": ["Lahore", "Karachi", "Islamabad"]
+}
+df = pd.DataFrame(data)
+print(df)</pre>
+    <p><strong>Loading real data</strong> — in practice, you'll almost never type a DataFrame by
+      hand; you'll load it from a file:</p>
+    <pre>df = pd.read_csv("students.csv")
+df_excel = pd.read_excel("students.xlsx")</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Selection and Indexing <span class="hr">Hour 2</span></h3>
+    <pre><span class="c"># selecting a single column — returns a Series</span>
+print(df["name"])
+
+<span class="c"># selecting multiple columns — returns a DataFrame</span>
+print(df[["name", "age"]])
+
+<span class="c"># selecting rows by label with .loc, or by position with .iloc</span>
+print(df.loc[0])          <span class="c"># the row labeled 0</span>
+print(df.iloc[0])          <span class="c"># the row at position 0 — same result here, different logic</span>
+
+<span class="c"># conditional selection — the Pandas version of NumPy's boolean masking</span>
+adults = df[df["age"] >= 30]
+print(adults)
+
+<span class="c"># selecting a subset of rows AND columns at once</span>
+print(df.loc[df["age"] >= 30, ["name", "city"]])
+
+<span class="c"># setting a different column as the index</span>
+df_indexed = df.set_index("name")
+print(df_indexed.loc["Ayesha"])</pre>
+    <div class="callout">
+      <span class="tag"><code>.loc</code> vs <code>.iloc</code>, remembered simply</span>
+      <code>.loc</code> = "location by LABEL" (the name of the row/column). <code>.iloc</code> =
+      "location by INTEGER position" (0, 1, 2...), regardless of what the labels actually say.
+      This distinction becomes important once you set a custom index, like a student's name.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Operations on DataFrames <span class="hr">Hour 3</span></h3>
+    <pre>print(df.head())                 <span class="c"># first 5 rows — a quick first look at any dataset</span>
+print(df["city"].unique())        <span class="c"># every distinct value in a column</span>
+print(df["city"].value_counts())  <span class="c"># how many times each value appears</span>
+
+<span class="c"># applying your own custom function to every value in a column</span>
+df["age_in_5_years"] = df["age"].apply(lambda x: x + 5)
+
+print(df.columns)      <span class="c"># the column names</span>
+print(df.index)         <span class="c"># the row labels</span>
+
+df_sorted = df.sort_values("age")             <span class="c"># sort rows by a column</span>
+df.replace("Lahore", "LHR", inplace=True)      <span class="c"># find-and-replace a value</span>
+
+df_dropped = df.drop(columns=["city"])          <span class="c"># drop a column</span>
+df_dropped_row = df.drop(index=0)                <span class="c"># drop a row</span></pre>
+    <div class="callout warn">
+      <span class="tag">Common mistake</span>
+      Most Pandas operations return a <em>new</em> DataFrame by default rather than modifying the
+      original — <code>df.sort_values("age")</code> doesn't change <code>df</code> itself unless
+      you either reassign it (<code>df = df.sort_values("age")</code>) or pass
+      <code>inplace=True</code>. Forgetting this is one of the most common beginner bugs in Pandas.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>Missing Data &amp; Its Handling <span class="hr">Hour 4</span></h3>
+    <p><strong>Why this is unavoidable.</strong> Real-world data is messy — a survey respondent
+      skips a question, a sensor briefly fails, a form field is left blank. Pandas represents a
+      missing value as <code>NaN</code> ("Not a Number"), and handling it properly is one of the
+      most important, unglamorous parts of any real data project.</p>
+    <pre>import numpy as np
+df = pd.DataFrame({
+    "name": ["Ayesha", "Bilal", "Sara"],
+    "score": [85, np.nan, 90]
+})
+
+print(df.isnull())          <span class="c"># True/False table showing exactly where data is missing</span>
+print(df.isnull().sum())     <span class="c"># count of missing values per column</span>
+
+<span class="c"># option 1: drop rows with any missing value</span>
+df_dropped = df.dropna()
+
+<span class="c"># option 2: fill missing values with something sensible</span>
+df_filled_zero = df.fillna(0)
+df_filled_mean = df.fillna(df["score"].mean())   <span class="c"># fill with the column's mean — Week 2 knowledge, applied!</span></pre>
+    <div class="callout">
+      <span class="tag">How to choose between dropping and filling</span>
+      Drop rows only if missing data is rare and random. If a column has a lot of missing values,
+      dropping every affected row can throw away too much good data — filling with the mean,
+      median, or a sensible default is usually the better choice, and exactly why last week's
+      central tendency measures matter in practice, not just in theory.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">What does <code>df.dropna()</code> do by default?</p>
+      <button class="mcq-opt" data-correct="true">Removes rows containing any missing (NaN) value</button>
+      <button class="mcq-opt" data-correct="false">Fills all missing values with zero</button>
+      <button class="mcq-opt" data-correct="false">Deletes the entire DataFrame</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ CHEAT SHEET -->
+<section class="day-section" id="cheatsheet">
+  <h2>Week 3 Cheat Sheet</h2>
+  <div class="cheat">
+    <h3>Correlation &amp; Probability</h3>
+    <table>
+      <tr><td>np.corrcoef(x, y)</td><td>correlation coefficient between two variables (−1 to +1)</td></tr>
+      <tr><td>P(A ∩ B)</td><td>joint probability — both A and B</td></tr>
+      <tr><td>P(A)</td><td>marginal probability — A alone</td></tr>
+      <tr><td>P(A | B)</td><td>conditional probability — A, given B is true</td></tr>
+      <tr><td>Bayes' theorem</td><td>P(A|B) = P(B|A)·P(A) / P(B) — update belief with new evidence</td></tr>
+      <tr><td>Normal distribution</td><td>the symmetric bell curve — most common continuous distribution</td></tr>
+    </table>
+    <h3 style="margin-top:20px;">NumPy</h3>
+    <table>
+      <tr><td>np.array(list)</td><td>create an array from a list</td></tr>
+      <tr><td>np.zeros / ones / arange / linspace</td><td>generate arrays with a pattern</td></tr>
+      <tr><td>.shape / .ndim / .size / .dtype</td><td>inspect an array</td></tr>
+      <tr><td>.reshape() / .sort() / .copy()</td><td>reorganize / sort / safely duplicate</td></tr>
+      <tr><td>arr[mask]</td><td>boolean / logical selection</td></tr>
+      <tr><td>broadcasting</td><td>auto-stretching a smaller array to match a bigger one</td></tr>
+      <tr><td>.astype(type)</td><td>type casting</td></tr>
+      <tr><td>np.sqrt / exp / log / sin</td><td>universal (vectorized) math functions</td></tr>
+    </table>
+    <h3 style="margin-top:20px;">Pandas</h3>
+    <table>
+      <tr><td>pd.Series(...) / pd.DataFrame(...)</td><td>one labeled column / a full table</td></tr>
+      <tr><td>pd.read_csv(path)</td><td>load data from a CSV file</td></tr>
+      <tr><td>.loc[] / .iloc[]</td><td>select by label / select by integer position</td></tr>
+      <tr><td>.head() / .unique() / .value_counts()</td><td>peek / distinct values / frequency counts</td></tr>
+      <tr><td>.isnull().sum()</td><td>count missing values per column</td></tr>
+      <tr><td>.dropna() / .fillna(value)</td><td>remove / fill missing data</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ MCQS -->
+<section class="day-section" id="mcqs">
+  <h2>Week 3 MCQs — 20 Questions</h2>
+  <p>Click an option to check yourself.</p>
+
+  <div class="mcq"><p class="q">1. A correlation coefficient of 0 means:</p>
+    <button class="mcq-opt" data-correct="true">No linear relationship between the two variables</button>
+    <button class="mcq-opt" data-correct="false">A perfect positive relationship</button>
+    <button class="mcq-opt" data-correct="false">One variable causes the other</button></div>
+
+  <div class="mcq"><p class="q">2. "Correlation does not imply causation" means:</p>
+    <button class="mcq-opt" data-correct="true">Two variables moving together doesn't prove one causes the other</button>
+    <button class="mcq-opt" data-correct="false">Correlated variables are always unrelated</button>
+    <button class="mcq-opt" data-correct="false">Causation is impossible to ever prove</button></div>
+
+  <div class="mcq"><p class="q">3. A scatter plot of two variables is an example of:</p>
+    <button class="mcq-opt" data-correct="false">Univariate analysis</button>
+    <button class="mcq-opt" data-correct="true">Bivariate analysis</button>
+    <button class="mcq-opt" data-correct="false">Multivariate analysis</button></div>
+
+  <div class="mcq"><p class="q">4. Probability values always fall within which range?</p>
+    <button class="mcq-opt" data-correct="false">−1 to 1</button>
+    <button class="mcq-opt" data-correct="true">0 to 1</button>
+    <button class="mcq-opt" data-correct="false">0 to 100</button></div>
+
+  <div class="mcq"><p class="q">5. P(A) alone, ignoring any other variable, is called:</p>
+    <button class="mcq-opt" data-correct="true">Marginal probability</button>
+    <button class="mcq-opt" data-correct="false">Joint probability</button>
+    <button class="mcq-opt" data-correct="false">Conditional probability</button></div>
+
+  <div class="mcq"><p class="q">6. Which distribution models a single yes/no trial?</p>
+    <button class="mcq-opt" data-correct="true">Bernoulli</button>
+    <button class="mcq-opt" data-correct="false">Normal</button>
+    <button class="mcq-opt" data-correct="false">Poisson</button></div>
+
+  <div class="mcq"><p class="q">7. The Normal distribution is best described as:</p>
+    <button class="mcq-opt" data-correct="true">A symmetric, continuous bell-curve distribution</button>
+    <button class="mcq-opt" data-correct="false">Only usable for counting discrete events</button>
+    <button class="mcq-opt" data-correct="false">Always skewed to one side</button></div>
+
+  <div class="mcq"><p class="q">8. Bayes' theorem is used to:</p>
+    <button class="mcq-opt" data-correct="true">Update a belief given new evidence</button>
+    <button class="mcq-opt" data-correct="false">Calculate the mean of a dataset</button>
+    <button class="mcq-opt" data-correct="false">Sort an array</button></div>
+
+  <div class="mcq"><p class="q">9. Why are NumPy arrays generally faster than Python lists for math?</p>
+    <button class="mcq-opt" data-correct="true">They store one fixed data type and use optimized underlying code</button>
+    <button class="mcq-opt" data-correct="false">They can only hold 10 elements</button>
+    <button class="mcq-opt" data-correct="false">Python lists cannot store numbers</button></div>
+
+  <div class="mcq"><p class="q">10. <code>arr.shape</code> tells you:</p>
+    <button class="mcq-opt" data-correct="true">The dimensions of the array (rows, columns, etc.)</button>
+    <button class="mcq-opt" data-correct="false">The data type of the array</button>
+    <button class="mcq-opt" data-correct="false">The sum of all elements</button></div>
+
+  <div class="mcq"><p class="q">11. To make a true, independent copy of a NumPy array, use:</p>
+    <button class="mcq-opt" data-correct="false">arr2 = arr1</button>
+    <button class="mcq-opt" data-correct="true">arr2 = arr1.copy()</button>
+    <button class="mcq-opt" data-correct="false">arr2 = arr1.shape</button></div>
+
+  <div class="mcq"><p class="q">12. Broadcasting in NumPy refers to:</p>
+    <button class="mcq-opt" data-correct="true">Automatically stretching a smaller array to match a bigger one during an operation</button>
+    <button class="mcq-opt" data-correct="false">Saving an array to a file</button>
+    <button class="mcq-opt" data-correct="false">Deleting elements from an array</button></div>
+
+  <div class="mcq"><p class="q">13. <code>arr.astype(np.float64)</code> performs:</p>
+    <button class="mcq-opt" data-correct="true">Type casting to a float type</button>
+    <button class="mcq-opt" data-correct="false">Sorting the array</button>
+    <button class="mcq-opt" data-correct="false">Reshaping the array</button></div>
+
+  <div class="mcq"><p class="q">14. A Pandas Series is best described as:</p>
+    <button class="mcq-opt" data-correct="true">A single labeled column of data</button>
+    <button class="mcq-opt" data-correct="false">A full multi-column table</button>
+    <button class="mcq-opt" data-correct="false">A type of NumPy universal function</button></div>
+
+  <div class="mcq"><p class="q">15. <code>.loc[]</code> selects data by:</p>
+    <button class="mcq-opt" data-correct="true">Label</button>
+    <button class="mcq-opt" data-correct="false">Integer position only</button>
+    <button class="mcq-opt" data-correct="false">Data type</button></div>
+
+  <div class="mcq"><p class="q">16. <code>df["city"].value_counts()</code> returns:</p>
+    <button class="mcq-opt" data-correct="true">How many times each distinct value appears in that column</button>
+    <button class="mcq-opt" data-correct="false">The mean of the column</button>
+    <button class="mcq-opt" data-correct="false">Only the first 5 rows</button></div>
+
+  <div class="mcq"><p class="q">17. In Pandas, a missing value is represented as:</p>
+    <button class="mcq-opt" data-correct="true">NaN</button>
+    <button class="mcq-opt" data-correct="false">0</button>
+    <button class="mcq-opt" data-correct="false">None of the above — Pandas cannot have missing values</button></div>
+
+  <div class="mcq"><p class="q">18. <code>df.fillna(df["score"].mean())</code> does what?</p>
+    <button class="mcq-opt" data-correct="true">Replaces missing values with the column's mean</button>
+    <button class="mcq-opt" data-correct="false">Deletes rows with missing values</button>
+    <button class="mcq-opt" data-correct="false">Sorts the column</button></div>
+
+  <div class="mcq"><p class="q">19. Most Pandas operations, by default:</p>
+    <button class="mcq-opt" data-correct="true">Return a new DataFrame rather than modifying the original</button>
+    <button class="mcq-opt" data-correct="false">Always modify the original DataFrame directly</button>
+    <button class="mcq-opt" data-correct="false">Permanently delete the original data</button></div>
+
+  <div class="mcq"><p class="q">20. Which library are Pandas DataFrames built on top of?</p>
+    <button class="mcq-opt" data-correct="true">NumPy</button>
+    <button class="mcq-opt" data-correct="false">Matplotlib</button>
+    <button class="mcq-opt" data-correct="false">Scikit-learn</button></div>
+</section>
+
+<!-- ============================================================ EXERCISES -->
+<section class="day-section" id="exercises">
+  <h2>Practical Exercises</h2>
+  <div class="ex-grid">
+    <div class="ex-card"><span class="lvl easy">Easy</span><p>Create a NumPy array of the numbers 1–20, then use logical selection to print only the multiples of 3.</p></div>
+    <div class="ex-card"><span class="lvl medium">Medium</span><p>Given two NumPy arrays of exam scores from two different classes, compute the correlation coefficient between them and interpret the result in one sentence.</p></div>
+    <div class="ex-card"><span class="lvl hard">Hard</span><p>Load a small CSV of student records into a Pandas DataFrame, find and count missing values per column, then fill numeric columns with the column mean and drop rows still missing a name.</p></div>
+    <div class="ex-card"><span class="lvl expert">Expert</span><p>Using <code>scipy.stats.binom</code>, compute the probability of getting at least 7 heads in 10 coin flips, then verify your answer with a simulation: run 10,000 trials of 10 flips using NumPy's random module and compare the simulated probability to the theoretical one.</p></div>
+  </div>
+</section>
+
+<!-- ============================================================ PROJECTS -->
+<section class="day-section" id="project" style="border-bottom:none;">
+  <h2>Mini Project</h2>
+  <p><strong>Exam Score Explorer.</strong> Load a small dataset of student study hours and exam
+    scores into a Pandas DataFrame. Compute the correlation between the two columns, use NumPy to
+    calculate the mean, standard deviation, and Z-scores of the exam scores, and flag any student
+    whose Z-score is above 2 or below −2 as a notable outlier.</p>
+
+  <h2 style="margin-top:40px;">Industry Project</h2>
+  <p><strong>Spam Probability Estimator.</strong> Using a small labeled dataset of emails marked
+    spam/not-spam, and a short list of "trigger words," compute the conditional probability that an
+    email is spam given it contains a specific trigger word, using counts and Bayes' theorem by
+    hand (no external ML library) — the same core logic behind real-world Naive Bayes spam filters.</p>
+
+  <h2 style="margin-top:40px;">Homework</h2>
+  <p>Write a short paragraph, in plain language, explaining why a "99% accurate" medical test can
+    still be wrong more often than right when the condition it detects is rare — using the disease
+    testing example from Day 2 as your reference point.</p>
+</section>
+
+<!-- ============================================================ RESOURCES -->
+<section class="day-section" id="resources" style="border-bottom:none;">
+  <h2>Additional Resources</h2>
+  <ul>
+    <li><a href="https://numpy.org/doc/stable/user/quickstart.html" target="_blank" rel="noopener">Official NumPy Quickstart Guide</a></li>
+    <li><a href="https://pandas.pydata.org/docs/getting_started/index.html" target="_blank" rel="noopener">Official Pandas Getting Started Guide</a></li>
+    <li><a href="https://docs.scipy.org/doc/scipy/reference/stats.html" target="_blank" rel="noopener">SciPy Statistics Reference (distributions)</a></li>
+    <li><a href="https://www.data-to-viz.com/" target="_blank" rel="noopener">data-to-viz.com — choosing the right chart</a></li>
+    <li><a href="https://www.khanacademy.org/math/statistics-probability" target="_blank" rel="noopener">Khan Academy — Statistics &amp; Probability</a></li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    Week 3 of 12 · NAVTTC AI/ML/DL Course · <a href="../week2/index.html">← Week 2</a> · <a href="../index.html">All weeks</a>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
