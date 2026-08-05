@@ -302,3 +302,72 @@ footer a{ color:#6b715f; }
   .day-head .day-num{ font-size: 1.8rem; }
   .daynav{ position: static; }
 }
+
+/* ---------- homepage instructor card ---------- */
+.instructor-card{
+  display:flex; align-items:center; gap:22px; flex-wrap:wrap;
+  margin: 28px 0 8px;
+  padding: 18px 20px;
+  border: 1px solid var(--ink);
+  background: #fff;
+}
+.instructor-card .avatar{
+  width: 112px; height: 112px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--moss);
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(16,21,17,.18);
+}
+.instructor-card .info{ flex:1; min-width: 220px; }
+.instructor-card .info h2{
+  font-size: 1.35rem; margin: 0 0 4px;
+}
+.instructor-card .role{
+  font-family: var(--font-mono); font-size: .78rem;
+  text-transform: uppercase; letter-spacing: .08em;
+  color: var(--moss); margin-bottom: 8px;
+}
+.instructor-card .bio{ margin: 0 0 10px; font-size: .98rem; color:#2c3329; }
+.instructor-card .links{ display:flex; flex-wrap:wrap; gap:12px; }
+.instructor-card .links a{
+  font-family: var(--font-mono); font-size: .82rem;
+  text-decoration:none; border-bottom: 1px solid var(--moss);
+}
+.btn-primary{
+  display:inline-block;
+  font-family: var(--font-mono); font-size: .82rem;
+  padding: 10px 16px;
+  background: var(--ink); color: var(--paper) !important;
+  border: 1px solid var(--ink);
+  text-decoration:none !important;
+  border-radius: var(--radius);
+}
+.btn-primary:hover{ background: var(--moss); border-color: var(--moss); color: var(--paper) !important; }
+
+.about-section{
+  padding: 48px 0 24px;
+  border-bottom: 1px solid var(--line);
+}
+.about-section h2{ margin-bottom: 12px; }
+.about-grid{
+  display:grid;
+  grid-template-columns: 1.2fr .8fr;
+  gap: 28px;
+}
+@media (max-width: 720px){
+  .about-grid{ grid-template-columns: 1fr; }
+  .instructor-card{ justify-content:center; text-align:center; }
+  .instructor-card .links{ justify-content:center; }
+}
+.feature-list{ margin: 0; padding-left: 18px; }
+.feature-list li{ margin-bottom: 6px; }
+.seo-keywords{
+  font-family: var(--font-mono); font-size: .72rem;
+  color: #6a7264; margin-top: 16px;
+}
+
+/* resource callouts for beginners */
+.callout.resource{ border-left-color: var(--moss); }
+.callout.resource .tag{ color: var(--moss); }
+.resource-links a{ margin-right: 10px; }
