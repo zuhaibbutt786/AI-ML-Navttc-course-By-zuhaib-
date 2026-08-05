@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Week 6 — NLP & Machine Learning II | AI·ML·DL Course</title>
-<meta name="description" content="Week 6 of the NAVTTC AI, ML & Deep Learning course: Natural Language Processing with NLTK/spaCy, text preprocessing, Bag-of-Words, evaluation metrics, class imbalance, Support Vector Machines, and Decision Trees — with code, quizzes, and projects.">
+<title>Week 6 — NLP &amp; Machine Learning II | AI·ML·DL Course</title>
+<meta name="description" content="Week 6 of the NAVTTC AI, ML &amp; Deep Learning course: Natural Language Processing with NLTK/spaCy, text preprocessing, Bag-of-Words, evaluation metrics, class imbalance, Support Vector Machines, and Decision Trees — with code, quizzes, and projects.">
 <meta name="keywords" content="NLP, NLTK, spaCy, tokenization, stemming, lemmatization, POS tagging, NER, Bag of Words, SVM, decision tree, evaluation metrics, precision recall F1, NAVTTC, week 6">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -29,7 +29,7 @@
 <section class="hero" style="padding-top:44px;">
   <div class="wrap">
     <p class="eyebrow">week 6 of 12 · ~20 hours · intermediate</p>
-    <h1>NLP & Machine Learning II</h1>
+    <h1>NLP &amp; Machine Learning II</h1>
     <p class="lede">This week splits into two powerful tracks. Days 1–2 introduce <strong>Natural Language
       Processing</strong> — how machines turn messy human text into numbers they can learn from
       (tokenization, stemming, POS, NER, Bag-of-Words). Days 3–5 deepen classical ML:
@@ -38,7 +38,7 @@
       Machines</strong> and <strong>Decision Trees</strong>. By Friday you can build a text
       classifier end-to-end and choose the right model for structured data.</p>
     <div class="meta-row">
-      <span>Prerequisites: Weeks 1–5 (Python, NumPy, Pandas, Linear & Logistic Regression)</span>
+      <span>Prerequisites: Weeks 1–5 (Python, NumPy, Pandas, Linear &amp; Logistic Regression)</span>
       <span>Tools: NLTK · spaCy · scikit-learn · regex</span>
     </div>
   </div>
@@ -48,7 +48,7 @@
   <div class="wrap">
     <a href="#day1">Day 1 · NLP Intro</a>
     <a href="#day2">Day 2 · Text Pipeline</a>
-    <a href="#day3">Day 3 · Metrics & Imbalance</a>
+    <a href="#day3">Day 3 · Metrics &amp; Imbalance</a>
     <a href="#day4">Day 4 · SVM</a>
     <a href="#day5">Day 5 · Decision Trees</a>
     <a href="#cheatsheet">Cheat Sheet</a>
@@ -59,21 +59,625 @@
 
 <main class="wrap">
 
-<!-- Full lesson content continues in local repo; this commit places the Week 6 page structure.
-     Re-push full body from project artifacts if this stub is incomplete. -->
-
+<!-- ============================================================ DAY 1 -->
 <section class="day-section" id="day1">
   <div class="day-head"><span class="day-num">1</span><h2>Introduction to Natural Language Processing</h2></div>
   <p class="day-sub">Hour 1–4 · From human language to machine-readable signals</p>
+
   <div class="topic">
-    <h3>What is NLP and Why Does It Matter?</h3>
-    <p><strong>Natural Language Processing (NLP)</strong> teaches computers to understand and generate human language. Industry uses include sentiment analysis, NER, translation, chatbots, search, and summarization.</p>
-    <p>See the full interactive lesson (with all code, videos, quizzes, and projects) in the course site. Open <code>week6/index.html</code> after cloning, or view the complete file in this repository once the full content is synced.</p>
+    <h3>What is NLP and Why Does It Matter? <span class="hr">Hour 2</span></h3>
+    <p><strong>Natural Language Processing (NLP)</strong> is the branch of AI that teaches
+      computers to understand, interpret, and generate human language — the same language you
+      use in emails, tweets, customer reviews, medical notes, and legal contracts.</p>
+    <p>Every time you type a search query, talk to a chatbot, or see spam filtered out of your
+      inbox, NLP is working behind the scenes. Industry applications include:</p>
+    <ul>
+      <li><strong>Sentiment analysis</strong> — is this product review positive or negative?</li>
+      <li><strong>Named Entity Recognition</strong> — extract people, places, organizations from text</li>
+      <li><strong>Machine translation</strong> — Google Translate, DeepL</li>
+      <li><strong>Chatbots &amp; virtual assistants</strong> — customer support, Siri, Alexa</li>
+      <li><strong>Document search &amp; retrieval</strong> — legal discovery, medical literature</li>
+      <li><strong>Text summarization &amp; generation</strong> — news digests, code comments</li>
+    </ul>
+    <div class="callout">
+      <span class="tag">Industry angle</span>
+      NLP skills are among the most employable in AI right now. Companies in Pakistan and
+      globally need people who can clean text data, build classifiers, and integrate language
+      models into products. This week builds the classical foundation; Weeks 8–9 add deep
+      learning (RNNs, embeddings) on top of it.
+    </div>
+  </div>
+
+  <div class="video-embed">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/fOvTtapxa9c" title="Natural Language Processing Explained" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="video-caption">Video: “Natural Language Processing (NLP) Explained” — freeCodeCamp / StatQuest-style intro</p>
+
+  <div class="topic">
+    <h3>Syntax, Semantics, Pragmatics &amp; Discourse <span class="hr">Hour 3</span></h3>
+    <p>Linguists break language understanding into layers. Knowing these names helps you read
+      research papers and choose the right technique:</p>
+    <table>
+      <thead>
+        <tr><th>Layer</th><th>What it studies</th><th>Example question</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Syntax</strong></td>
+          <td>Structure / grammar rules</td>
+          <td>“Is this a valid sentence?”</td>
+        </tr>
+        <tr>
+          <td><strong>Semantics</strong></td>
+          <td>Literal meaning of words &amp; sentences</td>
+          <td>“What does ‘bank’ mean here?”</td>
+        </tr>
+        <tr>
+          <td><strong>Pragmatics</strong></td>
+          <td>Meaning in context / intention</td>
+          <td>“Is ‘Can you pass the salt?’ a yes/no question or a request?”</td>
+        </tr>
+        <tr>
+          <td><strong>Discourse</strong></td>
+          <td>Meaning across multiple sentences</td>
+          <td>“What does ‘it’ refer to two sentences ago?”</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Classical NLP (this week) focuses mostly on syntax and basic semantics. Modern deep
+      learning models (later weeks) attempt all four layers jointly.</p>
+  </div>
+
+  <div class="topic">
+    <h3>NLP Curves &amp; Future Directions <span class="hr">Hour 3 cont.</span></h3>
+    <p>The field has moved through three broad eras:</p>
+    <ol>
+      <li><strong>Rule-based (1950s–1980s)</strong> — hand-written grammar rules. Brittle, expensive to maintain.</li>
+      <li><strong>Statistical / Classical ML (1990s–2010s)</strong> — Bag-of-Words + Naive Bayes / SVM / Logistic Regression. Still useful for many production systems.</li>
+      <li><strong>Neural / Deep Learning (2013–today)</strong> — Word2Vec → RNNs → Transformers (BERT, GPT). State-of-the-art on almost every benchmark.</li>
+    </ol>
+    <p>You will learn the classical pipeline first because (a) it still powers many real products,
+      (b) it teaches you the data-cleaning discipline that deep models also need, and (c) it
+      runs on a laptop without a GPU.</p>
+  </div>
+
+  <div class="topic">
+    <h3>Data Pre-processing for NLP — The Pipeline <span class="hr">Hour 4</span></h3>
+    <p>Raw text is messy. Before any model sees it, we almost always run a pipeline like this:</p>
+    <pre>Raw text
+  → Lowercasing
+  → Noise removal (HTML tags, URLs, special characters)
+  → Tokenization (split into words / sentences)
+  → Stop-word removal
+  → Stemming or Lemmatization
+  → Feature extraction (Bag-of-Words, TF-IDF, embeddings)
+  → Model (classifier / regressor / neural net)</pre>
+    <p>Two libraries dominate this space in Python:</p>
+    <ul>
+      <li><strong>NLTK</strong> — excellent for teaching and research; huge collection of corpora and algorithms.</li>
+      <li><strong>spaCy</strong> — production-oriented, fast, modern API, strong NER and dependency parsing out of the box.</li>
+    </ul>
+    <pre><span class="c"># Install once (in your environment)</span>
+<span class="c"># pip install nltk spacy</span>
+<span class="c"># python -m spacy download en_core_web_sm</span>
+
+import nltk
+nltk.download('punkt')          <span class="c"># sentence &amp; word tokenizers</span>
+nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('maxent_ne_chunker')
+nltk.download('words')
+
+import spacy
+nlp = spacy.load('en_core_web_sm')   <span class="c"># small English model</span></pre>
+  </div>
+
+  <div class="topic">
+    <h3>Noise Removal <span class="hr">Hour 4 cont.</span></h3>
+    <p>Real-world text contains HTML, URLs, emojis, extra whitespace, and punctuation that rarely
+      help a classifier. Clean them with regex and simple string methods:</p>
+    <pre>import re
+
+def clean_text(text):
+    text = text.lower()
+    text = re.sub(r'http\S+|www\S+', '', text)      <span class="c"># remove URLs</span>
+    text = re.sub(r'&lt;.*?&gt;', '', text)               <span class="c"># remove HTML tags</span>
+    text = re.sub(r'[^a-z\s]', '', text)            <span class="c"># keep only letters &amp; spaces</span>
+    text = re.sub(r'\s+', ' ', text).strip()        <span class="c"># collapse whitespace</span>
+    return text
+
+sample = "Check this out!!! https://example.com &lt;b&gt;Amazing&lt;/b&gt; product 😊"
+print(clean_text(sample))
+<span class="c"># → "check this out amazing product"</span></pre>
+    <div class="callout warn">
+      <span class="tag">Common mistake</span>
+      Over-cleaning can destroy useful signal. For sentiment analysis, “!!!” and emojis often
+      carry emotion. Decide what to remove based on the task, not habit.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">Which layer of language deals with meaning that depends on context and speaker intention?</p>
+      <button class="mcq-opt" data-correct="false">Syntax</button>
+      <button class="mcq-opt" data-correct="true">Pragmatics</button>
+      <button class="mcq-opt" data-correct="false">Discourse</button>
+    </div>
   </div>
 </section>
 
+<!-- ============================================================ DAY 2 -->
+<section class="day-section" id="day2">
+  <div class="day-head"><span class="day-num">2</span><h2>Text Pipeline — Tokenization to Features</h2></div>
+  <p class="day-sub">Hour 1–4 · Turning cleaned text into model-ready numbers</p>
+
+  <div class="topic">
+    <h3>Tokenization &amp; Word Segmentation <span class="hr">Hour 1</span></h3>
+    <p><strong>Tokenization</strong> splits text into smaller units (tokens) — usually words or
+      sentences. It looks trivial until you meet contractions, hyphenated words, or languages
+      without spaces (Chinese, Thai).</p>
+    <pre>from nltk.tokenize import word_tokenize, sent_tokenize
+
+text = "Dr. Smith doesn't like AI. He prefers classical stats!"
+print(sent_tokenize(text))
+<span class="c"># ['Dr. Smith doesn't like AI.', 'He prefers classical stats!']</span>
+
+print(word_tokenize(text))
+<span class="c"># ['Dr.', 'Smith', 'does', "n't", 'like', 'AI', '.', 'He', 'prefers', 'classical', 'stats', '!']</span></pre>
+    <pre><span class="c"># spaCy does tokenization + much more in one pass</span>
+doc = nlp("Dr. Smith doesn't like AI. He prefers classical stats!")
+print([token.text for token in doc])
+print([sent.text for sent in doc.sents])</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Stemming vs Lemmatization <span class="hr">Hour 1 cont.</span></h3>
+    <p>Both reduce words to a base form so that “running”, “runs”, and “ran” can be treated as
+      related. They differ in quality:</p>
+    <ul>
+      <li><strong>Stemming</strong> — crude rule-based chopping (Porter, Snowball). Fast, sometimes produces non-words (“studies” → “studi”).</li>
+      <li><strong>Lemmatization</strong> — dictionary + POS-aware. Returns real words (“studies” → “study”). Preferred when accuracy matters.</li>
+    </ul>
+    <pre>from nltk.stem import PorterStemmer, WordNetLemmatizer
+from nltk.corpus import wordnet
+
+stemmer = PorterStemmer()
+lemmatizer = WordNetLemmatizer()
+
+words = ["running", "runs", "ran", "easily", "studies", "better"]
+print([stemmer.stem(w) for w in words])
+<span class="c"># ['run', 'run', 'ran', 'easili', 'studi', 'better']</span>
+
+print([lemmatizer.lemmatize(w, pos='v') for w in words])
+<span class="c"># ['run', 'run', 'run', 'easily', 'study', 'better']  — needs correct POS for best results</span></pre>
+  </div>
+
+  <div class="topic">
+    <h3>Stop-words, Text Normalization &amp; Regex <span class="hr">Hour 1 cont.</span></h3>
+    <p>Stop-words (“the”, “is”, “and”…) appear so often they rarely help classification. Removing
+      them shrinks the vocabulary and often improves classical models.</p>
+    <pre>from nltk.corpus import stopwords
+stop_words = set(stopwords.words('english'))
+
+tokens = word_tokenize("This is a sample sentence showing stop word removal")
+filtered = [t for t in tokens if t.lower() not in stop_words]
+print(filtered)
+<span class="c"># ['sample', 'sentence', 'showing', 'stop', 'word', 'removal']</span></pre>
+    <p>Regex remains essential for custom patterns (phone numbers, email addresses, invoice IDs):</p>
+    <pre>email_pattern = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+text = "Contact us at support@company.com or sales@company.org"
+print(re.findall(email_pattern, text))</pre>
+  </div>
+
+  <div class="topic">
+    <h3>POS Tagging, NER, Chunking &amp; WordNet <span class="hr">Hour 2–3</span></h3>
+    <p><strong>Part-of-Speech (POS) tagging</strong> labels each token as noun, verb, adjective, etc.
+      <strong>Named Entity Recognition (NER)</strong> finds people, organizations, locations, dates.</p>
+    <pre>from nltk import pos_tag, ne_chunk
+
+tokens = word_tokenize("Apple is looking at buying a startup in the UK for $1 billion")
+tagged = pos_tag(tokens)
+print(tagged[:6])
+<span class="c"># [('Apple', 'NNP'), ('is', 'VBZ'), ('looking', 'VBG'), ...]</span>
+
+print(ne_chunk(tagged))
+<span class="c"># Tree with ORGANIZATION Apple, GPE UK, etc.</span></pre>
+    <pre><span class="c"># spaCy makes NER especially pleasant</span>
+doc = nlp("Apple is looking at buying a startup in the UK for $1 billion")
+for ent in doc.ents:
+    print(ent.text, ent.label_)</pre>
+    <p><strong>Chunking</strong> groups tokens into larger phrases (noun phrases, verb phrases).
+      <strong>Chinking</strong> is the opposite — removing pieces from a chunk.
+      <strong>WordNet</strong> is a lexical database of English that links synonyms, hypernyms
+      (“car is a kind of vehicle”), and more — useful for expanding queries or measuring semantic similarity.</p>
+    <pre>from nltk.corpus import wordnet as wn
+synsets = wn.synsets('bank')
+print(synsets[0].definition())
+<span class="c"># 'sloping land (especially the slope beside a body of water)'</span>
+print(synsets[1].definition())
+<span class="c"># 'a financial institution that accepts deposits...' </span></pre>
+  </div>
+
+  <div class="video-embed">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/6jxlxQyj7w4" title="NLP Pipeline" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="video-caption">Video: “NLP Pipeline Explained” — practical walkthrough of tokenization → features</p>
+
+  <div class="topic">
+    <h3>Words as Features — Bag of Words (BoW) <span class="hr">Hour 4</span></h3>
+    <p>Machines need numbers. The simplest useful representation is the <strong>Bag-of-Words</strong>
+      model: ignore grammar and word order, just count how often each vocabulary word appears
+      in a document.</p>
+    <pre>from sklearn.feature_extraction.text import CountVectorizer
+
+corpus = [
+    "I love machine learning",
+    "I love natural language processing",
+    "machine learning is fun"
+]
+vectorizer = CountVectorizer()
+X = vectorizer.fit_transform(corpus)
+print(vectorizer.get_feature_names_out())
+print(X.toarray())
+<span class="c"># Each row = one document, each column = one word count</span></pre>
+    <p><strong>TF-IDF</strong> (Term Frequency–Inverse Document Frequency) improves BoW by
+      down-weighting words that appear in almost every document (“the”, “is”) and up-weighting
+      distinctive words:</p>
+    <pre>from sklearn.feature_extraction.text import TfidfVectorizer
+tfidf = TfidfVectorizer()
+X_tfidf = tfidf.fit_transform(corpus)
+print(X_tfidf.toarray().round(2))</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Feature Selection, Extraction &amp; Document Similarity <span class="hr">Hour 4 cont.</span></h3>
+    <p>Once you have a document-term matrix you can:</p>
+    <ul>
+      <li>Select the most informative features (χ², mutual information, SelectKBest)</li>
+      <li>Measure similarity between documents with <strong>cosine similarity</strong></li>
+    </ul>
+    <pre>from sklearn.metrics.pairwise import cosine_similarity
+sim = cosine_similarity(X_tfidf)
+print(sim)
+<span class="c"># sim[i,j] = how similar document i is to document j (1.0 = identical)</span></pre>
+    <div class="callout">
+      <span class="tag">Real-world use</span>
+      Cosine similarity on TF-IDF vectors powers classic search engines, duplicate-detection
+      systems, and recommendation engines that suggest “similar articles”.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">What is the main advantage of lemmatization over stemming?</p>
+      <button class="mcq-opt" data-correct="true">It returns real dictionary words and uses POS information</button>
+      <button class="mcq-opt" data-correct="false">It is always faster than stemming</button>
+      <button class="mcq-opt" data-correct="false">It never needs any external dictionary</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 3 -->
+<section class="day-section" id="day3">
+  <div class="day-head"><span class="day-num">3</span><h2>Testing, Evaluation Metrics &amp; Imbalance</h2></div>
+  <p class="day-sub">Hour 1–4 · How to know if your model is actually good</p>
+
+  <div class="topic">
+    <h3>Why Accuracy Alone Lies <span class="hr">Hour 1–2</span></h3>
+    <p>Last week we used accuracy for Logistic Regression. Accuracy is fine when classes are
+      balanced. In the real world they rarely are. Imagine a fraud detector where only 1% of
+      transactions are fraudulent. A model that always predicts “not fraud” scores 99% accuracy
+      — and is completely useless.</p>
+    <p>We therefore look at a richer set of metrics derived from the <strong>confusion matrix</strong>:</p>
+    <pre>                 Predicted Positive    Predicted Negative
+Actual Positive        TP                    FN
+Actual Negative        FP                    TN</pre>
+    <ul>
+      <li><strong>Precision</strong> = TP / (TP + FP) — “Of the ones I flagged positive, how many were correct?”</li>
+      <li><strong>Recall (Sensitivity)</strong> = TP / (TP + FN) — “Of all real positives, how many did I catch?”</li>
+      <li><strong>F1-score</strong> = harmonic mean of precision and recall — balances both</li>
+      <li><strong>Specificity</strong> = TN / (TN + FP)</li>
+    </ul>
+    <pre>from sklearn.metrics import (
+    accuracy_score, precision_score, recall_score, f1_score,
+    confusion_matrix, classification_report
+)
+
+y_true = [1, 0, 1, 1, 0, 1, 0, 0]
+y_pred = [1, 0, 1, 0, 0, 1, 1, 0]
+
+print(confusion_matrix(y_true, y_pred))
+print(classification_report(y_true, y_pred, target_names=['neg', 'pos']))</pre>
+  </div>
+
+  <div class="video-embed">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/Kdsp6so8I7U" title="Precision Recall F1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="video-caption">Video: “Precision, Recall, F1 Score — Clearly Explained” — StatQuest style</p>
+
+  <div class="topic">
+    <h3>Regression Metrics Still Matter <span class="hr">Hour 2</span></h3>
+    <p>For continuous targets (house prices, demand forecasts) we keep using:</p>
+    <ul>
+      <li><strong>MAE</strong> — Mean Absolute Error (easy to interpret)</li>
+      <li><strong>MSE / RMSE</strong> — Mean Squared / Root Mean Squared Error (penalizes large mistakes more)</li>
+      <li><strong>R²</strong> — proportion of variance explained</li>
+    </ul>
+    <pre>from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+import numpy as np
+
+y_true = np.array([3.0, -0.5, 2.0, 7.0])
+y_pred = np.array([2.5,  0.0, 2.1, 7.8])
+print("MAE :", mean_absolute_error(y_true, y_pred))
+print("RMSE:", mean_squared_error(y_true, y_pred, squared=False))
+print("R²  :", r2_score(y_true, y_pred))</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Dataset Imbalance &amp; Remedies <span class="hr">Hour 3–4</span></h3>
+    <p>When one class dominates, models bias toward the majority. Common fixes:</p>
+    <ol>
+      <li><strong>Resampling</strong>
+        <ul>
+          <li>Undersample the majority class (lose data)</li>
+          <li>Oversample the minority class (duplicate or synthesize)</li>
+          <li><strong>SMOTE</strong> — Synthetic Minority Over-sampling Technique (creates new synthetic examples)</li>
+        </ul>
+      </li>
+      <li><strong>Class weights</strong> — tell the model “mistakes on the minority class cost more”
+        (<code>class_weight='balanced'</code> in scikit-learn)</li>
+      <li><strong>Different metrics</strong> — optimize F1 or AUC-ROC instead of accuracy</li>
+      <li><strong>Data augmentation</strong> (especially for text/images) — synonym replacement, back-translation, random insertion/deletion for text</li>
+    </ol>
+    <pre><span class="c"># Example: class weights with Logistic Regression</span>
+from sklearn.linear_model import LogisticRegression
+model = LogisticRegression(class_weight='balanced')
+model.fit(X_train, y_train)
+
+<span class="c"># SMOTE (install imbalanced-learn)</span>
+<span class="c"># pip install imbalanced-learn</span>
+from imblearn.over_sampling import SMOTE
+smote = SMOTE(random_state=42)
+X_res, y_res = smote.fit_resample(X_train, y_train)
+print("Before:", dict(zip(*np.unique(y_train, return_counts=True))))
+print("After :", dict(zip(*np.unique(y_res, return_counts=True))))</pre>
+    <div class="callout warn">
+      <span class="tag">Important</span>
+      Always split train/test <em>before</em> applying SMOTE. Otherwise synthetic examples leak
+      information into the test set and your metrics become optimistic.
+    </div>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">In a fraud-detection problem with 1% fraud cases, which metric is most dangerous to optimize alone?</p>
+      <button class="mcq-opt" data-correct="true">Accuracy</button>
+      <button class="mcq-opt" data-correct="false">Recall</button>
+      <button class="mcq-opt" data-correct="false">F1-score</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 4 -->
+<section class="day-section" id="day4">
+  <div class="day-head"><span class="day-num">4</span><h2>Support Vector Machines (SVM)</h2></div>
+  <p class="day-sub">Hour 1–3 · Maximum-margin classifiers</p>
+
+  <div class="topic">
+    <h3>The Core Idea — Maximum Margin <span class="hr">Hour 1–2</span></h3>
+    <p>A Support Vector Machine finds the decision boundary that separates classes with the
+      <strong>largest possible margin</strong>. The points that lie closest to the boundary are
+      called <strong>support vectors</strong> — they alone determine the hyperplane.</p>
+    <p>Why does a large margin help? Small changes in the data or noise are less likely to flip
+      the prediction. SVMs therefore tend to generalize well, especially in high-dimensional
+      spaces (text data after TF-IDF is a classic example).</p>
+    <pre>from sklearn.svm import SVC
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X, y = make_classification(n_samples=500, n_features=10, n_informative=5,
+                           n_redundant=2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+clf = SVC(kernel='linear', C=1.0)
+clf.fit(X_train, y_train)
+print(classification_report(y_test, clf.predict(X_test)))</pre>
+  </div>
+
+  <div class="video-embed">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/efR1C6CvhmE" title="SVM clearly explained" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="video-caption">Video: “Support Vector Machines — Clearly Explained” — StatQuest</p>
+
+  <div class="topic">
+    <h3>The Kernel Trick <span class="hr">Hour 2–3</span></h3>
+    <p>When data is not linearly separable, SVMs can still work by mapping features into a
+      higher-dimensional space where a linear boundary exists. Computing that mapping explicitly
+      is expensive; the <strong>kernel trick</strong> lets the algorithm work with the original
+      features while behaving as if the mapping had been done.</p>
+    <ul>
+      <li><code>kernel='linear'</code> — no mapping, fastest, good for high-dim sparse data (text)</li>
+      <li><code>kernel='rbf'</code> (Radial Basis Function / Gaussian) — most popular non-linear default</li>
+      <li><code>kernel='poly'</code> — polynomial features</li>
+      <li><code>kernel='sigmoid'</code> — less common today</li>
+    </ul>
+    <pre><span class="c"># RBF kernel — the default for non-linear problems</span>
+clf_rbf = SVC(kernel='rbf', C=1.0, gamma='scale')
+clf_rbf.fit(X_train, y_train)
+print("RBF accuracy:", clf_rbf.score(X_test, y_test))</pre>
+    <p><strong>Hyper-parameters that matter:</strong></p>
+    <ul>
+      <li><code>C</code> — regularization strength. Small C → wider margin, more tolerance for misclassification. Large C → narrower margin, tries hard to classify every training point correctly (risk of overfitting).</li>
+      <li><code>gamma</code> (RBF) — how far the influence of a single training example reaches. High gamma → tight, complex boundaries.</li>
+    </ul>
+    <div class="callout">
+      <span class="tag">Practice tip</span>
+      Always scale features before training an SVM (StandardScaler). SVMs are sensitive to
+      feature magnitude because the margin is defined in Euclidean space.
+    </div>
+  </div>
+
+  <div class="topic">
+    <h3>SVM for Text Classification — End-to-End <span class="hr">Hour 3</span></h3>
+    <pre>from sklearn.pipeline import Pipeline
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.svm import LinearSVC
+
+texts = [
+    "I loved the movie, it was fantastic",
+    "What a terrible waste of time",
+    "Absolutely wonderful experience",
+    "Boring and predictable plot",
+    "Best film I have seen this year",
+    "I hated every minute of it"
+]
+labels = [1, 0, 1, 0, 1, 0]   <span class="c"># 1 = positive, 0 = negative</span>
+
+pipe = Pipeline([
+    ('tfidf', TfidfVectorizer(stop_words='english')),
+    ('clf', LinearSVC(C=1.0))
+])
+pipe.fit(texts, labels)
+print(pipe.predict(["This was an amazing film"]))
+print(pipe.predict(["I regret watching this"]))</pre>
+    <p><code>LinearSVC</code> is preferred over <code>SVC(kernel='linear')</code> for large text
+      datasets — it scales better.</p>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">What do the “support vectors” in an SVM represent?</p>
+      <button class="mcq-opt" data-correct="true">The training points closest to the decision boundary</button>
+      <button class="mcq-opt" data-correct="false">All points that were misclassified</button>
+      <button class="mcq-opt" data-correct="false">The centroids of each class</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ DAY 5 -->
+<section class="day-section" id="day5">
+  <div class="day-head"><span class="day-num">5</span><h2>Decision Trees</h2></div>
+  <p class="day-sub">Hour 1–4 · Interpretable, non-linear models that ask a sequence of questions</p>
+
+  <div class="topic">
+    <h3>How a Decision Tree Thinks <span class="hr">Hour 1–2</span></h3>
+    <p>A Decision Tree asks a series of yes/no (or multi-way) questions about the features until
+      it reaches a leaf that predicts a class or a number. Example for loan approval:</p>
+    <pre>Is income &gt; 50k?
+  ├── Yes → Is credit score &gt; 700?
+  │         ├── Yes → Approve
+  │         └── No  → Review manually
+  └── No  → Reject</pre>
+    <p>Trees are popular because:</p>
+    <ul>
+      <li>They need little feature scaling</li>
+      <li>They handle mixed numeric / categorical data naturally</li>
+      <li>The model is human-readable (great for regulated domains)</li>
+      <li>They capture non-linear interactions automatically</li>
+    </ul>
+    <pre>from sklearn.tree import DecisionTreeClassifier, plot_tree
+import matplotlib.pyplot as plt
+
+tree = DecisionTreeClassifier(max_depth=3, random_state=42)
+tree.fit(X_train, y_train)
+print("Train acc:", tree.score(X_train, y_train))
+print("Test  acc:", tree.score(X_test, y_test))
+
+<span class="c"># Visualize (works in Jupyter / notebooks)</span>
+<span class="c"># plt.figure(figsize=(12,6))</span>
+<span class="c"># plot_tree(tree, filled=True, feature_names=[...], class_names=['0','1'])</span>
+<span class="c"># plt.show()</span></pre>
+  </div>
+
+  <div class="video-embed">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/_L9UUgmTkE8" title="Decision Trees" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="video-caption">Video: “Decision Trees — Clearly Explained” — StatQuest</p>
+
+  <div class="topic">
+    <h3>Splitting Criteria — Gini &amp; Entropy <span class="hr">Hour 2</span></h3>
+    <p>At each node the algorithm chooses the feature and threshold that produce the “purest”
+      child nodes. Two common impurity measures:</p>
+    <ul>
+      <li><strong>Gini impurity</strong> — default in scikit-learn. Faster to compute.</li>
+      <li><strong>Entropy</strong> (information gain) — from information theory. Slightly different rankings but usually similar trees.</li>
+    </ul>
+    <pre>tree_gini = DecisionTreeClassifier(criterion='gini', max_depth=4)
+tree_ent  = DecisionTreeClassifier(criterion='entropy', max_depth=4)</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Controlling Overfitting <span class="hr">Hour 3</span></h3>
+    <p>Deep trees memorize the training set. Regularization levers:</p>
+    <ul>
+      <li><code>max_depth</code> — hard limit on tree height</li>
+      <li><code>min_samples_split</code> — minimum samples required to split a node</li>
+      <li><code>min_samples_leaf</code> — minimum samples in a leaf</li>
+      <li><code>max_features</code> — number of features considered at each split</li>
+      <li><code>ccp_alpha</code> — cost-complexity pruning</li>
+    </ul>
+    <pre>from sklearn.model_selection import GridSearchCV
+
+param_grid = {
+    'max_depth': [2, 3, 4, 5, None],
+    'min_samples_leaf': [1, 5, 10],
+    'criterion': ['gini', 'entropy']
+}
+grid = GridSearchCV(DecisionTreeClassifier(random_state=42),
+                    param_grid, cv=5, scoring='f1')
+grid.fit(X_train, y_train)
+print(grid.best_params_)
+print("Best CV F1:", grid.best_score_)</pre>
+  </div>
+
+  <div class="topic">
+    <h3>From One Tree to Many — A Glimpse of Random Forests <span class="hr">Hour 4</span></h3>
+    <p>A single tree is high-variance. <strong>Random Forests</strong> build many trees on
+      bootstrap samples and average their votes. The result is usually more accurate and more
+      stable. You will meet ensembles again in later projects; for now know that
+      <code>RandomForestClassifier</code> is often the first model practitioners try on tabular data.</p>
+    <pre>from sklearn.ensemble import RandomForestClassifier
+rf = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=42)
+rf.fit(X_train, y_train)
+print("RF test accuracy:", rf.score(X_test, y_test))
+print("Feature importances:", rf.feature_importances_)</pre>
+  </div>
+
+  <div class="topic">
+    <h3>Putting It Together — Text + Tree or SVM <span class="hr">Hour 4 cont.</span></h3>
+    <p>You now have the pieces for a complete classical NLP classifier:</p>
+    <pre>from sklearn.pipeline import Pipeline
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import cross_val_score
+
+pipe = Pipeline([
+    ('tfidf', TfidfVectorizer(max_features=5000, stop_words='english')),
+    ('clf', DecisionTreeClassifier(max_depth=10))
+])
+<span class="c"># scores = cross_val_score(pipe, texts, labels, cv=5, scoring='f1')</span>
+<span class="c"># print(scores.mean())</span></pre>
+    <p>In practice LinearSVC or LogisticRegression often outperform a single tree on pure text;
+      trees shine when you also have structured metadata (author age, time of day, device type)
+      mixed with text features.</p>
+  </div>
+
+  <div class="quiz-block">
+    <div class="mcq">
+      <p class="q">Which hyper-parameter is most directly used to limit a Decision Tree’s complexity and reduce overfitting?</p>
+      <button class="mcq-opt" data-correct="true">max_depth</button>
+      <button class="mcq-opt" data-correct="false">n_estimators</button>
+      <button class="mcq-opt" data-correct="false">learning_rate</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ CHEAT SHEET -->
 <section class="day-section" id="cheatsheet">
   <div class="day-head"><span class="day-num">★</span><h2>Week 6 Cheat Sheet</h2></div>
+
   <div class="topic">
     <h3>NLP Pre-processing Checklist</h3>
     <pre>1. Lowercase
@@ -84,11 +688,182 @@
 6. Vectorize → CountVectorizer or TfidfVectorizer
 7. Train classifier (LogisticRegression, LinearSVC, DecisionTree…)</pre>
   </div>
+
   <div class="topic">
     <h3>Key Metrics</h3>
-    <pre>Precision = TP / (TP + FP)
-Recall    = TP / (TP + FN)
-F1        = 2 * P * R / (P + R)</pre>
+    <pre>Precision = TP / (TP + FP)     “How trustworthy are my positive predictions?”
+Recall    = TP / (TP + FN)     “Did I catch all the real positives?”
+F1        = 2 * P * R / (P + R)
+Always look at the confusion matrix + classification_report</pre>
+  </div>
+
+  <div class="topic">
+    <h3>SVM vs Decision Tree — Quick Chooser</h3>
+    <table>
+      <thead>
+        <tr><th></th><th>SVM</th><th>Decision Tree</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Best with</td><td>High-dim sparse data (text)</td><td>Mixed tabular data, interpretability needed</td></tr>
+        <tr><td>Feature scaling</td><td>Required</td><td>Not required</td></tr>
+        <tr><td>Overfitting risk</td><td>Controlled by C / gamma</td><td>Controlled by max_depth / min_samples_*</td></tr>
+        <tr><td>Speed (large data)</td><td>LinearSVC is fast; RBF slower</td><td>Fast to train, very fast to predict</td></tr>
+        <tr><td>Interpretability</td><td>Low</td><td>High (can plot the tree)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="topic">
+    <h3>Must-know scikit-learn objects this week</h3>
+    <pre>CountVectorizer / TfidfVectorizer
+Pipeline
+SVC / LinearSVC
+DecisionTreeClassifier / RandomForestClassifier
+classification_report, confusion_matrix
+train_test_split, GridSearchCV, cross_val_score
+StandardScaler (for SVM)
+class_weight='balanced'  or  SMOTE</pre>
+  </div>
+</section>
+
+<!-- ============================================================ MCQs -->
+<section class="day-section" id="mcqs">
+  <div class="day-head"><span class="day-num">?</span><h2>Self-Check MCQs (20 questions)</h2></div>
+  <p class="day-sub">Click an answer to see if you are correct. Re-read the matching day if you miss several.</p>
+
+  <div class="mcq"><p class="q">1. NLP stands for:</p>
+    <button class="mcq-opt" data-correct="true">Natural Language Processing</button>
+    <button class="mcq-opt" data-correct="false">Neural Learning Protocol</button>
+    <button class="mcq-opt" data-correct="false">Numeric Linear Projection</button></div>
+
+  <div class="mcq"><p class="q">2. Which linguistic layer studies the literal meaning of words and sentences?</p>
+    <button class="mcq-opt" data-correct="true">Semantics</button>
+    <button class="mcq-opt" data-correct="false">Syntax</button>
+    <button class="mcq-opt" data-correct="false">Pragmatics</button></div>
+
+  <div class="mcq"><p class="q">3. The Bag-of-Words model ignores:</p>
+    <button class="mcq-opt" data-correct="true">Word order and grammar</button>
+    <button class="mcq-opt" data-correct="false">Word frequency</button>
+    <button class="mcq-opt" data-correct="false">The vocabulary size</button></div>
+
+  <div class="mcq"><p class="q">4. Lemmatization differs from stemming mainly because it:</p>
+    <button class="mcq-opt" data-correct="true">Returns real dictionary words and can use POS tags</button>
+    <button class="mcq-opt" data-correct="false">Is always slower and never used in production</button>
+    <button class="mcq-opt" data-correct="false">Only works for English verbs</button></div>
+
+  <div class="mcq"><p class="q">5. In a confusion matrix, FN stands for:</p>
+    <button class="mcq-opt" data-correct="true">False Negative — actual positive predicted as negative</button>
+    <button class="mcq-opt" data-correct="false">False Neutral</button>
+    <button class="mcq-opt" data-correct="false">Feature Number</button></div>
+
+  <div class="mcq"><p class="q">6. Precision answers the question:</p>
+    <button class="mcq-opt" data-correct="true">Of the items I predicted positive, how many were truly positive?</button>
+    <button class="mcq-opt" data-correct="false">Of all true positives, how many did I find?</button>
+    <button class="mcq-opt" data-correct="false">How many predictions were correct overall?</button></div>
+
+  <div class="mcq"><p class="q">7. When classes are heavily imbalanced, optimizing only accuracy is dangerous because:</p>
+    <button class="mcq-opt" data-correct="true">A model that always predicts the majority class can score high while being useless</button>
+    <button class="mcq-opt" data-correct="false">Accuracy cannot be calculated for imbalanced data</button>
+    <button class="mcq-opt" data-correct="false">scikit-learn refuses to compute accuracy</button></div>
+
+  <div class="mcq"><p class="q">8. SMOTE is a technique for:</p>
+    <button class="mcq-opt" data-correct="true">Creating synthetic examples of the minority class</button>
+    <button class="mcq-opt" data-correct="false">Removing stop-words from text</button>
+    <button class="mcq-opt" data-correct="false">Tuning the C parameter of an SVM</button></div>
+
+  <div class="mcq"><p class="q">9. The points that define an SVM’s decision boundary are called:</p>
+    <button class="mcq-opt" data-correct="true">Support vectors</button>
+    <button class="mcq-opt" data-correct="false">Centroids</button>
+    <button class="mcq-opt" data-correct="false">Kernels</button></div>
+
+  <div class="mcq"><p class="q">10. The kernel trick allows an SVM to:</p>
+    <button class="mcq-opt" data-correct="true">Behave as if data were mapped to a higher-dimensional space without computing the mapping explicitly</button>
+    <button class="mcq-opt" data-correct="false">Train without any labels</button>
+    <button class="mcq-opt" data-correct="false">Ignore the need for feature scaling</button></div>
+
+  <div class="mcq"><p class="q">11. For large text classification problems the preferred linear SVM implementation is usually:</p>
+    <button class="mcq-opt" data-correct="true">LinearSVC</button>
+    <button class="mcq-opt" data-correct="false">SVC(kernel='poly')</button>
+    <button class="mcq-opt" data-correct="false">DecisionTreeClassifier</button></div>
+
+  <div class="mcq"><p class="q">12. Feature scaling is especially important before training:</p>
+    <button class="mcq-opt" data-correct="true">An SVM</button>
+    <button class="mcq-opt" data-correct="false">A Decision Tree</button>
+    <button class="mcq-opt" data-correct="false">A CountVectorizer</button></div>
+
+  <div class="mcq"><p class="q">13. Gini impurity and entropy are used in Decision Trees to:</p>
+    <button class="mcq-opt" data-correct="true">Measure how mixed the labels are at a node so the best split can be chosen</button>
+    <button class="mcq-opt" data-correct="false">Compute the learning rate</button>
+    <button class="mcq-opt" data-correct="false">Normalize the feature matrix</button></div>
+
+  <div class="mcq"><p class="q">14. Setting a small max_depth on a Decision Tree mainly helps:</p>
+    <button class="mcq-opt" data-correct="true">Reduce overfitting</button>
+    <button class="mcq-opt" data-correct="false">Increase training time</button>
+    <button class="mcq-opt" data-correct="false">Make the tree deeper</button></div>
+
+  <div class="mcq"><p class="q">15. TF-IDF stands for:</p>
+    <button class="mcq-opt" data-correct="true">Term Frequency–Inverse Document Frequency</button>
+    <button class="mcq-opt" data-correct="false">Total Feature–Indexed Data Format</button>
+    <button class="mcq-opt" data-correct="false">Token Filter–Input Data Frame</button></div>
+
+  <div class="mcq"><p class="q">16. Cosine similarity on TF-IDF vectors is commonly used for:</p>
+    <button class="mcq-opt" data-correct="true">Measuring how similar two documents are</button>
+    <button class="mcq-opt" data-correct="false">Training neural networks</button>
+    <button class="mcq-opt" data-correct="false">Removing stop-words</button></div>
+
+  <div class="mcq"><p class="q">17. Which library is more production-oriented and provides fast NER out of the box?</p>
+    <button class="mcq-opt" data-correct="true">spaCy</button>
+    <button class="mcq-opt" data-correct="false">NLTK only</button>
+    <button class="mcq-opt" data-correct="false">Matplotlib</button></div>
+
+  <div class="mcq"><p class="q">18. class_weight='balanced' tells a scikit-learn classifier to:</p>
+    <button class="mcq-opt" data-correct="true">Penalize mistakes on the minority class more heavily</button>
+    <button class="mcq-opt" data-correct="false">Delete the majority class</button>
+    <button class="mcq-opt" data-correct="false">Always predict the minority class</button></div>
+
+  <div class="mcq"><p class="q">19. A Random Forest is best described as:</p>
+    <button class="mcq-opt" data-correct="true">An ensemble of many Decision Trees whose votes are averaged</button>
+    <button class="mcq-opt" data-correct="false">A single very deep Decision Tree</button>
+    <button class="mcq-opt" data-correct="false">An SVM with an RBF kernel</button></div>
+
+  <div class="mcq"><p class="q">20. You should apply SMOTE:</p>
+    <button class="mcq-opt" data-correct="true">Only on the training set, after the train/test split</button>
+    <button class="mcq-opt" data-correct="false">On the entire dataset before splitting</button>
+    <button class="mcq-opt" data-correct="false">Only on the test set</button></div>
+</section>
+
+<!-- ============================================================ PROJECTS -->
+<section class="day-section" id="project">
+  <div class="day-head"><span class="day-num">🚀</span><h2>Practice Projects</h2></div>
+
+  <div class="topic">
+    <h3>Project A — Movie Review Sentiment Classifier (Classical NLP)</h3>
+    <p>Use the NLTK movie_reviews corpus (or any CSV of reviews). Build a full pipeline:</p>
+    <ol>
+      <li>Load and clean the text</li>
+      <li>Train/test split (stratified)</li>
+      <li>TfidfVectorizer → LinearSVC (and also try LogisticRegression / DecisionTree)</li>
+      <li>Report accuracy, precision, recall, F1, and the confusion matrix</li>
+      <li>Bonus: add a simple CLI or Streamlit app that classifies a new review you type</li>
+    </ol>
+  </div>
+
+  <div class="topic">
+    <h3>Project B — SMS Spam Detector with Class Imbalance</h3>
+    <p>Download the classic SMS Spam Collection. Notice the heavy imbalance (ham ≫ spam).</p>
+    <ol>
+      <li>Baseline model with default settings — observe high accuracy but poor spam recall</li>
+      <li>Re-train with <code>class_weight='balanced'</code></li>
+      <li>Re-train after SMOTE on the training set only</li>
+      <li>Compare the three confusion matrices and F1 scores for the spam class</li>
+    </ol>
+  </div>
+
+  <div class="topic">
+    <h3>Project C — Tabular Decision Tree vs SVM</h3>
+    <p>Pick a structured dataset (Iris, Wine, or a Kaggle tabular set). Train both a tuned
+      Decision Tree and an RBF SVM. Compare test metrics and note which model is easier to
+      explain to a non-technical stakeholder.</p>
   </div>
 </section>
 
@@ -96,8 +871,8 @@ F1        = 2 * P * R / (P + R)</pre>
 
 <footer>
   <div class="wrap">
-    <p>Week 6 of 12 · NAVTTC AI / ML / Deep Learning</p>
-    <p><a href="../week5/index.html">← Week 5</a> · <a href="../index.html">All Weeks</a></p>
+    <p>Week 6 of 12 · NAVTTC AI / ML / Deep Learning · Built for hands-on employable skills</p>
+    <p><a href="../week5/index.html">← Week 5</a> · <a href="../index.html">All Weeks</a> · Week 7 coming next</p>
   </div>
 </footer>
 
